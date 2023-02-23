@@ -1,0 +1,40 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+ <changeSet author="John Watson" id="1">
+    <tagDatabase tag="v1.10.0" />
+  </changeSet>
+  <changeSet author="John Watson" id="2">
+    <addColumn tableName="settlements">
+      <column name="sourceSystem" type="VARCHAR(15)" />
+    </addColumn>
+    <addColumn tableName="settlements">
+      <column name="frn" type="BIGINT" />
+    </addColumn>
+  </changeSet>
+  <changeSet author="John Watson" id="3">
+    <addColumn tableName="paymentRequests">
+      <column name="frn" type="BIGINT" />
+    </addColumn>
+  </changeSet>
+  <changeSet author="John Watson" id="4">
+    <sql>
+      UPDATE settlements s
+      SET "sourceSystem" = q.source
+      FROM (
+          SELECT 
+              CASE
+                  WHEN p."sourceSystem" = 'SFIP' THEN 'SITISFI'
+                  WHEN p."sourceSystem" = 'SFI' THEN 'SITI_SFI'
+                  WHEN p."sourceSystem" = 'LSES' THEN 'SITILump'
+                  WHEN p."sourceSystem" = 'AHWR' THEN 'AHWR'
+              END AS "source",
+              s."invoiceNumber"
+          FROM settlements s
+          INNER JOIN "paymentRequests" p
+          ON s."invoiceNumber" = p."invoiceNumber"
+          WHERE p.status = 'Completed'
+      ) q
+      WHERE q."invoiceNumber" = s."invoiceNumber"
+    </sql>
+  </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,25 @@
+version: '3.8'
+# This override file should be used when running this service in isolation
+# to provide dependencies and expose ports for local testing
+
+services:
+  ffc-pay-statement-constructor:
+    build:
+      target: development
+    image: ffc-pay-statement-constructor-development
+    container_name: ffc-pay-statement-constructor-development
+    ports:
+      - "9250:9229"
+    volumes:
+      - ./app:/home/node/app
+      - ./package.json:/home/node/package.json
+
+  ffc-pay-statement-constructor-postgres:
+    ports:
+      - "5450:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  azurite_data:
+  postgres_data:

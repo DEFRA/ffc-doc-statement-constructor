@@ -1,0 +1,2 @@
+{{- define "ffc-pay-statement-constructor.container" -}}
+{{- end -}}

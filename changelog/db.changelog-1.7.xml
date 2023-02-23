@@ -1,0 +1,94 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+ <changeSet author="John Watson" id="1">
+    <tagDatabase tag="v1.7.0" />
+  </changeSet>
+  <changeSet author="John Watson" id="2">
+    <update tableName="fundingOptions">
+      <column name="name" value="Arable and horticultural land" />
+      <where>"fundingCode" = '80001'</where>
+    </update>
+  </changeSet>
+  <changeSet author="John Watson" id="3">
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="80002" />
+      <column name="name" value="Arable and horticultural soils" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="80003" />
+      <column name="name" value="Hedgerow" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="80004" />
+      <column name="name" value="Improved grassland soils" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="80005" />
+      <column name="name" value="Improved grassland" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="80006" />
+      <column name="name" value="On farm woodland" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="80007" />
+      <column name="name" value="Low and no input grassland" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="80008" />
+      <column name="name" value="Water body buffering" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="80009" />
+      <column name="name" value="Pilot participation payment" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="80101" />
+      <column name="name" value="Arable and horticultural soils: Introductory" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="80102" />
+      <column name="name" value="Arable and horticultural soils: Intermediate" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="80111" />
+      <column name="name" value="Improved grassland soils: Introductory" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="80112" />
+      <column name="name" value="Improved grassland soils: Intermediate" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="80121" />
+      <column name="name" value="Moorland: Introductory" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="80190" />
+      <column name="name" value="Moorland: Additional" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="80195" />
+      <column name="name" value="Common land: Additional" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="10570" />
+      <column name="name" value="Lump sum exit scheme" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="18001" />
+      <column name="name" value="Sheep" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="18002" />
+      <column name="name" value="Beef cattle" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="18003" />
+      <column name="name" value="Dairy cattle" />
+    </insert>
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="18004" />
+      <column name="name" value="Pigs" />
+    </insert>
+  </changeSet>
+</databaseChangeLog>

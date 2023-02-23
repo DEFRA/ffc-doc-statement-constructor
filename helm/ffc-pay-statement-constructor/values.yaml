@@ -1,0 +1,62 @@
+environment: development
+environmentCode:
+name: ffc-pay-statement-constructor
+namespace: ffc-pay
+workstream: ffc-pay
+image: ffc-pay-statement-constructor
+
+labels:
+  component: service
+
+appInsights:
+  connectionString:
+
+containerConfigMap:
+  name: ffc-pay-statement-constructor-config-map
+
+containerSecret:
+  name: ffc-pay-statement-constructor-container-secret
+  type: Opaque
+
+deployment:
+  minReplicas: 1
+  maxReplicas: 1
+  cpuThreshold: 80
+  memoryThreshold: 80
+  minReadySeconds: 0
+
+container:
+  requestMemory: 180Mi
+  requestCpu: 100m
+  limitMemory: 500Mi
+  limitCpu: 500m
+  messageQueueHost: namespace.servicebus.windows.net
+  processingTopicAddress: ffc-pay-processing
+  processingSubscriptionAddress: ffc-pay-statement-constructor
+  submitTopicAddress: ffc-pay-submit
+  submitSubscriptionAddress: ffc-pay-statement-constructor
+  returnTopicAddress: ffc-pay-return
+  returnSubscriptionAddress: ffc-pay-statement-constructor
+  dataTopicAddress: ffc-pay-statement-data
+  dataSubscriptionAddress: ffc-pay-statement-constructor
+  statementTopicAddress: ffc-pay-statements
+  settlementProcessingInterval: 60000
+  statementConstructionActive: true
+  scheduleConstructionActive: true
+  idleCheckBatchSize: 250
+  idleCheckMaxDeliveryCount: 1
+  idleCheckInterval: 60000
+  settlementWaitTime: 600000
+
+postgresService:
+  postgresDb: ffc_pay_statement_constructor
+  postgresqlHost: ffc-pay-statement-constructor-postgres
+  postgresPort: 5432
+  postgresSchema: public
+  postgresUser: postgres
+
+aadPodIdentity: true
+
+azureIdentity:
+  clientID: not-a-real-clientID
+  resourceID: not-a-real-resourceID

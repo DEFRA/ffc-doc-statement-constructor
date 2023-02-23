@@ -1,0 +1,65 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+ <changeSet author="Marc Templeton" id="1">
+    <tagDatabase tag="v1.1.0" />
+  </changeSet>
+  <changeSet author="Marc Templeton" id="2">
+    <modifyDataType tableName="fundings" columnName="areaClaimed" newDataType="DECIMAL(11,4)" />
+    <rollback>
+      <modifyDataType tableName="fundings" columnName="areaClaimed" newDataType="DECIMAL(19,4)" />
+    </rollback>
+  </changeSet>
+  <changeSet author="Marc Templeton" id="3">
+    <insert tableName="schemes">
+      <column name="schemeId" value="1" />
+      <column name="name" value="SFI" />
+    </insert>
+  </changeSet>
+  <changeSet author="Marc Templeton" id="4">
+    <insert tableName="schemes">
+      <column name="schemeId" value="2" />
+      <column name="name" value="SFI Pilot" />
+    </insert>
+  </changeSet>
+  <changeSet author="Marc Templeton" id="5">
+    <insert tableName="schemes">
+      <column name="schemeId" value="3" />
+      <column name="name" value="Lump Sums" />
+    </insert>
+  </changeSet>
+  <changeSet author="Marc Templeton" id="6">
+    <insert tableName="schemes">
+      <column name="schemeId" value="4" />
+      <column name="name" value="LNR" />
+    </insert>
+  </changeSet>
+  <changeSet author="Marc Templeton" id="7">
+    <insert tableName="schemes">
+      <column name="schemeId" value="5" />
+      <column name="name" value="Vet Visits" />
+    </insert>
+  </changeSet>
+  <changeSet author="Marc Templeton" id="8">
+    <modifyDataType tableName="fundingOptions" columnName="name" newDataType="VARCHAR(60)" />
+    <rollback>
+      <modifyDataType tableName="fundingOptions" columnName="name" newDataType="VARCHAR(30)" />
+    </rollback>
+  </changeSet>
+  <changeSet author="Marc Templeton" id="9">
+    <insert tableName="fundingOptions">
+      <column name="fundingCode" value="80001" />
+      <column name="name" value="Arable and horticultural soils: Introductory" />
+    </insert>
+  </changeSet>
+  <changeSet author="Marc Templeton" id="10">
+    <addColumn tableName="paymentRequests">
+      <column afterColumn="marketingYear" name="received" type="TIMESTAMP" />
+      <column afterColumn="schedule" name="status" type="VARCHAR(20)" />
+    </addColumn>
+  </changeSet>
+  <changeSet author="Marc Templeton" id="11">
+    <dropColumn tableName="paymentRequests">
+      <column name="sitiAgriInvoiceNumber" />
+    </dropColumn>
+  </changeSet>
+</databaseChangeLog>
