@@ -3,7 +3,7 @@ const body = {
   content: 'hello'
 }
 const type = 'message'
-const source = 'ffc-pay-statement-constructor'
+const source = 'ffc-doc-statement-constructor'
 
 describe('create message', () => {
   test('includes body', () => {
@@ -18,6 +18,6 @@ describe('create message', () => {
 
   test('includes source', () => {
     const result = createMessage(body, type, source)
-    expect(result.source).toBe('ffc-pay-statement-constructor')
+    expect(result.source).toBe('ffc-doc-statement-constructor')
   })
 })

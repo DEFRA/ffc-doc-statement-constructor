@@ -1,0 +1,2 @@
+{{- define "ffc-doc-statement-constructor.container" -}}
+{{- end -}}

@@ -1,9 +1,9 @@
 environment: development
 environmentCode:
-name: ffc-pay-statement-constructor
+name: ffc-doc-statement-constructor
 namespace: ffc-pay
 workstream: ffc-pay
-image: ffc-pay-statement-constructor
+image: ffc-doc-statement-constructor
 
 labels:
   component: service
@@ -12,10 +12,10 @@ appInsights:
   connectionString:
 
 containerConfigMap:
-  name: ffc-pay-statement-constructor-config-map
+  name: ffc-doc-statement-constructor-config-map
 
 containerSecret:
-  name: ffc-pay-statement-constructor-container-secret
+  name: ffc-doc-statement-constructor-container-secret
   type: Opaque
 
 deployment:
@@ -32,13 +32,13 @@ container:
   limitCpu: 500m
   messageQueueHost: namespace.servicebus.windows.net
   processingTopicAddress: ffc-pay-processing
-  processingSubscriptionAddress: ffc-pay-statement-constructor
+  processingSubscriptionAddress: ffc-doc-statement-constructor
   submitTopicAddress: ffc-pay-submit
-  submitSubscriptionAddress: ffc-pay-statement-constructor
+  submitSubscriptionAddress: ffc-doc-statement-constructor
   returnTopicAddress: ffc-pay-return
-  returnSubscriptionAddress: ffc-pay-statement-constructor
+  returnSubscriptionAddress: ffc-doc-statement-constructor
   dataTopicAddress: ffc-pay-statement-data
-  dataSubscriptionAddress: ffc-pay-statement-constructor
+  dataSubscriptionAddress: ffc-doc-statement-constructor
   statementTopicAddress: ffc-pay-statements
   settlementProcessingInterval: 60000
   statementConstructionActive: true
@@ -50,7 +50,7 @@ container:
 
 postgresService:
   postgresDb: ffc_pay_statement_constructor
-  postgresqlHost: ffc-pay-statement-constructor-postgres
+  postgresqlHost: ffc-doc-statement-constructor-postgres
   postgresPort: 5432
   postgresSchema: public
   postgresUser: postgres
