@@ -1,3 +1,3 @@
-@Library('defra-library@payment-statement-split-test') _
+@Library('defra-library@v-9') _
 
 buildNodeJs()
