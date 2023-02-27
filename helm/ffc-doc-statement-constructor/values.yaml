@@ -49,7 +49,7 @@ container:
   settlementWaitTime: 600000
 
 postgresService:
-  postgresDb: ffc_pay_statement_constructor
+  postgresDb: ffc-doc-statement-constructor
   postgresqlHost: ffc-doc-statement-constructor-postgres
   postgresPort: 5432
   postgresSchema: public
