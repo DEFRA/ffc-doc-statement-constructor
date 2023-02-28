@@ -67,7 +67,7 @@ const mqConfig = {
   },
   statementTopic: {
     address: process.env.STATEMENT_TOPIC_ADDRESS,
-    source: 'ffc-pay-statement-constructor'
+    source: 'ffc-doc-statement-constructor'
   },
   idleCheckBatchSize: process.env.IDLE_CHECK_BATCH_SIZE,
   idleCheckMaxDeliveryCount: process.env.IDLE_CHECK_MAX_DELIVERY_COUNT,
