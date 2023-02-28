@@ -25,7 +25,7 @@ describe('send message', () => {
     const body = { ...statement }
     type = 'uk.gov.pay.statement'
     config = {
-      source: 'ffc-pay-statement-constructor'
+      source: 'ffc-doc-statement-constructor'
     }
     options = {}
 

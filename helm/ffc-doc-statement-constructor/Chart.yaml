@@ -1,6 +1,6 @@
 apiVersion: v2
 description: Data construction for statement generation
-name: ffc-pay-statement-constructor
+name: ffc-doc-statement-constructor
 # this version is automatically updated in the build pipeline
 version: 1.0.0
 dependencies:

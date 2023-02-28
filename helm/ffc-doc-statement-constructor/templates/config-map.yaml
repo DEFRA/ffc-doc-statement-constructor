@@ -1,5 +1,5 @@
-{{- include "ffc-helm-library.container-config-map" (list . "ffc-pay-statement-constructor.config-map") -}}
-{{- define "ffc-pay-statement-constructor.config-map" -}}
+{{- include "ffc-helm-library.container-config-map" (list . "ffc-doc-statement-constructor.config-map") -}}
+{{- define "ffc-doc-statement-constructor.config-map" -}}
 data:
   NODE_ENV: {{ quote .Values.environment }}
   APPINSIGHTS_CLOUDROLE: {{ quote .Values.name }}
