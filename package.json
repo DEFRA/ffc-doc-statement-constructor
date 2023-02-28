@@ -28,6 +28,7 @@
     "applicationinsights": "2.3.3",
     "ffc-messaging": "2.6.1",
     "joi": "17.6.0",
+    "liquibase": "^4.4.0",
     "log-timestamp": "0.3.0",
     "moment": "2.29.4",
     "pg": "8.7.3",
