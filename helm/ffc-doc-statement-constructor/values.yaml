@@ -1,8 +1,8 @@
 environment: development
 environmentCode:
 name: ffc-doc-statement-constructor
-namespace: ffc-pay
-workstream: ffc-pay
+namespace: ffc-doc
+workstream: ffc-doc
 image: ffc-doc-statement-constructor
 
 labels:
