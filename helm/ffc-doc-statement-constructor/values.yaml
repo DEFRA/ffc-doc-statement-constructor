@@ -37,9 +37,9 @@ container:
   submitSubscriptionAddress: ffc-doc-statement-constructor
   returnTopicAddress: ffc-pay-return
   returnSubscriptionAddress: ffc-doc-statement-constructor
-  dataTopicAddress: ffc-pay-statement-data
+  dataTopicAddress: ffc-doc-statement-data
   dataSubscriptionAddress: ffc-doc-statement-constructor
-  statementTopicAddress: ffc-pay-statements
+  statementTopicAddress: ffc-doc-statements
   settlementProcessingInterval: 60000
   statementConstructionActive: true
   scheduleConstructionActive: true

@@ -79,7 +79,7 @@ components:
           items:
             $ref: '#/components/schemas/FundingInitial'
         type:
-          $ref: '#/components/schemas/Type'
+          $ref: '#/components/schemas/TypeCalculation'
         updated:
           $ref: '#/components/schemas/Updated'
     DWHOrganisation:
@@ -108,7 +108,7 @@ components:
         sbi:
           $ref: '#/components/schemas/SBI'
         type:
-          $ref: '#/components/schemas/Type'
+          $ref: '#/components/schemas/TypeOrganisation'
         updated:
           $ref: '#/components/schemas/Updated'
     PaymentRequestProcessing:
@@ -201,18 +201,18 @@ components:
           $ref: '#/components/schemas/Ledger'
         marketingYear:
           $ref: '#/components/schemas/MarketingYear'
+        paymentRequestId:
+          $ref: '#/components/schemas/PaymentRequestId'
         paymentRequestNumber:
           $ref: '#/components/schemas/PaymentRequestNumber'
+        referenceId:
+          $ref: '#/components/schemas/ReferenceIdSubmit'
         schedule:
           $ref: '#/components/schemas/Schedule'
         schemeId:
           $ref: '#/components/schemas/SchemeId'
         value:
           $ref: '#/components/schemas/ValueInteger'
-        paymentRequestId:
-          $ref: '#/components/schemas/PaymentRequestId'
-        referenceId:
-          $ref: '#/components/schemas/ReferenceIdSubmit'
     ReturnMessage:
       type: object
       required:
@@ -227,26 +227,26 @@ components:
         - detail
         - referenceId
       properties:
-        sourceSystem:
-          $ref: '#/components/schemas/SourceSystem'
-        invoiceNumber:
-          $ref: '#/components/schemas/InvoiceNumber'
-        frn:
-          $ref: '#/components/schemas/FRN'
         currency:
           $ref: '#/components/schemas/Currency'
-        value:
-          $ref: '#/components/schemas/ValueInteger'
-        settlementDate:
-          $ref: '#/components/schemas/SettlementDate'
-        reference:
-          $ref: '#/components/schemas/Reference'
-        settled:
-          $ref: '#/components/schemas/Settled'
         detail:
           $ref: '#/components/schemas/Detail'
+        frn:
+          $ref: '#/components/schemas/FRN'
+        invoiceNumber:
+          $ref: '#/components/schemas/InvoiceNumber'
+        reference:
+          $ref: '#/components/schemas/Reference'
         referenceId:
           $ref: '#/components/schemas/ReferenceIdReturn'
+        settled:
+          $ref: '#/components/schemas/Settled'
+        settlementDate:
+          $ref: '#/components/schemas/SettlementDate'
+        sourceSystem:
+          $ref: '#/components/schemas/SourceSystem'
+        value:
+          $ref: '#/components/schemas/ValueInteger'
     PaymentStatement:
       type: object
       required:
@@ -260,24 +260,24 @@ components:
       properties:
         businessName:
           $ref: '#/components/schemas/BusinessName'
-        sbi:
-          $ref: '#/components/schemas/SBI'
-        frn:
-          $ref: '#/components/schemas/FRN'
         email:
           $ref: '#/components/schemas/EmailAddress'
+        frn:
+          $ref: '#/components/schemas/FRN'
+        sbi:
+          $ref: '#/components/schemas/SBI'
         address:
           $ref: '#/components/schemas/Address'
-        scheme:
-          $ref: '#/components/schemas/Scheme'
-        payments:
-          type: array
-          items:
-            $ref: '#/components/schemas/Payment'
         funding:
           type: array
           items:
             $ref: '#/components/schemas/Funding'
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+        scheme:
+          $ref: '#/components/schemas/Scheme'
     Address:
       type: object
       properties:
@@ -333,11 +333,11 @@ components:
         reference:
           $ref: '#/components/schemas/Reference'
         dueDate:
-          $ref: '#/components/schemas/DueDate'
+          $ref: '#/components/schemas/DueDateFormatted'
         settled:
-          $ref: '#/components/schemas/Settled'
+          $ref: '#/components/schemas/SettlementDateFormated'
         calculated:
-          $ref: '#/components/schemas/CalculationDate'
+          $ref: '#/components/schemas/CalculationDateFormatted'
         value:
           $ref: '#/components/schemas/ValueInteger'
         period:
@@ -443,8 +443,12 @@ components:
       example: SIP000000000001
     CalculationDate:
       type: string
-      description: Date SITIAgri calculated its land based information
+      description: Date SITI Agri calculated its land based information
       example: 2022/03/12
+    CalculationDateFormatted:
+      type: string
+      description: Date SITI Agri calculated its land based information
+      example: 12 March 2022
     CalculationReference:
       type: number
       description: DWH unique reference for the calculation record
@@ -468,7 +472,7 @@ components:
     CorrelationId:
       type: string
       format: uuid
-      description: GUID for event correlation
+      description: GUID for event correlation between processing, submit and return
       example: ce6ec916-bebe-4bc0-bad1-255298c82845
     County:
       type: string
@@ -501,6 +505,10 @@ components:
         current date.
       example: 09/11/2022
       default: Current date
+    DueDateFormatted:
+      type: string
+      description: Date request should be issued from
+      example: 9 November 2022
     EmailAddress:
       type: string
       description: Primary email address of an organisation
@@ -571,7 +579,7 @@ components:
       type: string
       pattern: ^SFI0[0-9]{7}$
       description: Unique identifier for payment request in Siti Agri format
-      example: SFI012345678
+      example: SFI01234567
     Ledger:
       type: string
       description: >-
@@ -614,7 +622,7 @@ components:
       type: string
       format: uuid
       description: GUID for a specific event reference
-      example: ce6ec916-bebe-4bc0-bad1-255298c82845
+      example: cf7fa34d-dd4c-4355-b462-674d2250fc0f
     ReferenceIdReturn:
       type: string
       format: uuid
@@ -658,12 +666,29 @@ components:
     SettlementDate:
       type: string
       description: Date of settlement
-      example: 'Fri Jan 21 2022 10:38:44 GMT+0000 (Greenwich Mean Time)'
+      example: Fri Jan 21 2022 10:38:44 GMT+0000 (Greenwich Mean Time)
+    SettlementDateFormated:
+      type: string
+      description: Date of settlement
+      example: 21 January 2022
     SourceSystem:
       type: string
-      description: System identifier request originates from
-      example: AHWR
-    Type:
+      description: System identifier request originates from in DAX format (currently the system only supports SITI_SFI)
+      example: SITI_SFI
+      enum:
+        - SITI_SFI
+        - SITISFI
+        - SitiLUMP
+        - AHWR
+        - LNR
+    TypeCalculation:
+      type: string
+      description: Type of dataset
+      example: calculation
+      enum:
+        - calculation
+        - organisation
+    TypeOrganisation:
       type: string
       description: Type of dataset
       example: organisation
