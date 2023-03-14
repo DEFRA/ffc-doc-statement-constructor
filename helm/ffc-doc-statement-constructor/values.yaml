@@ -31,11 +31,11 @@ container:
   limitMemory: 500Mi
   limitCpu: 500m
   messageQueueHost: namespace.servicebus.windows.net
-  processingTopicAddress: ffc-pay-processing
+  processingTopicAddress: ffc-doc-processing
   processingSubscriptionAddress: ffc-doc-statement-constructor
-  submitTopicAddress: ffc-pay-submit
+  submitTopicAddress: ffc-doc-submit
   submitSubscriptionAddress: ffc-doc-statement-constructor
-  returnTopicAddress: ffc-pay-return
+  returnTopicAddress: ffc-doc-return
   returnSubscriptionAddress: ffc-doc-statement-constructor
   dataTopicAddress: ffc-doc-statement-data
   dataSubscriptionAddress: ffc-doc-statement-constructor
@@ -49,7 +49,7 @@ container:
   settlementWaitTime: 600000
 
 postgresService:
-  postgresDb: ffc-doc-statement-constructor
+  postgresDb: ffc_doc_statement_constructor
   postgresqlHost: ffc-doc-statement-constructor-postgres
   postgresPort: 5432
   postgresSchema: public

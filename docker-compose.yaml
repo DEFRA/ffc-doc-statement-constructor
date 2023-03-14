@@ -23,7 +23,7 @@ services:
       DATA_TOPIC_ADDRESS: ${DATA_TOPIC_ADDRESS:-ffc-doc-statement-data}${MESSAGE_QUEUE_SUFFIX}
       DATA_SUBSCRIPTION_ADDRESS: ${DATA_SUBSCRIPTION_ADDRESS:-ffc-doc-statement-constructor}${MESSAGE_QUEUE_SUFFIX}
       STATEMENT_TOPIC_ADDRESS: ${STATEMENT_TOPIC_ADDRESS:-ffc-doc-statements}${MESSAGE_QUEUE_SUFFIX}
-      POSTGRES_DB: ffc-doc-statement-constructor
+      POSTGRES_DB: ffc_doc_statement_constructor
       POSTGRES_HOST: ${POSTGRES_HOST:-ffc-doc-statement-constructor-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_SCHEMA_PASSWORD:-ppp}
       POSTGRES_PORT: 5432
@@ -33,6 +33,6 @@ services:
   ffc-doc-statement-constructor-postgres:
     image: postgres:11.4-alpine
     environment:
-      POSTGRES_DB: ffc-doc-statement-constructor
+      POSTGRES_DB: ffc_doc_statement_constructor
       POSTGRES_PASSWORD: ppp
       POSTGRES_USERNAME: postgres

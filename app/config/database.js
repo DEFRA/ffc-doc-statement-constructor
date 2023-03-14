@@ -24,7 +24,7 @@ const retry = {
 }
 
 const dbConfig = {
-  database: process.env.POSTGRES_DB || 'ffc-doc-statement-constructor',
+  database: process.env.POSTGRES_DB || 'ffc_doc_statement_constructor',
   dialect: 'postgres',
   dialectOptions: {
     ssl: isProd()

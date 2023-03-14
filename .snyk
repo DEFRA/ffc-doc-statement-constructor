@@ -1,5 +1,5 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.25.0
+version: v1.22.1
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
   SNYK-JS-NODEFETCH-2964180:
@@ -9,19 +9,4 @@ ignore:
     - applicationinsights > @azure/core-http > node-fetch:
         reason: None given
         expires: '2022-08-31T12:46:12.897Z'
-  SNYK-JS-SEQUELIZE-3324088:
-    - '*':
-        reason: None Given
-        expires: 2023-03-26T12:52:30.767Z
-        created: 2023-02-24T12:52:30.776Z
-  SNYK-JS-SEQUELIZE-3324089:
-    - '*':
-        reason: None Given
-        expires: 2023-03-26T12:52:47.994Z
-        created: 2023-02-24T12:52:48.005Z
-  SNYK-JS-SEQUELIZE-3324090:
-    - '*':
-        reason: None Given
-        expires: 2023-03-26T12:53:00.368Z
-        created: 2023-02-24T12:53:00.379Z
 patch: {}
