@@ -31,11 +31,11 @@ container:
   limitMemory: 500Mi
   limitCpu: 500m
   messageQueueHost: namespace.servicebus.windows.net
-  processingTopicAddress: ffc-doc-processing
+  processingTopicAddress: ffc-pay-processing
   processingSubscriptionAddress: ffc-doc-statement-constructor
-  submitTopicAddress: ffc-doc-submit
+  submitTopicAddress: ffc-pay-submit
   submitSubscriptionAddress: ffc-doc-statement-constructor
-  returnTopicAddress: ffc-doc-return
+  returnTopicAddress: ffc-pay-return
   returnSubscriptionAddress: ffc-doc-statement-constructor
   dataTopicAddress: ffc-doc-statement-data
   dataSubscriptionAddress: ffc-doc-statement-constructor
