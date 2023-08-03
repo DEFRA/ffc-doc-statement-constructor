@@ -22,7 +22,7 @@
   ],
   "license": "OGL-UK-3.0",
   "dependencies": {
-    "@azure/identity": "2.0.5",
+    "@azure/identity": "2.1.0",
     "@hapi/hapi": "20.2.2",
     "@joi/date": "2.1.0",
     "applicationinsights": "2.3.3",
