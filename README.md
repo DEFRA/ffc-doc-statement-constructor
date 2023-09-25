@@ -26,7 +26,7 @@ be mounted on top of the `app` folder within the Docker container, hiding the CS
 
 
 By default, the start script will build (or rebuild) images so there will
-rarely be a need to build images manually. However, this can be achieved
+rarely be a need to build  images manually. However, this can be achieved
 through the Docker Compose
 [build](https://docs.docker.com/compose/reference/build/) command:
 
