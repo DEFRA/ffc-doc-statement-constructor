@@ -677,12 +677,8 @@ components:
       type: string
       description: Unique funding option code
       example: 80001
-      enum:
-        - 80001 (Arable and horticultural soils Introductory)
-        - 80299 (SFI Accelerated Payment)
     SchemeId:
-      type: number
-      format: integer
+      type: string
       description: Unique ID for scheme used internal to payment services
       example: 1
       enum:
@@ -702,6 +698,7 @@ components:
     SourceSystem:
       type: string
       description: System identifier request originates from
+      example: SITI_SFI
       enum:
         - SITI_SFI (SFI)
         - SITISFI (SFI Pilot)
@@ -709,7 +706,6 @@ components:
         - AHWR (Vet Visits)
         - LNR (LNR)
         - SFIA (SFIA)
-      example: SITI_SFI
     Type:
       type: string
       description: Type of dataset
