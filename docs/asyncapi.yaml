@@ -605,7 +605,7 @@ components:
       type: string
       pattern: ^SFI0[0-9]{7}$
       description: Unique identifier for payment request in Siti Agri format
-      example: SFI01234567
+      example: SFI012345678
     Ledger:
       type: string
       description: >-
@@ -679,7 +679,7 @@ components:
       example: 80001
       enum:
         - 80001 (Arable and horticultural soils Introductory)
-        - 80299 (SFI 23)
+        - 80299 (SFI Accelerated Payment)
     SchemeId:
       type: number
       format: integer
@@ -741,4 +741,4 @@ components:
     Period:
       type: string
       description: Period of payment request
-      example: September 2022 - August 2023
+      example: December to February 2023
