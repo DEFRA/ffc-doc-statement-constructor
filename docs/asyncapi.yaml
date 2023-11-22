@@ -1,7 +1,7 @@
 asyncapi: 2.5.0
 info:
-  title: FFC Payment Statement Constructor
-  version: 1.0.0
+  title: FFC Document Statement Constructor
+  version: 1.0.1
   description: Construct payment statements
 channels:
   dwh/calculation:
@@ -421,6 +421,35 @@ components:
           type: string
           description: The reduction level
           example: 75
+    ScheduleDates:
+      type: object
+      required:
+        - order
+        - dueDate
+        - period
+        - value
+        - paymentType
+      properties:
+        order:
+          type: integer
+          description: Order sequence of item in the list
+          example: 1
+        dueDate:
+          type: string
+          description: Payment due date
+          example: '10/12/2022'
+        period:
+          type: string
+          description: Period of payment
+          example: Oct-Dec 2022
+        value:
+          type: string
+          description: Payment amount
+          example: '375.50'
+        paymentType:
+          type: string
+          description: Type of payment
+          example: Quarterly payment 
     AccountCode:
       type: string
       description: Unique account code for budgeting
@@ -493,6 +522,11 @@ components:
       type: string
       description: Additional settlement information from DAX
       example: BAC Rejection
+    DocumentReference:
+      type: number
+      description: Schedule ID of the docuemnt object used downstream for duplicate detection
+      minimum: 1
+      example: 1
     DueDate:
       type: string
       format: 'DD/MM/YYYY, YYYY/MM/DD, DD-MM-YYYY or YYYY-MM-DD'
@@ -620,6 +654,10 @@ components:
       format: uuid
       description: GUID for a specific event reference
       example: 931e1a76-cff2-43ef-bfe5-82742eeeae68
+    RemainingAmount:
+      type: number
+      description: Amount left to be paid
+      example: 750
     SBI:
       type: number
       description: Single Business Identifier
@@ -639,11 +677,8 @@ components:
       type: string
       description: Unique funding option code
       example: 80001
-      enum:
-        - 80001 (Arable and horticultural soils Introductory)
     SchemeId:
-      type: number
-      format: integer
+      type: string
       description: Unique ID for scheme used internal to payment services
       example: 1
       enum:
@@ -652,6 +687,7 @@ components:
         - 3 (Lump Sums)
         - 4 (LNR)
         - 5 (Vet Visits)
+        - 6 (SFIA)
     Settled:
       type: boolean
       description: Whether the return file has been settled or not
@@ -662,7 +698,14 @@ components:
     SourceSystem:
       type: string
       description: System identifier request originates from
-      example: AHWR
+      example: SITI_SFI
+      enum:
+        - SITI_SFI (SFI)
+        - SITISFI (SFI Pilot)
+        - SitiLUMP (Lump Sums)
+        - AHWR (Vet Visits)
+        - LNR (LNR)
+        - SFIA (SFIA)
     Type:
       type: string
       description: Type of dataset
