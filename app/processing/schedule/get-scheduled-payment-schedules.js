@@ -23,6 +23,7 @@ const getScheduledPaymentRequests = async (started, transaction) => {
       category: SCHEDULE,
       completed: null,
       voided: null,
+      isActiveDocument: true,
       '$paymentRequest.schemeId$': SFI,
       '$paymentRequest.received$': {
         [db.Sequelize.Op.lte]: moment(started).subtract(config.settlementWaitTime).toDate()

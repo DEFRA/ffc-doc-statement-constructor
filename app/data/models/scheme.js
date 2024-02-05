@@ -13,6 +13,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'schemeId',
       as: 'paymentRequests'
     })
+    scheme.hasMany(models.documentStatus, {
+      foreignKey: 'schemeId',
+      as: 'documentStatuses'
+    })
   }
   return scheme
 }

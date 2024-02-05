@@ -13,6 +13,7 @@ const getCompletedPaymentRequestByPaymentRequestId = async (paymentRequestId, tr
       'marketingYear',
       'paymentRequestNumber',
       'schedule',
+      'sourceSystem',
       'value'
     ],
     where: {

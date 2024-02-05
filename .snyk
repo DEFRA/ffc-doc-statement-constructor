@@ -1,12 +1,5 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.22.1
+version: v1.25.0
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
-ignore:
-  SNYK-JS-NODEFETCH-2964180:
-    - '@azure/storage-blob > @azure/core-http > node-fetch':
-        reason: None given
-        expires: '2022-08-31T12:46:12.897Z'
-    - applicationinsights > @azure/core-http > node-fetch:
-        reason: None given
-        expires: '2022-08-31T12:46:12.897Z'
+ignore: {}
 patch: {}

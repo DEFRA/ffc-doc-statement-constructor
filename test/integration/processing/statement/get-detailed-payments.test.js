@@ -37,7 +37,7 @@ describe('format dates', () => {
     expect(result[0].dueDate).toBe('1 December 2022')
   })
 
-  test('mockPaymentRequest dueDate with format of "ddd MMM DD YYYY HH:mm:ss" should return "1 December 2022"', async () => {
+  test('mockPaymentRequest dueDate with format of "ddd MMMM DD YYYY HH:mm:ss" should return "1 December 2022"', async () => {
     mockPaymentRequest.dueDate = 'Thu Dec 01 2022 00:00:00 GMT+0000 (Greenwich Mean Time)'
     const result = await getDetailedPayments(mockCalculation, mockPaymentRequest, mockSettlement)
     expect(result[0].dueDate).toBe('1 December 2022')
@@ -68,7 +68,7 @@ describe('format dates', () => {
     expect(result[0].dueDate).toBe('12 January 2022')
   })
 
-  test('mockPaymentRequest dueDate with format of "ddd MMM DD YYYY HH:mm:ss" should return "12 January 2022"', async () => {
+  test('mockPaymentRequest dueDate with format of "ddd MMMM DD YYYY HH:mm:ss" should return "12 January 2022"', async () => {
     mockPaymentRequest.dueDate = 'Wed January 12 2022 00:00:00 GMT+0000 (Greenwich Mean Time)'
     const result = await getDetailedPayments(mockCalculation, mockPaymentRequest, mockSettlement)
     expect(result[0].dueDate).toBe('12 January 2022')
@@ -100,7 +100,7 @@ describe('format dates', () => {
     expect(result[0].dueDate).toBe('1 June 2022')
   })
 
-  test('mockPaymentRequest dueDate with format of "ddd MMM DD YYYY HH:mm:ss" should return "1 June 2022"', async () => {
+  test('mockPaymentRequest dueDate with format of "ddd MMMM DD YYYY HH:mm:ss" should return "1 June 2022"', async () => {
     mockPaymentRequest.dueDate = 'Wed Jun 01 2022 00:00:00 GMT+0000 (Greenwich Mean Time)'
     const result = await getDetailedPayments(mockCalculation, mockPaymentRequest, mockSettlement)
     expect(result[0].dueDate).toBe('1 June 2022')
@@ -132,7 +132,7 @@ describe('format dates', () => {
     expect(result[0].dueDate).toBe('6 January 2022')
   })
 
-  test('mockPaymentRequest dueDate with format of "ddd MMM DD YYYY HH:mm:ss" should return "1 June 2022"', async () => {
+  test('mockPaymentRequest dueDate with format of "ddd MMMM DD YYYY HH:mm:ss" should return "1 June 2022"', async () => {
     mockPaymentRequest.dueDate = 'Thu Jan 06 2022 00:00:00 GMT+0000 (Greenwich Mean Time)'
     const result = await getDetailedPayments(mockCalculation, mockPaymentRequest, mockSettlement)
     expect(result[0].dueDate).toBe('6 January 2022')

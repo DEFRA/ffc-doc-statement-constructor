@@ -12,5 +12,6 @@ module.exports = Joi.object({
   originalValue: Joi.number().integer().optional(),
   paymentRequestNumber: Joi.number().required(),
   schedule: Joi.string().optional().allow(null).default(DAX_CODES.QUARTERLY),
+  sourceSystem: Joi.string().required(),
   value: Joi.number().integer().required()
 }).required()

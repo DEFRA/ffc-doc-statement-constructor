@@ -2,6 +2,7 @@ const {
   LNR: LNR_ID,
   LUMP_SUMS: LUMP_SUMS_ID,
   SFI: SFI_ID,
+  SFIA: SFIA_ID,
   SFI_PILOT: SFI_PILOT_ID,
   VET_VISITS: VET_VISITS_ID
 } = require('./scheme-ids')
@@ -10,6 +11,7 @@ const {
   LNR,
   LUMP_SUMS,
   SFI,
+  SFIA,
   SFI_PILOT,
   VET_VISITS
 } = require('./scheme-names').SHORT_NAMES
@@ -25,6 +27,10 @@ module.exports = [{
 {
   schemeId: SFI_ID,
   name: SFI
+},
+{
+  schemeId: SFIA_ID,
+  name: SFIA
 },
 {
   schemeId: SFI_PILOT_ID,

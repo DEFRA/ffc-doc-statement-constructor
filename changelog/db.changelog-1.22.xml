@@ -1,0 +1,18 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+ <changeSet author="Abidemi Adio" id="1">
+    <tagDatabase tag="v1.22.0" />
+  </changeSet>
+  <changeSet author="Abidemi Adio" id="2">
+    <sql>
+      INSERT INTO schedules("settlementId", category, "isActiveDocument")
+        SELECT st."settlementId" AS "settlementId", 'Statement' AS category, 'true' AS "isActiveDocument"
+          FROM settlements AS st 
+            INNER JOIN "paymentRequests" AS pr
+              ON pr."invoiceNumber" = st."invoiceNumber" AND pr."flagId" = 1 AND pr.status = 'Completed'
+            LEFT JOIN schedules AS sc
+              ON st."settlementId" = sc."settlementId"
+          WHERE sc."settlementId" IS null
+    </sql>
+  </changeSet>
+</databaseChangeLog>

@@ -6,7 +6,7 @@ const FUNDINGS = require('../mock-objects/mock-fundings')
 const CALCULATION_REFERENCE = require('../mock-components/mock-calculation-reference')
 const { DATE: CALCULATION_DATE } = require('../mock-components/mock-dates').CALCULATED
 const SBI = require('../mock-components/mock-sbi')
-const { SFI_FIRST_PAYMENT: SFI_FIRST_PAYMENT_INVOICE_NUMBER } = require('../mock-components/mock-invoice-number')
+const { SFI_FIRST_PAYMENT_ORIGINAL: SFI_FIRST_PAYMENT_INVOICE_NUMBER } = require('../mock-components/mock-invoice-number')
 const { DATE: UPDATED_TIMESTAMP } = require('../mock-components/mock-dates').UPDATED
 
 module.exports = {

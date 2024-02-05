@@ -10,7 +10,7 @@ const getSchedule = (scheduleDate, totalPayments, settledValue, totalValue, incr
     const cappedSettlementValue = settledValue <= expectedSettlementValue ? settledValue : expectedSettlementValue
     scheduleDates.push({
       dueDate: scheduleDate.clone(),
-      period: getPeriod(scheduleDate, totalPayments, i, increment, unit),
+      period: getPeriod(scheduleDate, increment, unit),
       value: expectedValue,
       outstanding: scheduleDate >= currentDate || cappedSettlementValue < expectedSettlementValue
     })

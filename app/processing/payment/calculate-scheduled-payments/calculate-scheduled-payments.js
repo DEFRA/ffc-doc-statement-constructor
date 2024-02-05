@@ -1,7 +1,7 @@
 const moment = require('moment')
 const { DAX_CODES } = require('../../../constants/schedules')
 const getSchedule = require('./get-schedule')
-const getSettledValue = require('./get-settlement-value')
+const getSettledValue = require('./get-settled-value')
 
 const calculateScheduledPayments = (paymentRequest, previousSettlements = [], previousValue = 0, currentDate = new Date()) => {
   const settledValue = getSettledValue(previousSettlements)

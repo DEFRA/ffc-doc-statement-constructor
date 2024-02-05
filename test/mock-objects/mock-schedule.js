@@ -5,12 +5,14 @@ module.exports = {
     settlementId: 1,
     completed: null,
     started: null,
-    category: STATEMENT
+    category: STATEMENT,
+    isActiveDocument: true
   },
   SCHEDULE: {
     paymentRequestId: 1,
     completed: null,
     started: null,
-    category: SCHEDULE
+    category: SCHEDULE,
+    isActiveDocument: true
   }
 }

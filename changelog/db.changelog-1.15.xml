@@ -1,0 +1,83 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+ <changeSet author="Abidemi Adio" id="1">
+    <tagDatabase tag="v1.15.0" />
+  </changeSet>
+  <changeSet author="Abidemi Adio" id="2">
+    <createTable tableName="documentTypes">
+      <column name="documentTypeId" type="INTEGER" autoIncrement="true">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="documentTypeId_pkey" />
+      </column>
+      <column name="code" type="VARCHAR(127)">
+        <constraints nullable="false" />
+      </column>
+      <column name="name" type="VARCHAR(127)">
+        <constraints nullable="false" />
+      </column>
+      <column name="description" type="VARCHAR(450)" />
+    </createTable>
+  </changeSet>
+  <changeSet author="Abidemi Adio" id="3">
+    <createTable tableName="documentStatuses">
+      <column name="documentStatusId" type="INTEGER" autoIncrement="true">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="documentStatusId_pkey" />
+      </column>
+      <column name="documentTypeId" type="INTEGER" >
+        <constraints nullable="false" />
+      </column>
+      <column name="schemeId" type="INTEGER" >
+        <constraints nullable="false" />
+      </column>
+      <column name="marketingYear" type="INTEGER" >
+        <constraints nullable="false" />
+      </column>
+      <column name="isCurrent" type="BOOLEAN" defaultValue="false" >
+        <constraints nullable="false" />
+      </column>
+      <column name="isActive" type="BOOLEAN" defaultValue="false" >
+        <constraints nullable="false" />
+      </column>
+      <column name="startDate" type="TIMESTAMP" />
+      <column name="endDate" type="TIMESTAMP" />
+    </createTable>
+  </changeSet>
+  <changeSet author="Abidemi Adio" id="4">
+    <addForeignKeyConstraint baseColumnNames="schemeId" baseTableName="documentStatuses" constraintName="fk_documentStatus_schemeId" referencedColumnNames="schemeId" referencedTableName="schemes" />
+    <addForeignKeyConstraint baseColumnNames="documentTypeId" baseTableName="documentStatuses" constraintName="fk_documentStatus_documentTypeId" referencedColumnNames="documentTypeId" referencedTableName="documentTypes" />
+  </changeSet>
+  <changeSet author="Abidemi Adio" id="5">
+    <addColumn tableName="schedules">
+      <column name="isActiveDocument" type="BOOLEAN" />
+    </addColumn>
+  </changeSet>
+  <changeSet author="Abidemi Adio" id="6">
+    <sql splitStatements="false">
+      DO $$
+        DECLARE document_type_id INTEGER;
+        BEGIN
+          INSERT INTO "documentTypes"("code", "name", "description") 
+          VALUES ('STATEMENT', 'STATEMENT', 'Dax returned Statement') 
+          RETURNING "documentTypeId" INTO document_type_id;
+
+          INSERT INTO "documentStatuses"("documentTypeId", "schemeId", "marketingYear", "isCurrent", "isActive") 
+          VALUES   (document_type_id, 1, 2022, true, true),
+                   (document_type_id, 1, 2023, true, false);
+    END $$;
+    </sql>
+  </changeSet>
+  <changeSet author="Abidemi Adio" id="7">
+    <sql splitStatements="false">
+      DO $$
+        DECLARE document_type_id INTEGER;
+        BEGIN
+          INSERT INTO "documentTypes"("code", "name", "description") 
+          VALUES ('SCHEDULE', 'SCHEDULE', 'Submitted adjusted payment request') 
+          RETURNING "documentTypeId" INTO document_type_id;
+
+          INSERT INTO "documentStatuses"("documentTypeId", "schemeId", "marketingYear", "isCurrent", "isActive") 
+          VALUES   (document_type_id, 1, 2022, true, false),
+                   (document_type_id, 1, 2023, true, false);
+    END $$;
+    </sql>
+  </changeSet>
+</databaseChangeLog>

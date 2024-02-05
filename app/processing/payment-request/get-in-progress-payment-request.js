@@ -13,6 +13,7 @@ const getInProgressPaymentRequest = async (correlationId, transaction) => {
       'marketingYear',
       'paymentRequestNumber',
       'schedule',
+      'sourceSystem',
       'value'
     ],
     where: {
