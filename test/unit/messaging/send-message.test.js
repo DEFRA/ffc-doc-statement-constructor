@@ -23,7 +23,7 @@ describe('send message', () => {
     statement = JSON.parse(JSON.stringify(require('../../mock-objects/mock-statement')))
 
     const body = { ...statement }
-    type = 'uk.gov.pay.statement'
+    type = 'uk.gov.doc.statement'
     config = {
       source: 'ffc-doc-statement-constructor'
     }
