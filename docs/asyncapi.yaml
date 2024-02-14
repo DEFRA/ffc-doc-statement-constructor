@@ -12,19 +12,19 @@ channels:
     subscribe:
       message:
         $ref: '#/components/messages/DWHOrganisation'
-  payment/processing:
+  ffc-pay-statement-processing:
     subscribe:
       message:
         $ref: '#/components/messages/PaymentRequestProcessing'
-  payment/submit:
+  ffc-pay-statement-submit:
     subscribe:
       message:
         $ref: '#/components/messages/PaymentRequestSubmit'
-  payment/return:
+  ffc-pay-statement-return:
     subscribe:
       message:
         $ref: '#/components/messages/ReturnMessage'
-  payment/statement:
+  ffc-doc-statement-payment:
     publish:
       message:
         $ref: '#/components/messages/PaymentStatement'
@@ -524,7 +524,7 @@ components:
       example: BAC Rejection
     DocumentReference:
       type: number
-      description: Schedule ID of the docuemnt object used downstream for duplicate detection
+      description: Schedule ID of the document object used downstream for duplicate detection
       minimum: 1
       example: 1
     DueDate:
@@ -605,7 +605,7 @@ components:
       type: string
       pattern: ^SFI0[0-9]{7}$
       description: Unique identifier for payment request in Siti Agri format
-      example: SFI012345678
+      example: SFI01234567
     Ledger:
       type: string
       description: >-
@@ -677,8 +677,11 @@ components:
       type: string
       description: Unique funding option code
       example: 80001
+      enum:
+        - 80001 (Arable and horticultural soils Introductory)
     SchemeId:
       type: string
+      format: integer
       description: Unique ID for scheme used internal to payment services
       example: 1
       enum:
@@ -698,7 +701,6 @@ components:
     SourceSystem:
       type: string
       description: System identifier request originates from
-      example: SITI_SFI
       enum:
         - SITI_SFI (SFI)
         - SITISFI (SFI Pilot)
@@ -706,6 +708,7 @@ components:
         - AHWR (Vet Visits)
         - LNR (LNR)
         - SFIA (SFIA)
+      example: SITI_SFI
     Type:
       type: string
       description: Type of dataset
@@ -737,4 +740,4 @@ components:
     Period:
       type: string
       description: Period of payment request
-      example: December to February 2023
+      example: September 2022 - August 2023

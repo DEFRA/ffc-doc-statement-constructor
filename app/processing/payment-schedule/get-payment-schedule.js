@@ -1,11 +1,11 @@
 const db = require('../../data')
 const { getInProgressPaymentRequest, getPreviousPaymentRequests, getCompletedPaymentRequestByPaymentRequestId, mapPaymentRequest, getPreviousPaymentRequestsWithPaymentSchedules } = require('../payment-request')
 const getCalculation = require('../calculation')
-const { getDetails, getAddress, getScheme, getScheduleDates, getAdjustment } = require('../components')
+const { getDetails, getAddress, getScheme, getScheduleDates, getAdjustment, getRemainingAmount } = require('../components')
 const { calculateScheduledPayments, calculateDelta } = require('../payment')
 const { getScheduleSupportingSettlements } = require('../settlement')
 
-const getPaymentSchedule = async (paymentRequestId) => {
+const getPaymentSchedule = async (paymentRequestId, scheduleId) => {
   const transaction = await db.sequelize.transaction()
   try {
     const completedPaymentRequest = await getCompletedPaymentRequestByPaymentRequestId(paymentRequestId, transaction)
@@ -20,10 +20,11 @@ const getPaymentSchedule = async (paymentRequestId) => {
     const deltaValue = calculateDelta(lastPaymentRequest.value, mappedPaymentRequest.value)
     const schedule = getScheduleDates(previousPaymentSchedule, newPaymentSchedule, deltaValue)
     const adjustment = getAdjustment(lastPaymentRequest.value, mappedPaymentRequest.value, deltaValue)
+    const remainingAmount = getRemainingAmount(previousPaymentSchedule, mappedPaymentRequest.value)
     const calculation = await getCalculation(mappedPaymentRequest.paymentRequestId, mappedPaymentRequest.invoiceNumber, transaction)
     const details = await getDetails(calculation.sbi, transaction)
     const address = await getAddress(calculation.sbi, transaction)
-    const scheme = getScheme(mappedPaymentRequest.year, mappedPaymentRequest.frequency, mappedPaymentRequest.agreementNumber)
+    const scheme = await getScheme(mappedPaymentRequest.year, mappedPaymentRequest.frequency, mappedPaymentRequest.agreementNumber, mappedPaymentRequest.sourceSystem)
 
     await transaction.commit()
     return {
@@ -31,7 +32,9 @@ const getPaymentSchedule = async (paymentRequestId) => {
       address,
       scheme,
       adjustment,
-      schedule
+      remainingAmount,
+      schedule,
+      documentReference: scheduleId
     }
   } catch (err) {
     await transaction.rollback()

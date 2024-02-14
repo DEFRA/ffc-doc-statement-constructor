@@ -1,1 +1,1 @@
-module.exports = 'December to February 2022'
+module.exports = 'September 2022 - August 2023'

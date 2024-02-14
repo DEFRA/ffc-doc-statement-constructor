@@ -1,3 +1,5 @@
+const moment = require('moment')
+
 const { SFI_GROSS_VALUE_AP } = require('../../app/constants/account-codes')
 const { GBP } = require('../../app/constants/currencies')
 const { RP00 } = require('../../app/constants/delivery-bodies')
@@ -17,6 +19,7 @@ const { DATE_FORMAT: DUE_DATE } = require('../mock-components/mock-dates').DUE
 const FRN = require('../mock-components/mock-frn')
 const { SFI_FIRST_PAYMENT: SFI_FIRST_PAYMENT_INVOICE_NUMBER, SFI_SECOND_PAYMENT: SFI_SECOND_PAYMENT_INVOICE_NUMBER, SFI_SPLIT_A: SFI_SPLIT_A_INVOICE_NUMBER, SFI_SPLIT_B: SFI_SPLIT_B_INVOICE_NUMBER } = require('../mock-components/mock-invoice-number')
 const _2022 = require('../mock-components/mock-marketing-year')
+const { DATE: RECEIVED_DATE } = require('../mock-components/mock-dates').RECEIVED
 const { CORRELATION_ID, REFERENCE_ID, CORRELATION_ID_POST_PAYMENT_ADJUSTMENT, REFERENCE_ID_POST_PAYMENT_ADJUSTMENT } = require('../mock-components/mock-uuidv4')
 const { FIVE_HUNDRED_POUNDS, ONE_HUNDRED_POUNDS, ONE_THOUSAND_POUNDS, MINUS_FOUR_HUNDRED_POUNDS, MINUS_TWO_HUNDRED_POUNDS } = require('../mock-components/mock-value')
 
@@ -41,6 +44,7 @@ const paymentRequest = {
   ledger: AP,
   marketingYear: _2022,
   paymentRequestNumber: FIRST_PAYMENT_PAYMENT_REQUEST_NUMBER,
+  received: RECEIVED_DATE,
   referenceId: REFERENCE_ID,
   schedule: DAX_CODES.QUARTERLY,
   schemeId: SFI_SCHEME_ID,
@@ -62,6 +66,7 @@ const submitPaymentRequest = {
     completedInvoiceLineId: 1,
     completedPaymentRequestId: 1
   }],
+  received: moment(RECEIVED_DATE).add(1, 'days').toDate(),
   paymentRequestId: 1,
   status: COMPLETED
 }

@@ -12,6 +12,7 @@ const mapPaymentRequest = (paymentRequest) => {
     invoiceNumber: paymentRequest.invoiceNumber,
     value: paymentRequest.value,
     year,
+    sourceSystem: paymentRequest.sourceSystem,
     schedule: paymentRequest.schedule,
     originalValue: paymentRequest.originalValue,
     paymentRequestNumber: paymentRequest.paymentRequestNumber

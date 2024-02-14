@@ -17,6 +17,7 @@ describe('validate payment request', () => {
       paymentRequestNumber: paymentRequest.paymentRequestNumber,
       value: paymentRequest.value,
       schedule: paymentRequest.schedule,
+      sourceSystem: paymentRequest.sourceSystem,
       originalValue: paymentRequest.value
     }
   })

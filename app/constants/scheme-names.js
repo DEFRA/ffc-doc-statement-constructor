@@ -3,6 +3,7 @@ module.exports = {
     LNR: 'LNR',
     LUMP_SUMS: 'Lump Sums',
     SFI: 'SFI',
+    SFIA: 'SFIA',
     SFI_PILOT: 'SFIP',
     VET_VISITS: 'Vet Visits'
   },
@@ -10,6 +11,7 @@ module.exports = {
     LNR: 'Land and Nature Reserve',
     LUMP_SUMS: 'Lump Sums',
     SFI: 'Sustainable Farming Incentive',
+    SFIA: 'Sustainable Farming Incentive 2023',
     SFI_PILOT: 'Sustainable Farming Incentive: Pilot',
     VET_VISITS: 'Vet Visits'
   }

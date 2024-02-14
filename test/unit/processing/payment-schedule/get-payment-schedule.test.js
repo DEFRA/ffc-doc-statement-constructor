@@ -32,17 +32,22 @@ const {
   getDetails,
   getScheme,
   getScheduleDates,
-  getAdjustment
+  getAdjustment,
+  getRemainingAmount
 } = require('../../../../app/processing/components')
 
 const { getPaymentSchedule } = require('../../../../app/processing/payment-schedule')
 const { NAMES } = require('../../../../app/constants/schedules')
+
+jest.mock('../../../../app/processing/payment')
+const { calculateScheduledPayments } = require('../../../../app/processing/payment')
 
 let paymentRequest
 let calculation
 let organisation
 let mappedPaymentRequest
 let settlement
+let previousPaymentSchedule
 
 describe('get various components and transform to payment schedule object', () => {
   beforeEach(() => {
@@ -50,6 +55,7 @@ describe('get various components and transform to payment schedule object', () =
     calculation = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-calculation')))
     organisation = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-organisation')))
     settlement = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-settlement')))
+    previousPaymentSchedule = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-payment-timelines')))
 
     mappedPaymentRequest = {
       paymentRequestId: 1,
@@ -97,7 +103,7 @@ describe('get various components and transform to payment schedule object', () =
     const schedule = [{
       order: 1,
       dueDate: '01/01/2022',
-      period: 'September to December 2021',
+      period: 'Sep-Dec 2021',
       value: '100.00'
     }]
 
@@ -106,6 +112,8 @@ describe('get various components and transform to payment schedule object', () =
       newValue: '100.00',
       adjustmentValue: '0.00'
     }
+
+    const remainingAmount = 500
 
     getCompletedPaymentRequestByPaymentRequestId.mockResolvedValue(paymentRequest)
     getInProgressPaymentRequest.mockResolvedValue(paymentRequest)
@@ -119,6 +127,8 @@ describe('get various components and transform to payment schedule object', () =
     getScheme.mockResolvedValue(scheme)
     getScheduleDates.mockResolvedValue(schedule)
     getAdjustment.mockResolvedValue(adjustment)
+    getRemainingAmount.mockResolvedValue(remainingAmount)
+    calculateScheduledPayments.mockResolvedValue(previousPaymentSchedule)
   })
 
   afterEach(() => {
@@ -207,5 +217,17 @@ describe('get various components and transform to payment schedule object', () =
     const paymentRequestId = 1
     await getPaymentSchedule(paymentRequestId)
     expect(getScheduleDates).toHaveBeenCalled()
+  })
+
+  test('should call getRemainingAmount when a paymentRequestId is given', async () => {
+    const paymentRequestId = 1
+    await getPaymentSchedule(paymentRequestId)
+    expect(getRemainingAmount).toHaveBeenCalled()
+  })
+
+  test('should call getRemainingAmount with calculateScheduledPayments and mappedPaymentRequest.value when a paymentRequestId is given', async () => {
+    const paymentRequestId = 1
+    await getPaymentSchedule(paymentRequestId)
+    expect(getRemainingAmount).toHaveBeenCalledWith(calculateScheduledPayments(), mappedPaymentRequest.value)
   })
 })

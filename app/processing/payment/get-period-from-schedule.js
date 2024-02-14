@@ -6,7 +6,7 @@ const getPeriodFromSchedule = (totalValue, totalPayments, paymentValue, schedule
   const lastPayment = schedule[firstPeriodIndex + incrementsInPayment]
   const firstPeriod = firstPayment.dueDate.clone().subtract(increment, unit)
   const lastPeriod = lastPayment.dueDate.clone().subtract(1, unit)
-  return `${firstPeriod.format('MMMM')} to ${lastPeriod.format('MMMM YYYY')}`
+  return `${firstPeriod.format('MMMM YYYY')} - ${lastPeriod.format('MMMM YYYY')}`
 }
 
 module.exports = getPeriodFromSchedule

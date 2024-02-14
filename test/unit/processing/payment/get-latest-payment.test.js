@@ -70,70 +70,70 @@ describe('get latest payment', () => {
     settlement.paymentValue = instalmentValue
     settlement.lastSettlementValue = 0
     const result = getLatestPayment(paymentRequest, settlement, supportingSettlements)
-    expect(result.period).toBe('September to November 2022')
+    expect(result.period).toBe('September 2022 - November 2022')
   })
 
   test('returns period if first instalment settled and next instalment settled', () => {
     settlement.paymentValue = instalmentValue
     settlement.lastSettlementValue = instalmentValue
     const result = getLatestPayment(paymentRequest, settlement, supportingSettlements)
-    expect(result.period).toBe('December to February 2023')
+    expect(result.period).toBe('December 2022 - February 2023')
   })
 
   test('returns period if first two instalments settled and next instalment settled', () => {
     settlement.paymentValue = instalmentValue
     settlement.lastSettlementValue = instalmentValue * 2
     const result = getLatestPayment(paymentRequest, settlement, supportingSettlements)
-    expect(result.period).toBe('March to May 2023')
+    expect(result.period).toBe('March 2023 - May 2023')
   })
 
   test('returns period if first three instalments settled and next instalment settled', () => {
     settlement.paymentValue = instalmentValue
     settlement.lastSettlementValue = instalmentValue * 3
     const result = getLatestPayment(paymentRequest, settlement, supportingSettlements)
-    expect(result.period).toBe('June to August 2023')
+    expect(result.period).toBe('June 2023 - August 2023')
   })
 
   test('returns period if last settlement value 0 and two instalment settled', () => {
     settlement.paymentValue = instalmentValue * 2
     settlement.lastSettlementValue = 0
     const result = getLatestPayment(paymentRequest, settlement, supportingSettlements)
-    expect(result.period).toBe('September to February 2023')
+    expect(result.period).toBe('September 2022 - February 2023')
   })
 
   test('returns period if first instalment settled and next two instalments settled', () => {
     settlement.paymentValue = instalmentValue * 2
     settlement.lastSettlementValue = instalmentValue
     const result = getLatestPayment(paymentRequest, settlement, supportingSettlements)
-    expect(result.period).toBe('December to May 2023')
+    expect(result.period).toBe('December 2022 - May 2023')
   })
 
   test('returns period if first two settled and next two instalments settled', () => {
     settlement.paymentValue = instalmentValue * 2
     settlement.lastSettlementValue = instalmentValue * 2
     const result = getLatestPayment(paymentRequest, settlement, supportingSettlements)
-    expect(result.period).toBe('March to August 2023')
+    expect(result.period).toBe('March 2023 - August 2023')
   })
 
   test('returns period if last settlement value 0 and three instalments settled', () => {
     settlement.paymentValue = instalmentValue * 3
     settlement.lastSettlementValue = 0
     const result = getLatestPayment(paymentRequest, settlement, supportingSettlements)
-    expect(result.period).toBe('September to May 2023')
+    expect(result.period).toBe('September 2022 - May 2023')
   })
 
   test('returns period if first instalment settled and next three instalments settled', () => {
     settlement.paymentValue = instalmentValue * 3
     settlement.lastSettlementValue = instalmentValue
     const result = getLatestPayment(paymentRequest, settlement, supportingSettlements)
-    expect(result.period).toBe('December to August 2023')
+    expect(result.period).toBe('December 2022 - August 2023')
   })
 
   test('returns period if last settlement value 0 and four instalments settled', () => {
     settlement.paymentValue = instalmentValue * 4
     settlement.lastSettlementValue = 0
     const result = getLatestPayment(paymentRequest, settlement, supportingSettlements)
-    expect(result.period).toBe('September to August 2023')
+    expect(result.period).toBe('September 2022 - August 2023')
   })
 
   test('returns period as dueDate month if schedule null', () => {

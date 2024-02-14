@@ -120,21 +120,21 @@ describe('process processing payment request', () => {
     expect(result).not.toBeNull()
   })
 
-  /* test('should save 1 entry into invoiceNumber where paymentRequest.invoiceNumber when paymentRequest.schemeId is VET_VISITS', async () => {
+  test('should save 1 entry into invoiceNumber where paymentRequest.invoiceNumber when paymentRequest.schemeId is VET_VISITS', async () => {
     paymentRequest.schemeId = VET_VISITS_SCHEME_ID
 
     await processProcessingPaymentRequest(paymentRequest)
 
     const result = await db.invoiceNumber.count({ where: { invoiceNumber: paymentRequest.invoiceNumber } })
     expect(result).toBe(1)
-  }) */
+  })
 
-  /* test('should save entry into invoiceNumber with invoiceNumber given by paymentRequest.invoiceNumber where paymentRequest.invoiceNumber', async () => {
+  test('should save entry into invoiceNumber with invoiceNumber given by paymentRequest.invoiceNumber where paymentRequest.invoiceNumber', async () => {
     await processProcessingPaymentRequest(paymentRequest)
 
     const result = await db.invoiceNumber.findOne({ where: { invoiceNumber: paymentRequest.invoiceNumber } })
     expect(result.invoiceNumber).toBe(paymentRequest.invoiceNumber)
-  }) */
+  })
 
   test('should save entry into invoiceNumber with originalInvoiceNumber given by reverseEngineerInvoiceNumber where paymentRequest.invoiceNumber', async () => {
     await processProcessingPaymentRequest(paymentRequest)

@@ -1,0 +1,32 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+ <changeSet author="Abidemi Adio" id="1">
+    <tagDatabase tag="v1.20.0" />
+  </changeSet>
+  <changeSet author="Abidemi Adio" id="2">
+    <createTable tableName="flags">
+      <column name="flagId" type="INTEGER">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="flagId_pkey" />
+      </column>
+      <column name="name" type="VARCHAR(127)">
+        <constraints nullable="false" />
+      </column>
+      <column name="description" type="VARCHAR(500)">
+        <constraints nullable="false" />
+      </column>
+      <column name="addedDate" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+    </createTable>
+  </changeSet>
+  <changeSet author="Abidemi Adio" id="3">
+    <insert tableName="flags">
+      <column name="flagId" value="1" />
+      <column name="name" value="SFIA-Manual-Injection" />
+      <column name="description" value="Added for Identification of SFI 23 advance payment that are added by manual injection in the payment service." />
+    </insert>
+  </changeSet>
+  <changeSet author="Abidemi Adio" id="5">
+    <addColumn tableName="paymentRequests">
+      <column name="flagId" type="INTEGER" />
+    </addColumn>
+  </changeSet>
+</databaseChangeLog>
