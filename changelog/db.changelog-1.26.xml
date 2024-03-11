@@ -8,8 +8,9 @@
             <column name="paymentReference" type="VARCHAR(30)">
                 <constraints primaryKey="true" nullable="false" primaryKeyName="daxId_pkey"/>
             </column>
-            <column name="calculationId" type="INTEGER"/>
+            <column name="calculationId" type="INTEGER">
                 <constraints nullable="false"/>
+            </column>
             <column name="paymentPeriod" type="VARCHAR(200)">
                 <constraints nullable="false"/>
             </column>
@@ -76,34 +77,48 @@
             <column name="actionId" type="INTEGER">
                 <constraints primaryKey="true" primaryKeyName="actionsId_pkey"/>
             </column>
-            <column name="calculationId" type="INTEGER"/>
+            <column name="calculationId" type="INTEGER">
               <constraints nullable="false"/>
-            <column name="sbi" type="INTEGER"/>
+            </column>
+            <column name="sbi" type="INTEGER">
               <constraints nullable="false"/>
-            <column name="fundingCode" type="VARCHAR(5)"/>
+            </column>
+            <column name="fundingCode" type="VARCHAR(5)">
               <constraints nullable="false"/>
-            <column name="fundingName" type="VARCHAR(100)"/>
+            </column>
+            <column name="fundingName" type="VARCHAR(100)">
               <constraints nullable="false"/>
-            <column name="groupName" type="VARCHAR(100)"/>
+            </column>
+            <column name="groupName" type="VARCHAR(100)">
               <constraints nullable="false"/>
-            <column name="actionCode" type="VARCHAR(5)"/>
+            </column>
+            <column name="actionCode" type="VARCHAR(5)">
               <constraints nullable="false"/>
-            <column name="actionName" type="VARCHAR(100)"/>
+            </column>
+            <column name="actionName" type="VARCHAR(100)">
               <constraints nullable="false"/>
-            <column name="rate" type="VARCHAR(100)"/>
+            </column>
+            <column name="rate" type="VARCHAR(100)">
               <constraints nullable="false"/>
-            <column name="landArea" type="NUMERIC(18,6)"/>
+            </column>
+            <column name="landArea" type="NUMERIC(18,6)">
               <constraints nullable="false"/>
-            <column name="uom" type="VARCHAR(10)"/>
+            </column>
+            <column name="uom" type="VARCHAR(10)">
               <constraints nullable="false"/>
-            <column name="annualValue" type="VARCHAR(50)"/>
+            </column>
+            <column name="annualValue" type="VARCHAR(50)">
               <constraints nullable="false"/>
-            <column name="quarterlyValue" type="NUMERIC(15,2)"/>
+            </column>
+            <column name="quarterlyValue" type="NUMERIC(15,2)">
               <constraints nullable="false"/>
-            <column name="overDeclarationPenalty" type="NUMERIC(15,2)"/>
+            </column>
+            <column name="overDeclarationPenalty" type="NUMERIC(15,2)">
               <constraints nullable="false"/>
-            <column name="quarterlyPaymentAmount" type="NUMERIC(15,2)"/>
+            </column>
+            <column name="quarterlyPaymentAmount" type="NUMERIC(15,2)">
               <constraints nullable="false"/>
+            </column>
             <column name="datePublished" type="TIMESTAMP">
             </column>
         </createTable>
