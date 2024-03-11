@@ -1,0 +1,16 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+<changeSet id ="1" author="Amirs Ismuhametovs">
+    <tagDatabase tag="v1.27.0" />
+</changeSet>
+<changeSet  author="Amirs Ismuhametovs"  id="2">  
+    <renameColumn tableName="dax" oldColumnName="totalQuarterlyPayment" newColumnName="paymentAmount" />  
+  </changeSet>
+  <changeSet  author="Amirs Ismuhametovs"  id="3">  
+    <renameColumn tableName="dax" oldColumnName="transDate" newColumnName="transactionDate" />  
+  </changeSet>
+  <changeSet  author="Amirs Ismuhametovs"  id="4">  
+    <dropColumn tableName="actions" columnName="sbi" />  
+  </changeSet>
+
+</databaseChangeLog>
