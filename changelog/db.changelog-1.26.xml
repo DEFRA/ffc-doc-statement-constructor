@@ -14,10 +14,10 @@
             <column name="paymentPeriod" type="VARCHAR(200)">
                 <constraints nullable="false"/>
             </column>
-            <column name="totalQuarterlyPayment" type="NUMERIC">
+            <column name="paymentAmount" type="NUMERIC">
                 <constraints nullable="false"/>
             </column>
-            <column name="transDate" type="TIMESTAMP">
+            <column name="transactionDate" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
             <column name="datePublished" type="TIMESTAMP">
@@ -78,9 +78,6 @@
                 <constraints primaryKey="true" primaryKeyName="actionsId_pkey"/>
             </column>
             <column name="calculationId" type="INTEGER">
-              <constraints nullable="false"/>
-            </column>
-            <column name="sbi" type="INTEGER">
               <constraints nullable="false"/>
             </column>
             <column name="fundingCode" type="VARCHAR(5)">
