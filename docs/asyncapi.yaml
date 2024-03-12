@@ -39,11 +39,16 @@ channels:
     messages:
       subscribe.message:
         $ref: '#/components/messages/ReturnMessage'
-  ffc-doc-statement-payment:
-    address: ffc-doc-statement-payment
+  ffc-doc-statements/statement:
+    address: ffc-doc-statements
     messages:
       publish.message:
         $ref: '#/components/messages/PaymentStatement'
+  ffc-doc-statements/sfi-23-quarterly-statement:
+    address: ffc-doc-statements
+    messages:
+      publish.message:
+        $ref: '#/components/messages/SFI23QuarterlyPaymentStatement'
 operations:
   ffc-doc-statement-data/calculation.subscribe:
     action: receive
@@ -87,12 +92,18 @@ operations:
       $ref: '#/channels/ffc-pay-statement-return'
     messages:
       - $ref: '#/channels/ffc-pay-statement-return/messages/subscribe.message'
-  ffc-doc-statement-payment.publish:
+  ffc-doc-statements/statement.publish:
     action: send
     channel:
-      $ref: '#/channels/ffc-doc-statement-payment'
+      $ref: '#/channels/ffc-doc-statements~1statement'
     messages:
-      - $ref: '#/channels/ffc-doc-statement-payment/messages/publish.message'
+      - $ref: '#/channels/ffc-doc-statements~1statement/messages/publish.message'
+  ffc-doc-statements/sfi-23-quarterly-statement.publish:
+    action: send
+    channel:
+      $ref: '#/channels/ffc-doc-statements~1sfi-23-quarterly-statement'
+    messages:
+      - $ref: '#/channels/ffc-doc-statements~1sfi-23-quarterly-statement/messages/publish.message'
 components:
   messages:
     DWHCalculation:
@@ -135,6 +146,11 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/PaymentStatement'
+    SFI23QuarterlyPaymentStatement:
+      name: SFI-23 Quarterly Payment statement
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/SFI23QuarterlyPaymentStatement'
   schemas:
     DWHCalculation:
       type: object
@@ -435,6 +451,39 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Funding'
+    SFI23QuarterlyPaymentStatement:
+      type: object
+      required:
+        - businessName
+        - sbi
+        - frn
+        - address
+        - scheme
+        - payments
+        - funding
+      properties:
+        businessName:
+          $ref: '#/components/schemas/BusinessName'
+        sbi:
+          $ref: '#/components/schemas/SBI'
+        frn:
+          $ref: '#/components/schemas/FRN'
+        email:
+          $ref: '#/components/schemas/EmailAddress'
+        address:
+          $ref: '#/components/schemas/Address'
+        scheme:
+          $ref: '#/components/schemas/Scheme'
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+        funding:
+          type: array
+          items:
+            $ref: '#/components/schemas/Funding'
+        type:
+          $ref: '#/components/schemas/TypeSFI23QuarterlyStatement'
     Action:
       type: object
       properties:
@@ -1056,6 +1105,10 @@ components:
       type: string
       description: Constant TOTALS
       example: total
+    TypeSFI23QuarterlyStatement:
+      type: string
+      description: Constant SFI23QUARTERLYPAYMENT
+      example: SFI23QuarterlyStatement
     SchemeType:
       type: string
       description: Type of scheme that payment is made for.
