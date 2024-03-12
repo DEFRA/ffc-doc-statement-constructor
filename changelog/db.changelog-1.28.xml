@@ -35,4 +35,15 @@
     </addColumn>
     <addUniqueConstraint columnNames="code" constraintName="uniq_code" tableName="schemes" />
 </changeSet>
+<changeSet author="Amirs Ismuhametovs" id="8">
+    <sql>UPDATE schemes SET code = '1SFI' WHERE name = 'SFI'</sql>
+    <sql>UPDATE schemes SET code = '2SFI Pilot' WHERE name = 'SFI Pilot'</sql>
+    <sql>UPDATE schemes SET code = '3Lump Sums' WHERE name = 'Lump Sums'</sql>
+    <sql>UPDATE schemes SET code = '4LNR' WHERE name = 'LNR'</sql>
+    <sql>UPDATE schemes SET code = '5Vet Visits' WHERE name = 'Vet Visits'</sql>
+    <sql>UPDATE schemes SET code = '12SFIA' WHERE name = 'SFIA'</sql>
+</changeSet>
+<changeSet author="Amirs Ismuhametovs" id="9">
+    <addNotNullConstraint columnName="code" tableName="schemes" columnDataType="varchar(50)" />
+</changeSet>
 </databaseChangeLog>
