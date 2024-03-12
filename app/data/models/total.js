@@ -10,15 +10,15 @@ module.exports = (sequelize, DataTypes) => {
     agreementNumber: { type: DataTypes.INTEGER, allowNull: false },
     claimId: { type: DataTypes.INTEGER, allowNull: false },
     schemeType: { type: DataTypes.STRING(number50), allowNull: false },
-    calculationDate: { type: DataTypes.TIMESTAMP, allowNull: false },
+    calculationDate: { type: DataTypes.DATE, allowNull: false },
     invoiceNumber: { type: DataTypes.STRING(number20), allowNull: false },
-    agreementStart: { type: DataTypes.TIMESTAMP, allowNull: false },
-    agreementEnd: { type: DataTypes.TIMESTAMP, allowNull: false },
+    agreementStart: { type: DataTypes.DATE, allowNull: false },
+    agreementEnd: { type: DataTypes.DATE, allowNull: false },
     totalAdditionalPayments: { type: DataTypes.DECIMAL(number15, number2), allowNull: false },
     totalActionPayments: { type: DataTypes.DECIMAL(number15, number2), allowNull: false },
     totalPayments: { type: DataTypes.DECIMAL(number15, number2), allowNull: false },
-    updated: { type: DataTypes.TIMESTAMP },
-    datePublished: { type: DataTypes.TIMESTAMP, allowNull: true }
+    updated: { type: DataTypes.DATE },
+    datePublished: { type: DataTypes.DATE, allowNull: true }
   },
   {
     tableName: 'totals',
