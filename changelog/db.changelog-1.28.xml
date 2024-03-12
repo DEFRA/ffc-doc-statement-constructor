@@ -35,12 +35,4 @@
     </addColumn>
     <addUniqueConstraint columnNames="code" constraintName="uniq_code" tableName="schemes" />
 </changeSet>
-<changeSet author="Amirs Ismuhametovs" id="8">
-    <sql>
-        UPDATE schemes SET code = "schemeId" || "name"
-    </sql>
-</changeSet>
-<changeSet author="Amirs Ismuhametovs" id="9">
-    <addNotNullConstraint columnName="code" tableName="schemes" columnDataType="varchar(50)" />
-</changeSet>
 </databaseChangeLog>
