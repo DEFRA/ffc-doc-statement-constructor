@@ -1,33 +1,98 @@
-asyncapi: 2.5.0
+asyncapi: 3.0.0
 info:
   title: FFC Document Statement Constructor
   version: 1.0.1
   description: Construct payment statements
 channels:
-  dwh/calculation:
-    subscribe:
-      message:
+  ffc-doc-statement-data/calculation:
+    address: ffc-doc-statement-data
+    messages:
+      subscribe.message:
         $ref: '#/components/messages/DWHCalculation'
-  dwh/organisation:
-    subscribe:
-      message:
+  ffc-doc-statement-data/organisation:
+    address: ffc-doc-statement-data
+    messages:
+      subscribe.message:
         $ref: '#/components/messages/DWHOrganisation'
+  ffc-doc-statement-data/total:
+    address: ffc-doc-statement-data
+    messages:
+      subscribe.message:
+        $ref: '#/components/messages/DWHTotal'
+  ffc-doc-statement-data/dax:
+    address: ffc-doc-statement-data
+    messages:
+      subscribe.message:
+        $ref: '#/components/messages/DWHDax'    
   ffc-pay-statement-processing:
-    subscribe:
-      message:
+    address: ffc-pay-statement-processing
+    messages:
+      subscribe.message:
         $ref: '#/components/messages/PaymentRequestProcessing'
   ffc-pay-statement-submit:
-    subscribe:
-      message:
+    address: ffc-pay-statement-submit
+    messages:
+      subscribe.message:
         $ref: '#/components/messages/PaymentRequestSubmit'
   ffc-pay-statement-return:
-    subscribe:
-      message:
+    address: ffc-pay-statement-return
+    messages:
+      subscribe.message:
         $ref: '#/components/messages/ReturnMessage'
   ffc-doc-statement-payment:
-    publish:
-      message:
+    address: ffc-doc-statement-payment
+    messages:
+      publish.message:
         $ref: '#/components/messages/PaymentStatement'
+operations:
+  ffc-doc-statement-data/calculation.subscribe:
+    action: receive
+    channel:
+      $ref: '#/channels/ffc-doc-statement-data~1calculation'
+    messages:
+      - $ref: '#/channels/ffc-doc-statement-data~1calculation/messages/subscribe.message'
+  ffc-doc-statement-data/organisation.subscribe:
+    action: receive
+    channel:
+      $ref: '#/channels/ffc-doc-statement-data~1organisation'
+    messages:
+      - $ref: '#/channels/ffc-doc-statement-data~1organisation/messages/subscribe.message'
+  ffc-doc-statement-data/total.subscribe:
+    action: receive
+    channel:
+      $ref: '#/channels/ffc-doc-statement-data~1total'
+    messages:
+      - $ref: '#/channels/ffc-doc-statement-data~1total/messages/subscribe.message'
+  ffc-doc-statement-data/dax.subscribe:
+    action: receive
+    channel:
+      $ref: '#/channels/ffc-doc-statement-data~1dax'
+    messages:
+      - $ref: '#/channels/ffc-doc-statement-data~1dax/messages/subscribe.message'
+  ffc-pay-statement-processing.subscribe:
+    action: receive
+    channel:
+      $ref: '#/channels/ffc-pay-statement-processing'
+    messages:
+      - $ref: '#/channels/ffc-pay-statement-processing/messages/subscribe.message'
+  ffc-pay-statement-submit.subscribe:
+    action: receive
+    channel:
+      $ref: '#/channels/ffc-pay-statement-submit'
+    messages:
+      - $ref: '#/channels/ffc-pay-statement-submit/messages/subscribe.message'
+  ffc-pay-statement-return.subscribe:
+    action: receive
+    channel:
+      $ref: '#/channels/ffc-pay-statement-return'
+    messages:
+      - $ref: '#/channels/ffc-pay-statement-return/messages/subscribe.message'
+  ffc-doc-statement-payment.publish:
+    action: send
+    channel:
+      $ref: '#/channels/ffc-doc-statement-payment'
+    messages:
+      - $ref: '#/channels/ffc-doc-statement-payment/messages/publish.message'
 components:
   messages:
     DWHCalculation:
@@ -40,6 +105,16 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/DWHOrganisation'
+    DWHTotal:
+      name: Organisation information from DWH
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/DWHTotal'
+    DWHDax:
+      name: Organisation information from DWH
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/DWHDax'
     PaymentRequestProcessing:
       name: Payment statement before PPA
       contentType: application/json
@@ -111,6 +186,88 @@ components:
           $ref: '#/components/schemas/Type'
         updated:
           $ref: '#/components/schemas/Updated'
+    DWHDax:
+      type: object
+      properties:
+        paymentReference:
+          $ref: '#/components/schemas/PaymentReference'
+        calculationReference:
+          $ref: '#/components/schemas/CalculationId'
+        paymentPeriod:
+          $ref: '#/components/schemas/PaymentPeriod'
+        paymentAmount:
+          $ref: '#/components/schemas/PaymentAmount'
+        transactionDate:
+          $ref: '#/components/schemas/TransactionDate'
+        type:
+          $ref: '#/components/schemas/TypeDax'
+    DWHTotal:
+      type: object
+      properties:
+        calculationReference:
+          $ref: '#/components/schemas/CalculationId'
+        sbi:
+          $ref: '#/components/schemas/SBI'
+        frn:
+          $ref: '#/components/schemas/FRN'
+        agreementNumber:
+          $ref: '#/components/schemas/AgreementNumber'
+        agreementEnd:
+          $ref: '#/components/schemas/AgreementEnd'
+        agreementStart:
+          $ref: '#/components/schemas/AgreementStart'
+        claimReference:
+          $ref: '#/components/schemas/ClaimId'
+        calculationDate:
+          $ref: '#/components/schemas/CalculationDate'
+        invoiceNumber:
+          $ref: '#/components/schemas/InvoiceNumber'
+        schemeType:
+          $ref: '#/components/schemas/SchemeType'
+        totalActionPayment:
+          $ref: '#/components/schemas/TotalActionPayment'
+        totalAdditionalPayment:
+          $ref: '#/components/schemas/TotalAdditionalPayment'
+        totalPayment:
+          $ref: '#/components/schemas/TotalPayment'
+        updated:
+          $ref: '#/components/schemas/Updated'
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Action'
+        type:
+          $ref: '#/components/schemas/TypeTotals'
+    DWHAction:
+      type: object
+      properties:
+        actionReference:
+          $ref: '#/components/schemas/ActionId'
+        calculationReference:
+          $ref: '#/components/schemas/CalculationId'
+        actionCode:
+          $ref: '#/components/schemas/ActionCode'
+        actionName:
+          $ref: '#/components/schemas/ActionName'
+        annualValue:
+          $ref: '#/components/schemas/AnnualValue'
+        fundingCode:
+          $ref: '#/components/schemas/FundingCode'
+        groupName:
+          $ref: '#/components/schemas/GroupName'
+        landArea:
+          $ref: '#/components/schemas/AreaClaimed'
+        overDeclarationPenalty:
+          $ref: '#/components/schemas/OverDeclarationPenalty'
+        quarterlyPaymentAmount:
+          $ref: '#/components/schemas/QuarterlyPaymentAmount'
+        quarterlyValue:
+          $ref: '#/components/schemas/QuarterlyValue'
+        rate:
+          $ref: '#/components/schemas/Rate'
+        uom:
+          $ref: '#/components/schemas/UnitOfMeasure'
+    
     PaymentRequestProcessing:
       type: object
       required:
@@ -278,6 +435,196 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Funding'
+    Action:
+      type: object
+      properties:
+        actionReference:
+          $ref: '#/components/schemas/ActionId'
+        calculationReference:
+          $ref: '#/components/schemas/CalculationId'
+        actionCode:
+          $ref: '#/components/schemas/ActionCode'
+        actionName:
+          $ref: '#/components/schemas/ActionName'
+        annualValue:
+          $ref: '#/components/schemas/AnnualValue'
+        fundingCode:
+          $ref: '#/components/schemas/FundingCode'
+        groupName:
+          $ref: '#/components/schemas/GroupName'
+        landArea:
+          $ref: '#/components/schemas/AreaClaimed'
+        overDeclarationPenalty:
+          $ref: '#/components/schemas/OverDeclarationPenalty'
+        quarterlyPaymentAmount:
+          $ref: '#/components/schemas/QuarterlyPaymentAmount'
+        quarterlyValue:
+          $ref: '#/components/schemas/QuarterlyValue'
+        rate:
+          $ref: '#/components/schemas/Rate'
+        uom:
+          $ref: '#/components/schemas/UnitOfMeasure'    
+    ActionCode:
+      type: string
+      description: Identifier for action code within scheme
+      example: 80001
+    ActionId:
+      type: number
+      description: Unique identifier (pkId) for action
+      example: 1234567
+    ActionName:
+      type: string
+      description: Name of the action
+      example: Manage hedgerows
+    AgreementNumber:
+      type: number
+      description: Unique identifier for agreement
+      example: 123456789
+    AgreementEnd:
+      type: string
+      format: date-time
+      description: The date the Agreement End
+      example: '2022-08-22T16:45:20.891Z'
+    AgreementStart:
+      type: string
+      format: date-time
+      description: The date the Agreement Start
+      example: '2022-08-22T16:45:20.891Z'
+    AnnualValue:
+      type: number
+      format: decimal
+      description: The annual value of the action
+      example: 402.00
+    FRN:
+      type: number
+      description: Firm Reference Number
+      minimum: 1000000000
+      maximum: 9999999999
+      example: 1234567890
+    Email:
+      type: string
+      description: The business email address
+      example: farm@farms.com
+    AddressLine1:
+      type: string
+      description: The first line of the address
+      example: 1 The Street
+    AddressLine2:
+      type: string
+      description: The second line of the address
+      example: The Area
+    AddressLine3:
+      type: string
+      description: The third line of the address
+      example: The Town
+    City:
+      type: string
+      description: The fourth line of the address
+      example: The Region
+    County:
+      type: string
+      description: The fifth line of the address
+      example: The County
+    Postcode:
+      type: string
+      description: The postcode
+      example: AB1 2CD
+    Updated:
+      type: string
+      format: date-time
+      description: The date the dataset received from Data Warehouse
+      example: '2022-08-22T16:45:20.891Z'
+    CalculationId:
+      type: number
+      description: Key field for calculation Data 
+      example: 1234567
+    CalculationReference:
+      type: number
+      description: Calculation reference Id
+      example: 1234567
+    CalculationDate:
+      type: string
+      format: date-time
+      description: The date the calculation was performed
+      example: '2022-08-22T16:45:20.891Z'
+    ClaimId:
+      type: number
+      description: Unique Identifier for claim
+      example: 12345687
+    InvoiceNumber:
+      type: string
+      description: Invoice number of payment request
+      example: S0000001C000001V001   
+    AreaClaimed:
+      type: number
+      format: decimal
+      description: The area claimed for the calculation in hectares
+      example: 84.05
+    GroupName:
+      type: string
+      description: The group name of the action
+      example: Actions for hedgerows
+    OverDeclarationPenalty:
+      type: number
+      format: decimal
+      description: The over declaration penalty
+      example: 120.50
+    PaymentAmount:
+      type: number
+      format: decimal
+      description: The payment amount
+      example: 800.05
+    PaymentPeriod:
+      type: string
+      description: The period covered by the payment
+      example: April 2022 to June 2022
+    PaymentReference:
+      type: string
+      description: Unique identifier for payment as shown on the remittance advice
+      example: PY1234545
+    QuarterlyPaymentAmount:
+      type: number
+      format: decimal
+      description: The quarterly payment amount
+      example: 100.5
+    QuarterlyValue:
+      type: number
+      format: decimal
+      description: The quarterly value
+      example: 100.5
+    UnitOfMeasure:
+      type: string
+      description: The unit of measure
+      example: Ha
+    Rate:
+      type: number
+      format: decimal
+      description: Payment in pounds sterling per hectare
+      example: 22.5
+    TotalActionPayment:
+      type: number
+      format: decimal
+      description: Sum of all Action Payment
+      example: 100.5
+    TotalAdditionalPayment:
+      type: number
+      format: decimal
+      description: Sum of all Additional Payment
+      example: 50.2
+    TotalPayment:
+      type: number
+      format: decimal
+      description: Sum of all Payment
+      example: 150.7
+    TransactionDate:
+      type: string
+      format: date-time
+      description: The date the transaction was made
+      example: '2022-08-22T16:45:20.891Z'
+    FundingCode:
+      type: string
+      description: Identifier for funding code within scheme
+      example: 80001 
     Address:
       type: object
       properties:
@@ -437,7 +784,7 @@ components:
         dueDate:
           type: string
           description: Payment due date
-          example: '10/12/2022'
+          example: 10/12/2022
         period:
           type: string
           description: Period of payment
@@ -449,39 +796,11 @@ components:
         paymentType:
           type: string
           description: Type of payment
-          example: Quarterly payment 
+          example: Quarterly payment
     AccountCode:
       type: string
       description: Unique account code for budgeting
-      example: SOS123
-    AddressLine1:
-      type: string
-      description: First line of an organisation's address
-      example: 1 The Street
-    AddressLine2:
-      type: string
-      description: Second line of an organisation's address
-      example: The Area
-    AddressLine3:
-      type: string
-      description: Third line of an organisation's address
-      example: The Town
-    AgreementNumber:
-      type: string
-      description: The payment request agreement number
-      example: SIP000000000001
-    CalculationDate:
-      type: string
-      description: Date SITIAgri calculated its land based information
-      example: 2022/03/12
-    CalculationReference:
-      type: number
-      description: DWH unique reference for the calculation record
-      example: 223
-    City:
-      type: string
-      description: City of an organisation
-      example: The Region
+      example: SOS123  
     CompletedInvoiceLineId:
       type: number
       description: Unique id given by a microservice for an invoice number after PPA
@@ -499,10 +818,6 @@ components:
       format: uuid
       description: GUID for event correlation
       example: ce6ec916-bebe-4bc0-bad1-255298c82845
-    County:
-      type: string
-      description: County of an organisation
-      example: The County
     Currency:
       type: string
       description: Currency of values in request
@@ -524,7 +839,9 @@ components:
       example: BAC Rejection
     DocumentReference:
       type: number
-      description: Schedule ID of the document object used downstream for duplicate detection
+      description: >-
+        Schedule ID of the document object used downstream for duplicate
+        detection
       minimum: 1
       example: 1
     DueDate:
@@ -539,12 +856,6 @@ components:
       type: string
       description: Primary email address of an organisation
       example: farm@farms.com
-    FRN:
-      type: number
-      description: Firm Reference Number
-      minimum: 1000000000
-      maximum: 9999999999
-      example: 1234567890
     FundCode:
       type: string
       description: Unique fund code to pay from
@@ -597,13 +908,9 @@ components:
             $ref: '#/components/schemas/CompletedInvoiceLineId'
           completedPaymentRequestId:
             $ref: '#/components/schemas/CompletedPaymentRequestId'
-    InvoiceNumber:
-      type: string
-      description: Unique identifier for payment request
-      example: A1234567S1234567V001
     InvoiceNumberSitiAgri:
       type: string
-      pattern: ^SFI0[0-9]{7}$
+      pattern: '^SFI0[0-9]{7}$'
       description: Unique identifier for payment request in Siti Agri format
       example: SFI01234567
     Ledger:
@@ -636,10 +943,6 @@ components:
         an adjustment
       minimum: 1
       maximum: 99
-    Postcode:
-      type: string
-      description: Postcode of an organisation's address
-      example: AB1 2CD
     Reference:
       type: string
       description: Settlement reference of payment request
@@ -716,10 +1019,6 @@ components:
       enum:
         - calculation
         - organisation
-    Updated:
-      type: string
-      description: Date of a DWH record's last update
-      example: 2022/03/12
     ValueInteger:
       type: number
       format: integer
@@ -741,3 +1040,23 @@ components:
       type: string
       description: Period of payment request
       example: September 2022 - August 2023
+    TypeCalculation:
+      type: string
+      description: Constant CALCULATION
+      example: calculation
+    TypeDax:
+      type: string
+      description: Constant DAX
+      example: dax
+    TypeOrganisation:
+      type: string
+      description: Constant ORGANISATION
+      example: organisation
+    TypeTotals:
+      type: string
+      description: Constant TOTALS
+      example: total
+    SchemeType:
+      type: string
+      description: Type of scheme that payment is made for.
+      example: SFI-23
