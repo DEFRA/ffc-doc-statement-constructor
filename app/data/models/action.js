@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
 
   const action = sequelize.define('action', {
     actionId: { type: DataTypes.INTEGER, primaryKey: true },
-    calculationId: DataTypes.INTEGER,
+    calculationReference: DataTypes.INTEGER,
     fundingCode: DataTypes.STRING(number5),
     groupName: DataTypes.STRING(number100),
     actionCode: DataTypes.STRING(number5),
