@@ -1,0 +1,49 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+<changeSet id ="1" author="Amirs Ismuhametovs">
+    <tagDatabase tag="v1.28.0" />
+</changeSet>
+<changeSet author="Amirs Ismuhametovs" id="2">
+    <addColumn tableName="dax">
+        <column name="daxId" type="INTEGER" autoIncrement="true">
+            <constraints nullable="false"/>
+        </column>
+    </addColumn>
+</changeSet>
+<changeSet author="Amirs Ismuhametovs" id="3">
+    <addColumn tableName="dax">
+        <column name="startPublish" type="TIMESTAMP" />
+    </addColumn>
+</changeSet>
+<changeSet author="Amirs Ismuhametovs" id="4">
+    <addColumn tableName="dax">
+        <column name="completePublish" type="TIMESTAMP" />
+    </addColumn>
+</changeSet>
+<changeSet author="Amirs Ismuhametovs" id="5">
+    <addColumn tableName="dax">
+        <column name="lastProcessAttempt" type="TIMESTAMP" />
+    </addColumn>
+</changeSet>
+<changeSet author="Amirs Ismuhametovs" id="6">
+    <addUniqueConstraint columnNames="paymentReference" constraintName="uniq_paymentReference" tableName="dax" />
+</changeSet>
+<changeSet author="Amirs Ismuhametovs" id="7">
+    <addColumn tableName="schemes">
+        <column name="code" type="varchar(50)">
+        </column>
+    </addColumn>
+    <addUniqueConstraint columnNames="code" constraintName="uniq_code" tableName="schemes" />
+</changeSet>
+<changeSet author="Amirs Ismuhametovs" id="8">
+    <sql>UPDATE schemes SET code = '1SFI' WHERE name = 'SFI'</sql>
+    <sql>UPDATE schemes SET code = '2SFI Pilot' WHERE name = 'SFI Pilot'</sql>
+    <sql>UPDATE schemes SET code = '3Lump Sums' WHERE name = 'Lump Sums'</sql>
+    <sql>UPDATE schemes SET code = '4LNR' WHERE name = 'LNR'</sql>
+    <sql>UPDATE schemes SET code = '5Vet Visits' WHERE name = 'Vet Visits'</sql>
+    <sql>UPDATE schemes SET code = '12SFIA' WHERE name = 'SFIA'</sql>
+</changeSet>
+<changeSet author="Amirs Ismuhametovs" id="9">
+    <addNotNullConstraint columnName="code" tableName="schemes" columnDataType="varchar(50)" />
+</changeSet>
+</databaseChangeLog>
