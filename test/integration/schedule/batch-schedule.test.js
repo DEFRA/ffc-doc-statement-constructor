@@ -33,7 +33,9 @@ describe('batch schedule', () => {
     const paymentRequest = JSON.parse(JSON.stringify(require('../../mock-objects/mock-payment-request').submitPaymentRequest))
     settlement = JSON.parse(JSON.stringify(require('../../mock-objects/mock-settlement')))
     schedule = JSON.parse(JSON.stringify(require('../../mock-objects/mock-schedule').STATEMENT))
-
+    console.log('**********************************************************************************************')
+    console.log(schemes)
+    console.log('**********************************************************************************************')
     await db.scheme.bulkCreate(schemes)
     await db.invoiceNumber.create({ invoiceNumber, originalInvoiceNumber })
     await db.paymentRequest.create(paymentRequest)

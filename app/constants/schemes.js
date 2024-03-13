@@ -18,25 +18,31 @@ const {
 
 module.exports = [{
   schemeId: LNR_ID,
-  name: LNR
+  name: LNR,
+  code: '4LNR'
 },
 {
   schemeId: LUMP_SUMS_ID,
-  name: LUMP_SUMS
+  name: LUMP_SUMS,
+  code: '3Lump Sums'
 },
 {
   schemeId: SFI_ID,
-  name: SFI
+  name: SFI,
+  code: '1SFI'
 },
 {
   schemeId: SFIA_ID,
-  name: SFIA
+  name: SFIA,
+  code: '12SFIA'
 },
 {
   schemeId: SFI_PILOT_ID,
-  name: SFI_PILOT
+  name: SFI_PILOT,
+  code: '2SFI Pilot'
 },
 {
   schemeId: VET_VISITS_ID,
-  name: VET_VISITS
+  name: VET_VISITS,
+  code: '5Vet Visits'
 }]
