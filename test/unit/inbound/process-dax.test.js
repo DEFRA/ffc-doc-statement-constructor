@@ -18,8 +18,12 @@ jest.mock('../../../app/data', () => {
 
 jest.mock('../../../app/inbound/dax/save-dax')
 const saveDax = require('../../../app/inbound/dax/save-dax')
-
 const processDax = require('../../../app/inbound/dax')
+
+const validateDax = require('../../../app/inbound/dax/validate-dax')
+const mockDax = require('../../mock-objects/mock-dax')
+const mockInvalidDax = require('../../mock-objects/mock-invalid-dax')
+const schema = require('../../../app/inbound/dax/schema')
 
 let dax
 
@@ -83,14 +87,13 @@ describe('process dax', () => {
     expect(wrapper).rejects.toThrow(Error)
   })
 
-  test('should throw error with "Database save down issue" when saveDax throws error with "Database save down issue"', async () => {
-    saveDax.mockRejectedValue(new Error('Database save down issue'))
-
+  test('should throw error with "Payment request with paymentReference:" when saveDax throws error with specific message', async () => {
+    const errorMessage = 'Payment request with paymentReference:'
+    saveDax.mockRejectedValue(new Error(errorMessage))
     const wrapper = async () => {
       await processDax(dax)
     }
-
-    expect(wrapper).rejects.toThrow(/^Database save down issue$/)
+    await expect(wrapper).rejects.toThrow(errorMessage)
   })
 
   test('should throw when mockTransaction.commit throws', async () => {
@@ -113,14 +116,13 @@ describe('process dax', () => {
     expect(wrapper).rejects.toThrow(Error)
   })
 
-  test('should throw error with "Sequelize transaction issue" when mockTransaction.commit throws error with "Sequelize transaction commit issue"', async () => {
-    mockTransaction.commit.mockRejectedValue(new Error('Sequelize transaction commit issue'))
-
+  test('should throw error with "Payment request with paymentReference:" when mockTransaction.commit throws error with "Sequelize transaction commit issue"', async () => {
+    const errorMessage = 'Payment request with paymentReference:'
+    mockTransaction.commit.mockRejectedValue(new Error(errorMessage))
     const wrapper = async () => {
       await processDax(dax)
     }
-
-    expect(wrapper).rejects.toThrow(/^Sequelize transaction commit issue$/)
+    await expect(wrapper).rejects.toThrow(errorMessage)
   })
 
   test('should call mockTransaction.rollback when saveDax throws', async () => {
@@ -145,5 +147,25 @@ describe('process dax', () => {
     mockTransaction.commit.mockRejectedValue(new Error('Sequelize transaction commit issue'))
     try { await processDax(dax) } catch { }
     expect(mockTransaction.rollback).toHaveBeenCalledTimes(1)
+  })
+
+  describe('validateDax', () => {
+    test('should throw an error if dax is invalid', () => {
+      expect(() => validateDax(mockInvalidDax, mockInvalidDax.paymentReference)).toThrow()
+    })
+    test('should not throw an error if dax is valid', () => {
+      expect(() => validateDax(mockDax, mockDax.paymentReference)).not.toThrow()
+    })
+  })
+
+  describe('dax schema', () => {
+    test('should validate a valid dax object', () => {
+      const { error } = schema.validate(mockDax)
+      expect(error).toBeUndefined()
+    })
+    test('should not validate an invalid dax object', () => {
+      const { error } = schema.validate(mockInvalidDax)
+      expect(error).toBeDefined()
+    })
   })
 })
