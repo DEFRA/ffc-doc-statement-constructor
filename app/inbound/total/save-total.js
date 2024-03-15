@@ -7,7 +7,7 @@ const saveTotal = async (total, transaction) => {
       calculationId: total.calculationReference
     }
     const savedTotal = await db.total.upsert(totalCalculationIdConvert, { transaction })
-    delete total.calculationReference
+    // delete total.calculationReference
     return savedTotal
   } catch (error) {
     throw new Error(`Error saving total: ${error.message}`)

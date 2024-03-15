@@ -7,7 +7,6 @@ const saveDax = async (dax, transaction) => {
       calculationId: dax.calculationReference
     }
     const savedDaxReference = await db.dax.upsert(daxTotalCalculationIdConvert, { transaction })
-    delete dax.calculationReference
     return savedDaxReference
   } catch (error) {
     throw new Error(`Error saving DAX: ${error.message}`)
