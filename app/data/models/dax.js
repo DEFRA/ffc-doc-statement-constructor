@@ -7,7 +7,11 @@ module.exports = (sequelize, DataTypes) => {
     paymentPeriod: { type: DataTypes.STRING(number200), allowNull: false },
     paymentAmount: { type: DataTypes.NUMERIC, allowNull: false },
     transactionDate: { type: DataTypes.DATE, allowNull: false },
-    datePublished: { type: DataTypes.DATE, allowNull: true }
+    datePublished: { type: DataTypes.DATE, allowNull: true },
+    daxId: { type: DataTypes.INTEGER, autoIncrement: true },
+    startPublish: { type: DataTypes.DATE, allowNull: true },
+    completePublish: { type: DataTypes.DATE, allowNull: true },
+    lastProcessAttempt: { type: DataTypes.DATE, allowNull: true }
   },
   {
     tableName: 'dax',

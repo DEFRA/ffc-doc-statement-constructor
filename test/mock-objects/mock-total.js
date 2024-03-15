@@ -12,7 +12,6 @@ module.exports = {
   calculationId: 123456789,
   claimReference: 123456789,
   schemeType: 'SFIA',
-  calculationId: 12345678901,
   calculationDate: UPDATED_TIMESTAMP,
   invoiceNumber: 'INVOICE123456',
   agreementStart: new Date('2022-12-31'),

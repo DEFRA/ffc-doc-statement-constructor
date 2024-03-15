@@ -8,7 +8,6 @@ const processDax = async (dax) => {
   try {
     validateDax(dax, dax.paymentReference)
     await saveDax(dax, transaction)
-
     await transaction.commit()
   } catch (error) {
     await transaction.rollback()

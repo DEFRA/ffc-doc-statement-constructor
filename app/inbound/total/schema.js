@@ -14,8 +14,7 @@ const number50 = 50
 const number100 = 100
 
 module.exports = Joi.object({
-  calculationId: Joi.number().integer().required(),
-  calculationReference: Joi.number(),
+  calculationReference: Joi.number().integer().required(),
   sbi: Joi.number().integer().min(minSbi).max(maxSbi).required(),
   frn: Joi.number().integer().min(minFrn).max(maxFrn).required(),
   agreementNumber: Joi.number().integer().required(),
@@ -27,7 +26,7 @@ module.exports = Joi.object({
   agreementEnd: Joi.date().required(),
   totalAdditionalPayments: Joi.number().precision(number15).required(),
   totalActionPayments: Joi.number().precision(number15).required(),
-  totalPayment: Joi.number().precision(number15).required(),
+  totalPayments: Joi.number().precision(number15).required(),
   updated: Joi.date().required(),
   datePublished: Joi.date().allow(null),
   type: Joi.string().required().allow(TOTAL),

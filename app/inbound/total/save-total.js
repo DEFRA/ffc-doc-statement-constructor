@@ -4,11 +4,26 @@ const saveTotal = async (total, transaction) => {
   try {
     const totalCalculationIdConvert = {
       ...total,
-      calculationId: total.calculationReference
+      calculationId: total.calculationReference,
+      claimId: total.claimReference
     }
-    const savedTotal = await db.total.upsert(totalCalculationIdConvert, { transaction })
-    // delete total.calculationReference
-    return savedTotal
+    const totalClaimReferenceIdConvert = {
+      ...total,
+      calculationId: total.calculationReference,
+      claimId: total.claimReference
+    }
+
+    const returnTotal = {
+      ...total,
+      calculationId: total.calculationReference,
+      claimId: total.claimReference
+    }
+
+    delete returnTotal.calculationReference
+    delete returnTotal.claimReference
+
+    await db.total.upsert(totalCalculationIdConvert, totalClaimReferenceIdConvert, { transaction })
+    return returnTotal
   } catch (error) {
     throw new Error(`Error saving total: ${error.message}`)
   }

@@ -4,7 +4,7 @@ const mockTotal = require('../../mock-objects/mock-total')
 
 jest.mock('../../../app/data', () => ({
   total: {
-    create: jest.fn()
+    upsert: jest.fn()
   }
 }))
 
@@ -17,9 +17,9 @@ describe('saveTotal', () => {
 
   test('should save a total and return the saved total', async () => {
     const savedTotal = { id: 'savedTotal' }
-    db.total.create.mockResolvedValue(savedTotal)
+    db.total.upsert.mockResolvedValue(savedTotal)
     const result = await saveTotal(mockTotal, mockTransaction)
-    expect(db.total.create).toHaveBeenCalledWith(
+    expect(db.total.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         calculationId: 123456789
       }),
@@ -29,9 +29,9 @@ describe('saveTotal', () => {
   })
 
   test('should throw an error if saving the total fails', async () => {
-    const error = new Error('save error')
-    db.total.create.mockRejectedValue(error)
-
-    await expect(saveTotal(mockTotal, mockTransaction)).rejects.toThrow(`Error saving total: ${error.message}`)
+    const errorMessage = 'Error saving total: db.total.upsert is not a function'
+    const error = new Error(errorMessage)
+    db.total.upsert.mockRejectedValue(error)
+    await expect(saveTotal(mockTotal, mockTransaction)).rejects.toThrow(errorMessage)
   })
 })
