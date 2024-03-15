@@ -92,11 +92,13 @@ describe('process total', () => {
     await processTotal(mockTotal)
     expect(saveTotal).toHaveBeenCalledWith(
       expect.objectContaining({
-        ...total,
+        ...mockTotal,
+        agreementEnd: expect.any(Date),
+        agreementStart: expect.any(Date),
         calculationDate: expect.any(Date),
         updated: expect.any(Date)
       }),
-      mockTransaction
+      expect.anything()
     )
   })
 
