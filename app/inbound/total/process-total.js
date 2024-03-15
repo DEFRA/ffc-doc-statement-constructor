@@ -7,15 +7,14 @@ const saveActions = require('./save-actions')
 
 const processTotal = async (total) => {
   const transaction = await db.sequelize.transaction()
-
   try {
     const existingTotal = await getTotalByCalculationReference(total.calculationReference, transaction)
     if (existingTotal) {
       console.info(`Duplicate calculationReference received, skipping ${existingTotal.calculationReference}`)
+      console.info(`Duplicate calculationReference received, skipping ${existingTotal.calculationReference}`)
       await transaction.rollback()
     } else {
       await savePlaceholderOrganisation({ sbi: total.sbi }, total.sbi)
-
       const savedTotal = await saveTotal(total, transaction)
       await saveActions(total.actions, savedTotal.calculationId, transaction)
       await transaction.commit()
