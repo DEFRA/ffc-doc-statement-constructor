@@ -11,13 +11,10 @@ const processTotal = async (total) => {
   try {
     const existingTotal = await getTotalByCalculationReference(total.calculationReference, transaction)
     if (existingTotal) {
-      console.info(`Duplicate calculation received, skipping ${existingTotal.calculationReference}`)
+      console.info(`Duplicate calculationReference received, skipping ${existingTotal.calculationReference}`)
       await transaction.rollback()
     } else {
       await savePlaceholderOrganisation({ sbi: total.sbi }, total.sbi)
-
-      total.calculationId = total.calculationReference
-      delete total.calculationReference
 
       const savedTotal = await saveTotal(total, transaction)
       await saveActions(total.actions, savedTotal.calculationId, transaction)
