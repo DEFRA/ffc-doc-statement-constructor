@@ -2,30 +2,18 @@ const db = require('../../data')
 
 const saveTotal = async (total, transaction) => {
   try {
-    const totalCalculationIdConvert = {
-      ...total,
-      calculationId: total.calculationReference,
-      claimId: total.claimReference
-    }
-    const totalClaimReferenceIdConvert = {
+    const transformedTotal = {
       ...total,
       calculationId: total.calculationReference,
       claimId: total.claimReference
     }
 
-    const returnTotal = {
-      ...total,
-      calculationId: total.calculationReference,
-      claimId: total.claimReference
-    }
+    delete transformedTotal.calculationReference
+    delete transformedTotal.claimReference
 
-    delete returnTotal.calculationReference
-    delete returnTotal.claimReference
-
-    await db.total.upsert(totalCalculationIdConvert, totalClaimReferenceIdConvert, { transaction })
-    return returnTotal
+    await db.total.create(transformedTotal, { transaction })
   } catch (error) {
-    throw new Error(`Error saving total: ${error.message}`)
+    throw new Error(`Error saving total with Calculation Id ${total.calculationReference}: ${error.message}`)
   }
 }
 

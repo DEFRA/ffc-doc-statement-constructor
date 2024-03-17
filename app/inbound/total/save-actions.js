@@ -1,24 +1,18 @@
 const db = require('../../data')
 
 const saveAction = async (actions, transaction) => {
-  for (const action in actions) {
-    const actionCalculationIdConvert = {
-      ...actions,
-      actionId: action.actionReference,
-      calculationId: action.calculationReference
-    }
-    const actionClaimIdConvert = {
-      ...actions,
+  for (const action of actions) {
+    const transformedAction = {
+      ...action,
       actionId: action.actionReference,
       calculationId: action.calculationReference
     }
 
-    delete action.calculationReference
-    delete action.claimReference
+    delete transformedAction.actionReference
+    delete transformedAction.calculationReference
 
-    await db.action.upsert(actionCalculationIdConvert, actionClaimIdConvert, { transaction })
+    await db.action.create(transformedAction, { transaction })
   }
-  return null
 }
 
 module.exports = saveAction

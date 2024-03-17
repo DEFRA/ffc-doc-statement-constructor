@@ -16,8 +16,8 @@ const processTotal = async (total) => {
     } else {
       validateTotal(total, total.calculationReference)
       await savePlaceholderOrganisation({ sbi: total.sbi }, total.sbi)
-      const savedTotal = await saveTotal(total, transaction)
-      await saveActions(savedTotal.actions, savedTotal.calculationId, transaction)
+      await saveTotal(total, transaction)
+      await saveActions(total.actions, transaction)
       await transaction.commit()
     }
   } catch (error) {

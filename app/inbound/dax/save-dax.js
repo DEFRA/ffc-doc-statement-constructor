@@ -2,14 +2,13 @@ const db = require('../../data')
 
 const saveDax = async (dax, transaction) => {
   try {
-    const daxTotalCalculationIdConvert = {
+    const transformedDax = {
       ...dax,
       calculationId: dax.calculationReference
     }
-    delete dax.calculationReference
+    delete transformedDax.calculationReference
 
-    const savedDaxReference = await db.dax.upsert(daxTotalCalculationIdConvert, { transaction })
-    return savedDaxReference
+    await db.dax.create(transformedDax, { transaction })
   } catch (error) {
     throw new Error(`Error saving DAX: ${error.message}`)
   }
