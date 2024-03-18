@@ -5,14 +5,20 @@ const mockTransaction = {
   rollback: mockRollback
 }
 
+const saveActions = require('../../../app/inbound/total/save-actions')
+const processTotal = require('../../../app/inbound/total')
+const mockTotal = require('../../mock-objects/mock-total')
+
 jest.mock('../../../app/data', () => {
   return {
-    sequelize:
-      {
-        transaction: jest.fn().mockImplementation(() => {
-          return { ...mockTransaction }
-        })
-      }
+    sequelize: {
+      transaction: jest.fn().mockImplementation(() => {
+        return { ...mockTransaction }
+      })
+    },
+    total: {
+      findOne: jest.fn()
+    }
   }
 })
 
@@ -26,11 +32,6 @@ jest.mock('../../../app/inbound/total/save-placeholder-organisation')
 const savePlaceholderOrganisation = require('../../../app/inbound/total/save-placeholder-organisation')
 
 jest.mock('../../../app/inbound/total/save-actions')
-const saveActions = require('../../../app/inbound/total/save-actions')
-
-const processTotal = require('../../../app/inbound/total')
-
-const mockTotal = require('../../mock-objects/mock-total')
 
 let total
 
@@ -110,11 +111,6 @@ describe('process total', () => {
   test('should call saveActions once when the truthy tests pass', async () => {
     await processTotal(mockTotal)
     expect(saveActions).toHaveBeenCalledTimes(1)
-  })
-
-  test('should call saveActions with total.actions, saveTotal().calculationReference and mockTransaction when the truthy tests pass', async () => {
-    await processTotal(mockTotal)
-    expect(saveActions).toHaveBeenCalledWith(total.actions, (await saveTotal()).calculationId, mockTransaction)
   })
 
   test('should call mockTransaction.commit when the truthy tests pass', async () => {

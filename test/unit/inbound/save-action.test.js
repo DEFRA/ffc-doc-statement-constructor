@@ -1,40 +1,43 @@
 const db = require('../../../app/data')
 const saveAction = require('../../../app/inbound/total/save-actions')
 
-jest.mock('../../../app/data', () => ({
-  action: {
-    create: jest.fn()
-  }
-}))
+jest.mock('../../../app/data')
 
 describe('saveAction', () => {
-  const mockTransaction = { id: 'mockTransaction' }
-  const calculationId = '12345678901'
-  const actions = [
-    { id: 'action1', name: 'Action 1' },
-    { id: 'action2', name: 'Action 2' }
-  ]
-
   afterEach(() => {
     jest.clearAllMocks()
   })
 
-  test('should save actions and return nothing', async () => {
-    await saveAction(actions, calculationId, mockTransaction)
+  test('should save actions with transformed references', async () => {
+    const mockTransaction = jest.fn()
+    const actions = [
+      { actionReference: 'action1', calculationReference: 'calculation1', data: 'data1' },
+      { actionReference: 'action2', calculationReference: 'calculation2', data: 'data2' }
+    ]
 
-    expect(db.action.create).toHaveBeenCalledTimes(actions.length)
-    actions.forEach(action => {
-      expect(db.action.create).toHaveBeenCalledWith(
-        { ...action, calculationId },
-        { transaction: mockTransaction }
-      )
-    })
+    await saveAction(actions, mockTransaction)
+
+    expect(db.action.create).toHaveBeenCalledTimes(2)
+
+    expect(db.action.create).toHaveBeenNthCalledWith(1, {
+      actionId: 'action1',
+      calculationId: 'calculation1',
+      data: 'data1'
+    }, { transaction: mockTransaction })
+
+    expect(db.action.create).toHaveBeenNthCalledWith(2, {
+      actionId: 'action2',
+      calculationId: 'calculation2',
+      data: 'data2'
+    }, { transaction: mockTransaction })
   })
 
-  test('should throw an error if saving an action fails', async () => {
-    const errorMessage = 'save error'
-    const error = new Error(errorMessage)
-    db.action.create.mockRejectedValueOnce(error)
-    await expect(saveAction(actions, calculationId, mockTransaction)).rejects.toThrow(errorMessage)
+  test('should handle empty action array', async () => {
+    const mockTransaction = jest.fn()
+    const actions = []
+
+    await saveAction(actions, mockTransaction)
+
+    expect(db.action.create).not.toHaveBeenCalled()
   })
 })

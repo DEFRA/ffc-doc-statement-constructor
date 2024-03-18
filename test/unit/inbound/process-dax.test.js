@@ -5,29 +5,34 @@ const mockTransaction = {
   rollback: mockRollback
 }
 
-jest.mock('../../../app/data', () => {
-  return {
-    sequelize:
-       {
-         transaction: jest.fn().mockImplementation(() => {
-           return { ...mockTransaction }
-         })
-       }
-  }
-})
-
-jest.mock('../../../app/inbound/dax/save-dax')
+const getDaxByPaymentReference = require('../../../app/inbound/dax/get-dax-by-payment-reference')
 const saveDax = require('../../../app/inbound/dax/save-dax')
 const processDax = require('../../../app/inbound/dax')
-
 const validateDax = require('../../../app/inbound/dax/validate-dax')
 const mockDax = require('../../mock-objects/mock-dax')
 const mockInvalidDax = require('../../mock-objects/mock-invalid-dax')
 const schema = require('../../../app/inbound/dax/schema')
 
-let dax
+jest.mock('../../../app/data', () => {
+  const mockDax = {
+    create: jest.fn()
+  }
+  return {
+    sequelize: {
+      transaction: jest.fn().mockImplementation(() => {
+        return { ...mockTransaction }
+      })
+    },
+    dax: mockDax
+  }
+})
+
+jest.mock('../../../app/inbound/dax/get-dax-by-payment-reference')
+jest.mock('../../../app/inbound/dax/save-dax')
 
 describe('process dax', () => {
+  let dax
+
   beforeEach(() => {
     dax = JSON.parse(JSON.stringify(require('../../mock-objects/mock-dax')))
     saveDax.mockResolvedValue(undefined)
@@ -166,6 +171,24 @@ describe('process dax', () => {
     test('should not validate an invalid dax object', () => {
       const { error } = schema.validate(mockInvalidDax)
       expect(error).toBeDefined()
+    })
+  })
+
+  describe('process daxByPaymentReference', () => {
+    beforeEach(() => {
+      dax = JSON.parse(JSON.stringify(require('../../mock-objects/mock-dax')))
+      saveDax.mockResolvedValue(undefined)
+    })
+
+    afterEach(() => {
+      jest.clearAllMocks()
+    })
+
+    test('should call getDaxByPaymentReference with the correct parameters', async () => {
+      const paymentReference = mockDax.paymentReference
+      getDaxByPaymentReference.mockResolvedValue(mockDax)
+      await processDax(dax)
+      expect(getDaxByPaymentReference).toHaveBeenCalledWith(paymentReference, mockTransaction)
     })
   })
 })
