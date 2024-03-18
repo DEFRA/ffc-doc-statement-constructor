@@ -9,7 +9,6 @@ module.exports = {
   frn: FRN,
   agreementNumber: 123456789,
   calculationReference: 123456789,
-  calculationId: 123456789,
   claimReference: 123456789,
   schemeType: 'SFIA',
   calculationDate: UPDATED_TIMESTAMP,
@@ -18,7 +17,7 @@ module.exports = {
   agreementEnd: new Date('2022-01-01'),
   totalAdditionalPayments: 1234.56,
   totalActionPayments: 1234.56,
-  totalPayment: 9987.65,
+  totalPayments: 9987.65,
   actions: [],
   updated: UPDATED_TIMESTAMP,
   type: TOTAL_TYPE
