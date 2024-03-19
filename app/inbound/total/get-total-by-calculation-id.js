@@ -1,13 +1,13 @@
 const db = require('../../data')
 
-const getTotalByCalculationReference = async (calculationReference, transaction) => {
+const getTotalByCalculationId = async (calculationId, transaction) => {
   return db.total.findOne({
     transaction,
     lock: true,
     where: {
-      calculationId: calculationReference
+      calculationId
     }
   })
 }
 
-module.exports = getTotalByCalculationReference
+module.exports = getTotalByCalculationId
