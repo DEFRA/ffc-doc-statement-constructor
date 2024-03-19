@@ -1,8 +1,7 @@
 const { DATE: UPDATED_TIMESTAMP } = require('../mock-components/mock-dates').UPDATED
 
 module.exports = {
-  actionId: 1,
-  calculationId: 123759085,
+  actionReference: 1,
   calculationReference: 123759085,
   fundingCode: 80243,
   groupName: 'Actions for farmland wildlife on arable and horticultural land',
@@ -14,6 +13,5 @@ module.exports = {
   annualValue: '389.4',
   quarterlyValue: 97.35,
   overDeclarationPenalty: 0,
-  quarterlyPaymentAmount: 97.35,
-  datePublished: UPDATED_TIMESTAMP
+  quarterlyPaymentAmount: 97.35
 }

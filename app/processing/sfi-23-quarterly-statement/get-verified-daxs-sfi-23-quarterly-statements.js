@@ -6,9 +6,9 @@ const getVerifiedDaxsSfi23QuarterlyStatements = async () => {
   const transaction = await db.sequelize.transaction()
   try {
     const daxs = await getDaxsForSfi23QuarterlyStatement(transaction)
-    const verifiedDaxs = await updateDaxsForStartPublish(daxs, transaction)
+    await updateDaxsForStartPublish(daxs, transaction)
     await transaction.commit()
-    return verifiedDaxs
+    return daxs
   } catch (err) {
     await transaction.rollback()
     console.error('Could not start sfi-23 quarterly statements', err)

@@ -2,7 +2,8 @@ const {
   getVerifiedDaxsfi23QuarterlyStatements,
   sendSfi23QuarterlyStatement,
   updateDaxCompletePublishByDaxId,
-  resetDaxUnCompletePublishByDaxId
+  resetDaxUnCompletePublishByDaxId,
+  getSfi23QuarterlyStatementByPaymentReference
 } = require('./sfi-23-quarterly-statement')
 
 const processSfi23QuarterlyStatement = async () => {
@@ -10,7 +11,7 @@ const processSfi23QuarterlyStatement = async () => {
 
   for (const dax of daxs) {
     try {
-      const sfi23QuaterlyStaement = dax.sfi23QuaterlyStaement
+      const sfi23QuaterlyStaement = await getSfi23QuarterlyStatementByPaymentReference(dax.paymentReference)
       await sendSfi23QuarterlyStatement(sfi23QuaterlyStaement)
       await updateDaxCompletePublishByDaxId(dax.daxId)
     } catch (err) {
