@@ -1,5 +1,3 @@
-const { DATE: UPDATED_TIMESTAMP } = require('../mock-components/mock-dates').UPDATED
-
 module.exports = {
   actionReference: 1,
   calculationReference: 123759085,

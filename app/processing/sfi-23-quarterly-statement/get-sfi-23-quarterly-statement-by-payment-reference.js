@@ -22,7 +22,7 @@ const getSfi23QuarterlyStatementByPaymentReference = async (paymentReference) =>
     documentTypeId,
     documentSourceReference: paymentReference
   }
-  
+
   const { documentId } = await saveDocument(document)
 
   return {
