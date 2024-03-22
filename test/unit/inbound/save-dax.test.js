@@ -44,7 +44,7 @@ describe('validateDax', () => {
     const errorMessage = 'Validation error'
     schema.validate.mockReturnValueOnce({ error: new Error(errorMessage), value: null })
 
-    expect(() => validateDax(dax, paymentReference)).toThrow(`Payment request with paymentReference: ${paymentReference} does not have the required DAX data: ${errorMessage}`)
+    expect(() => validateDax(dax, paymentReference)).toThrow(`Dax validation on paymentReference: ${paymentReference} does not have the required DAX data: ${errorMessage}`)
   })
 })
 

@@ -22,8 +22,8 @@ jest.mock('../../../app/data', () => {
   }
 })
 
-jest.mock('../../../app/inbound/total/get-total-by-calculation-reference')
-const getTotalByCalculationReference = require('../../../app/inbound/total/get-total-by-calculation-reference')
+jest.mock('../../../app/inbound/total/get-total-by-calculation-id')
+const getTotalByCalculationId = require('../../../app/inbound/total/get-total-by-calculation-id')
 
 jest.mock('../../../app/inbound/total/save-total')
 const saveTotal = require('../../../app/inbound/total/save-total')
@@ -39,7 +39,7 @@ describe('process total', () => {
   beforeEach(() => {
     total = JSON.parse(JSON.stringify(require('../../mock-objects/mock-total')))
 
-    getTotalByCalculationReference.mockResolvedValue(null)
+    getTotalByCalculationId.mockResolvedValue(null)
     savePlaceholderOrganisation.mockResolvedValue(undefined)
     saveActions.mockResolvedValue(undefined)
     saveTotal.mockResolvedValue({ ...total, calculationId: 1 })
@@ -49,19 +49,19 @@ describe('process total', () => {
     jest.clearAllMocks()
   })
 
-  test('should call getTotalByCalculationReference when a valid total is given and a previous total does not exist', async () => {
+  test('should call getTotalByCalculationId when a valid total is given and a previous total does not exist', async () => {
     await processTotal(mockTotal)
-    expect(getTotalByCalculationReference).toHaveBeenCalled()
+    expect(getTotalByCalculationId).toHaveBeenCalled()
   })
 
-  test('should call getTotalByCalculationReference once when a valid total is given and a previous total does not exist', async () => {
+  test('should call getTotalByCalculationId once when a valid total is given and a previous total does not exist', async () => {
     await processTotal(mockTotal)
-    expect(getTotalByCalculationReference).toHaveBeenCalledTimes(1)
+    expect(getTotalByCalculationId).toHaveBeenCalledTimes(1)
   })
 
-  test('should call getTotalByCalculationReference with total.calculationReference and mockTransaction when the truthy tests pass', async () => {
+  test('should call getTotalByCalculationId with total.calculationId and mockTransaction when the truthy tests pass', async () => {
     await processTotal(mockTotal)
-    expect(getTotalByCalculationReference).toHaveBeenCalledWith(total.calculationReference, mockTransaction)
+    expect(getTotalByCalculationId).toHaveBeenCalledWith(total.calculationId, mockTransaction)
   })
 
   test('should call savePlaceholderOrganisation when the truthy tests pass', async () => {
@@ -128,56 +128,56 @@ describe('process total', () => {
     expect(mockTransaction.rollback).not.toHaveBeenCalled()
   })
 
-  test('should call getTotalByCalculationReference when the truthy tests pass', async () => {
-    getTotalByCalculationReference.mockResolvedValue(total)
+  test('should call getTotalByCalculationId when the truthy tests pass', async () => {
+    getTotalByCalculationId.mockResolvedValue(total)
     await processTotal(mockTotal)
-    expect(getTotalByCalculationReference).toHaveBeenCalled()
+    expect(getTotalByCalculationId).toHaveBeenCalled()
   })
 
-  test('should call getTotalByCalculationReference once when the truthy tests pass', async () => {
-    getTotalByCalculationReference.mockResolvedValue(total)
+  test('should call getTotalByCalculationId once when the truthy tests pass', async () => {
+    getTotalByCalculationId.mockResolvedValue(total)
     await processTotal(mockTotal)
-    expect(getTotalByCalculationReference).toHaveBeenCalledTimes(1)
+    expect(getTotalByCalculationId).toHaveBeenCalledTimes(1)
   })
 
-  test('should call getTotalByCalculationReference with total.calculationReference and mockTransaction when the truthy tests pass', async () => {
-    getTotalByCalculationReference.mockResolvedValue(total)
+  test('should call getTotalByCalculationId with total.calculationId and mockTransaction when the truthy tests pass', async () => {
+    getTotalByCalculationId.mockResolvedValue(total)
     await processTotal(mockTotal)
-    expect(getTotalByCalculationReference).toHaveBeenCalledWith(total.calculationReference, mockTransaction)
+    expect(getTotalByCalculationId).toHaveBeenCalledWith(total.calculationId, mockTransaction)
   })
 
   test('should call mockTransaction.rollback when the truthy tests pass', async () => {
-    getTotalByCalculationReference.mockResolvedValue(total)
+    getTotalByCalculationId.mockResolvedValue(total)
     await processTotal(mockTotal)
     expect(mockTransaction.rollback).toHaveBeenCalled()
   })
 
   test('should call mockTransaction.rollback once when the truthy tests pass', async () => {
-    getTotalByCalculationReference.mockResolvedValue(total)
+    getTotalByCalculationId.mockResolvedValue(total)
     await processTotal(mockTotal)
     expect(mockTransaction.rollback).toHaveBeenCalledTimes(1)
   })
 
   test('should not call savePlaceholderOrganisation when the truthy tests pass', async () => {
-    getTotalByCalculationReference.mockResolvedValue(total)
+    getTotalByCalculationId.mockResolvedValue(total)
     await processTotal(mockTotal)
     expect(savePlaceholderOrganisation).not.toHaveBeenCalled()
   })
 
   test('should not call saveTotal when the truthy tests pass', async () => {
-    getTotalByCalculationReference.mockResolvedValue(total)
+    getTotalByCalculationId.mockResolvedValue(total)
     await processTotal(mockTotal)
     expect(saveTotal).not.toHaveBeenCalled()
   })
 
   test('should not call saveActions when the truthy tests pass', async () => {
-    getTotalByCalculationReference.mockResolvedValue(total)
+    getTotalByCalculationId.mockResolvedValue(total)
     await processTotal(mockTotal)
     expect(saveActions).not.toHaveBeenCalled()
   })
 
-  test('should throw when getTotalByCalculationReference throws', async () => {
-    getTotalByCalculationReference.mockRejectedValue(new Error('Database retrieval issue'))
+  test('should throw when getTotalByCalculationId throws', async () => {
+    getTotalByCalculationId.mockRejectedValue(new Error('Database retrieval issue'))
 
     const wrapper = async () => {
       await processTotal(mockTotal)
@@ -186,8 +186,8 @@ describe('process total', () => {
     expect(wrapper).rejects.toThrow()
   })
 
-  test('should throw Error when getTotalByCalculationReference throws Error', async () => {
-    getTotalByCalculationReference.mockRejectedValue(new Error('Database retrieval issue'))
+  test('should throw Error when getTotalByCalculationId throws Error', async () => {
+    getTotalByCalculationId.mockRejectedValue(new Error('Database retrieval issue'))
 
     const wrapper = async () => {
       await processTotal(mockTotal)
@@ -196,16 +196,16 @@ describe('process total', () => {
     expect(wrapper).rejects.toThrow(Error)
   })
 
-  test('should throw error with "Database retrieval issue" when getTotalByCalculationReference throws error', async () => {
-    getTotalByCalculationReference.mockRejectedValue(new Error('Database retrieval issue'))
+  test('should throw error with "Database retrieval issue" when getTotalByCalculationId throws error', async () => {
+    getTotalByCalculationId.mockRejectedValue(new Error('Database retrieval issue'))
     const wrapper = async () => {
       await processTotal(mockTotal)
     }
     await expect(wrapper).rejects.toThrow('Database retrieval issue')
   })
-  test('should throw error with "Payment request with calculationId:" when getTotalByCalculationReference throws error', async () => {
+  test('should throw error with "Payment request with calculationId:" when getTotalByCalculationId throws error', async () => {
     const errorMessage = 'Payment request with calculationId: 12345678901 does not have the required TOTAL data'
-    getTotalByCalculationReference.mockRejectedValue(new Error(errorMessage))
+    getTotalByCalculationId.mockRejectedValue(new Error(errorMessage))
     const wrapper = async () => {
       await processTotal(mockTotal)
     }
@@ -307,14 +307,14 @@ describe('process total', () => {
     expect(wrapper).rejects.toThrow(Error)
   })
 
-  test('should call mockTransaction.rollback when getTotalByCalculationReference throws', async () => {
-    getTotalByCalculationReference.mockRejectedValue(new Error('Database retrieval issue'))
+  test('should call mockTransaction.rollback when getTotalByCalculationId throws', async () => {
+    getTotalByCalculationId.mockRejectedValue(new Error('Database retrieval issue'))
     try { await processTotal(mockTotal) } catch { }
     expect(mockTransaction.rollback).toHaveBeenCalled()
   })
 
-  test('should call mockTransaction.rollback once when getTotalByCalculationReference throws', async () => {
-    getTotalByCalculationReference.mockRejectedValue(new Error('Database retrieval issue'))
+  test('should call mockTransaction.rollback once when getTotalByCalculationId throws', async () => {
+    getTotalByCalculationId.mockRejectedValue(new Error('Database retrieval issue'))
     try { await processTotal(mockTotal) } catch { }
     expect(mockTransaction.rollback).toHaveBeenCalledTimes(1)
   })

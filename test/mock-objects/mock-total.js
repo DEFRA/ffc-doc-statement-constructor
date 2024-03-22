@@ -3,7 +3,7 @@ const { TOTAL: TOTAL_TYPE } = require('../../app/constants/types')
 const { DATE: UPDATED_TIMESTAMP } = require('../mock-components/mock-dates').UPDATED
 const SBI = require('../mock-components/mock-sbi')
 const FRN = require('../mock-components/mock-frn')
-const ACTION = require('../mock-objects/mock-actions')
+const ACTIONS = require('../mock-objects/mock-actions')
 
 module.exports = {
   sbi: SBI,
@@ -19,7 +19,7 @@ module.exports = {
   totalAdditionalPayments: 1234.56,
   totalActionPayments: 1234.56,
   totalPayments: 9987.65,
-  actions: [ACTION],
+  actions: [ACTIONS],
   updated: UPDATED_TIMESTAMP,
   type: TOTAL_TYPE
 }

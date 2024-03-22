@@ -13,4 +13,10 @@ describe('validateTotal', () => {
     const calculationId = '12345678901'
     expect(() => validateTotal(mockInvalidTotal, calculationId)).toThrow(`Payment request with calculationId: ${calculationId} does not have the required TOTAL data`)
   })
+
+  test('should validate a valid action', () => {
+    const calculationId = '12345678901'
+    const result = validateTotal(mockTotal, calculationId)
+    expect(result).toEqual(mockTotal)
+  })
 })
