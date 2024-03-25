@@ -6,6 +6,7 @@ const schema = Joi.object({
   scheduleProcessingMaxBatchSize: Joi.number().default(100),
   statementConstructionActive: Joi.boolean().default(true),
   scheduleConstructionActive: Joi.boolean().default(true),
+  sfi23QuarterlyStatementConstructionActive: Joi.boolean().default(true),
   settlementWaitTime: Joi.number().default(10000) // 10 seconds
 })
 
@@ -15,6 +16,7 @@ const config = {
   scheduleProcessingMaxBatchSize: process.env.SCHEDULE_PROCESSING_MAX_BATCH_SIZE,
   statementConstructionActive: process.env.STATEMENT_CONSTRUCTION_ACTIVE,
   scheduleConstructionActive: process.env.SCHEDULE_CONSTRUCTION_ACTIVE,
+  sfi23QuarterlyStatementConstructionActive: process.env.SFI_23_QUARTERLY_STATEMENT_CONSTRUCTION_ACTIVE,
   settlementWaitTime: process.env.SETTLEMENT_WAIT_TIME
 }
 

@@ -1,22 +1,33 @@
-
 jest.mock('../../../app/inbound/calculation/process-calculation')
 const processCalculation = require('../../../app/inbound/calculation/process-calculation')
 
 jest.mock('../../../app/inbound/organisation/process-organisation')
 const processOrganisation = require('../../../app/inbound/organisation/process-organisation')
 
+jest.mock('../../../app/inbound/total/process-total')
+const processTotal = require('../../../app/inbound/total/process-total')
+
+jest.mock('../../../app/inbound/dax/process-dax')
+const processDax = require('../../../app/inbound/dax/process-dax')
+
 const processStatementData = require('../../../app/inbound/statement-data')
 
 let calculationData
 let organisationData
+let totalData
+let daxData
 
 describe('process statement data', () => {
   beforeEach(() => {
     calculationData = JSON.parse(JSON.stringify(require('../../mock-objects/mock-calculation')))
     organisationData = JSON.parse(JSON.stringify(require('../../mock-objects/mock-organisation')))
+    totalData = JSON.parse(JSON.stringify(require('../../mock-objects/mock-total')))
+    daxData = JSON.parse(JSON.stringify(require('../../mock-objects/mock-dax')))
 
     processCalculation.mockResolvedValue(undefined)
     processOrganisation.mockResolvedValue(undefined)
+    processTotal.mockResolvedValue(undefined)
+    processDax.mockResolvedValue(undefined)
   })
 
   afterEach(() => {
@@ -36,6 +47,36 @@ describe('process statement data', () => {
   test('should call processCalculation with statementData when calculationData is given', async () => {
     await processStatementData(calculationData)
     expect(processCalculation).toHaveBeenCalledWith(calculationData)
+  })
+
+  test('should call processTotal when totalData is given', async () => {
+    await processStatementData(totalData)
+    expect(processTotal).toHaveBeenCalled()
+  })
+
+  test('should call processTotal once when totalData is given', async () => {
+    await processStatementData(totalData)
+    expect(processTotal).toHaveBeenCalledTimes(1)
+  })
+
+  test('should call processTotal with statementData when totalData is given', async () => {
+    await processStatementData(totalData)
+    expect(processTotal).toHaveBeenCalledWith(totalData)
+  })
+
+  test('should call processDax when daxData is given', async () => {
+    await processStatementData(daxData)
+    expect(processDax).toHaveBeenCalled()
+  })
+
+  test('should call processDax once when daxData is given', async () => {
+    await processStatementData(daxData)
+    expect(processDax).toHaveBeenCalledTimes(1)
+  })
+
+  test('should call processDax with daxData when calculationData is given', async () => {
+    await processStatementData(daxData)
+    expect(processDax).toHaveBeenCalledWith(daxData)
   })
 
   test('should not call processOrganisation when calculationData is given', async () => {

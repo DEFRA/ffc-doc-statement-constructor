@@ -453,37 +453,68 @@ components:
             $ref: '#/components/schemas/Funding'
     SFI23QuarterlyPaymentStatement:
       type: object
-      required:
-        - businessName
-        - sbi
-        - frn
-        - address
-        - scheme
-        - payments
-        - funding
       properties:
-        businessName:
+        name:
           $ref: '#/components/schemas/BusinessName'
         sbi:
           $ref: '#/components/schemas/SBI'
         frn:
           $ref: '#/components/schemas/FRN'
-        email:
-          $ref: '#/components/schemas/EmailAddress'
-        address:
-          $ref: '#/components/schemas/Address'
-        scheme:
-          $ref: '#/components/schemas/Scheme'
-        payments:
+        addressLine1:
+          $ref: '#/components/schemas/AddressLine1'
+        addressLine2:
+          $ref: '#/components/schemas/AddressLine2'
+        addressLine3:
+          $ref: '#/components/schemas/AddressLine3'
+        city:
+          $ref: '#/components/schemas/City'
+        county:
+          $ref: '#/components/schemas/County'
+        postcode:
+          $ref: '#/components/schemas/Postcode'
+        emailAddress:
+          $ref: '#/components/schemas/Email'
+        calculationReference:
+          $ref: '#/components/schemas/CalculationId'
+        agreementNumber:
+          $ref: '#/components/schemas/AgreementNumber'
+        agreementEnd:
+          $ref: '#/components/schemas/AgreementEnd'
+        agreementStart:
+          $ref: '#/components/schemas/AgreementStart'
+        claimReference:
+          $ref: '#/components/schemas/ClaimId'
+        calculationDate:
+          $ref: '#/components/schemas/CalculationDate'
+        invoiceNumber:
+          $ref: '#/components/schemas/InvoiceNumber'
+        schemeName:
+          $ref: '#/components/schemas/SchemeName'
+        totalActionPayment:
+          $ref: '#/components/schemas/TotalActionPayment'
+        totalAdditionalPayment:
+          $ref: '#/components/schemas/TotalAdditionalPayment'
+        totalPayment:
+          $ref: '#/components/schemas/TotalPayment'
+        updated:
+          $ref: '#/components/schemas/Updated'
+        actionGroups:
           type: array
           items:
-            $ref: '#/components/schemas/Payment'
-        funding:
+            $ref: '#/components/schemas/ActionGroup'
+        previousPaymentCount:
+           $ref: '#/components/schemas/PreviousPaymentCount' 
+        documentReference:
+          $ref: '#/components/schemas/DocumentReference'
+    ActionGroup:
+      type: object
+      properties:
+        groupName:
+          $ref: '#/components/schemas/GroupName'
+        actions:
           type: array
           items:
-            $ref: '#/components/schemas/Funding'
-        type:
-          $ref: '#/components/schemas/TypeSFI23QuarterlyStatement'
+            $ref: '#/components/schemas/Action'
     Action:
       type: object
       properties:
@@ -992,6 +1023,12 @@ components:
         an adjustment
       minimum: 1
       maximum: 99
+    PreviousPaymentCount:
+      type: number
+      description: >-
+        No of previous payment(s) that have been made on a calculation
+      minimum: 0
+      example: 0
     Reference:
       type: string
       description: Settlement reference of payment request
@@ -1113,3 +1150,7 @@ components:
       type: string
       description: Type of scheme that payment is made for.
       example: SFI-23
+    SchemeName:
+      type: string
+      description: Full name of scheme.
+      example: Sustainable Farming Incentive
