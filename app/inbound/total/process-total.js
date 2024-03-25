@@ -9,12 +9,12 @@ const validateTotal = require('./validate-total')
 const processTotal = async (total) => {
   const transaction = await db.sequelize.transaction()
   try {
-    const existingTotal = await getTotalByCalculationId(total.calculationId, transaction)
+    const existingTotal = await getTotalByCalculationId(total.calculationReference, transaction)
     if (existingTotal) {
       console.info(`Duplicate calculationId received, skipping ${existingTotal.calculationId}`)
       await transaction.rollback()
     } else {
-      validateTotal(total, total.calculationId)
+      validateTotal(total, total.calculationReference)
       await savePlaceholderOrganisation({ sbi: total.sbi }, total.sbi)
       await saveTotal(total, transaction)
       await saveActions(total.actions, transaction)

@@ -3,8 +3,8 @@ const db = require('../../../data')
 const getSchemeByCode = async (code) => {
   return db.scheme.findOne({
     attributes: [
-      ['name', 'schemeName'],
-      ['code', 'schemeCode']
+      'name', 
+      'code'
     ],
     where: {
       code

@@ -1,5 +1,6 @@
 const validateTotal = require('../../../app/inbound/total/validate-total')
 const mockTotal = require('../../mock-objects/mock-total')
+
 const mockInvalidTotal = require('../../mock-objects/mock-invalid-total')
 
 describe('validateTotal', () => {
