@@ -6,7 +6,7 @@ const validateTotal = (totals, calculationId) => {
   })
 
   if (result.error) {
-    throw new Error(`Payment request with calculationId: ${calculationId} does not have the required TOTAL data: ${result.error.message}`)
+    throw new Error(`Total with calculationId: ${calculationId} does not have the required TOTAL data: ${result.error.message}`)
   }
 
   return result.value
