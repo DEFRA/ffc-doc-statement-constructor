@@ -617,7 +617,7 @@ components:
       description: The group name of the action
       example: Actions for hedgerows
     OverDeclarationPenalty:
-      type: number
+      type: string
       format: decimal
       description: The over declaration penalty
       example: 120.50
@@ -635,10 +635,10 @@ components:
       description: Unique identifier for payment as shown on the remittance advice
       example: PY1234545
     QuarterlyPaymentAmount:
-      type: number
+      type: string
       format: decimal
       description: The quarterly payment amount
-      example: 100.5
+      example: 100.50
     QuarterlyValue:
       type: string
       description: The quarterly value
@@ -652,17 +652,17 @@ components:
       description: Payment in pounds sterling per hectare
       example: £22.5/ha
     TotalActionPayments:
-      type: number
+      type: string
       format: decimal
       description: Sum of all Action Payment
       example: 100.5
     TotalAdditionalPayments:
-      type: number
+      type: string
       format: decimal
       description: Sum of all Additional Payment
       example: 50.2
     TotalPayments:
-      type: number
+      type: string
       format: decimal
       description: Sum of all Payment
       example: 150.7
