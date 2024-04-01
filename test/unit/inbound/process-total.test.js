@@ -59,9 +59,9 @@ describe('process total', () => {
     expect(getTotalByCalculationId).toHaveBeenCalledTimes(1)
   })
 
-  test('should call getTotalByCalculationId with total.calculationId and mockTransaction when the truthy tests pass', async () => {
+  test('should call getTotalByCalculationId with mockTotal.calculationReference and mockTransaction when the truthy tests pass', async () => {
     await processTotal(mockTotal)
-    expect(getTotalByCalculationId).toHaveBeenCalledWith(total.calculationId, mockTransaction)
+    expect(getTotalByCalculationId).toHaveBeenCalledWith(mockTotal.calculationReference, mockTransaction)
   })
 
   test('should call savePlaceholderOrganisation when the truthy tests pass', async () => {
@@ -140,10 +140,10 @@ describe('process total', () => {
     expect(getTotalByCalculationId).toHaveBeenCalledTimes(1)
   })
 
-  test('should call getTotalByCalculationId with total.calculationId and mockTransaction when the truthy tests pass', async () => {
+  test('should call getTotalByCalculationId with mockTotal.calculationReference and mockTransaction when the truthy tests pass', async () => {
     getTotalByCalculationId.mockResolvedValue(total)
     await processTotal(mockTotal)
-    expect(getTotalByCalculationId).toHaveBeenCalledWith(total.calculationId, mockTransaction)
+    expect(getTotalByCalculationId).toHaveBeenCalledWith(mockTotal.calculationReference, mockTransaction)
   })
 
   test('should call mockTransaction.rollback when the truthy tests pass', async () => {
