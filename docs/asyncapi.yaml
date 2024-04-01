@@ -490,12 +490,12 @@ components:
           $ref: '#/components/schemas/InvoiceNumber'
         schemeName:
           $ref: '#/components/schemas/SchemeName'
-        totalActionPayment:
-          $ref: '#/components/schemas/TotalActionPayment'
-        totalAdditionalPayment:
-          $ref: '#/components/schemas/TotalAdditionalPayment'
-        totalPayment:
-          $ref: '#/components/schemas/TotalPayment'
+        totalActionPayments:
+          $ref: '#/components/schemas/TotalActionPayments'
+        totalAdditionalPayments:
+          $ref: '#/components/schemas/TotalAdditionalPayments'
+        totalPayments:
+          $ref: '#/components/schemas/TotalPayments'
         updated:
           $ref: '#/components/schemas/Updated'
         actionGroups:

@@ -9,7 +9,6 @@ const getDocumentTypeByCode = require('./get-documentType-by-code')
 const getAddressFromOrganisation = require('./get-address-from-organisation')
 
 const { SFI23QUARTERLYSTATEMENT } = require('../../constants/document-types')
-const { agreementNumber } = require('../../../test/mock-objects/mock-invalid-total')
 
 const getSfi23QuarterlyStatementByPaymentReference = async (paymentReference) => {
   const sfi23MarketingYear = '2023'
@@ -23,7 +22,7 @@ const getSfi23QuarterlyStatementByPaymentReference = async (paymentReference) =>
   const actionGroups = await getActionGroups(total.calculationReference)
   const { documentTypeId } = await getDocumentTypeByCode(SFI23QUARTERLYSTATEMENT)
   const previousPaymentCount = await getPreviousPaymentCountByCalculationId(dax.calculationId)
-  const scheme = { 
+  const scheme = {
     name: schemeData.name,
     shortName: sfi23ShortName,
     year: sfi23MarketingYear,
