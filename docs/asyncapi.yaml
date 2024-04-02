@@ -240,12 +240,12 @@ components:
           $ref: '#/components/schemas/InvoiceNumber'
         schemeType:
           $ref: '#/components/schemas/SchemeType'
-        totalActionPayment:
-          $ref: '#/components/schemas/TotalActionPayment'
-        totalAdditionalPayment:
-          $ref: '#/components/schemas/TotalAdditionalPayment'
-        totalPayment:
-          $ref: '#/components/schemas/TotalPayment'
+        totalActionPayments:
+          $ref: '#/components/schemas/TotalActionPayments'
+        totalAdditionalPayments:
+          $ref: '#/components/schemas/TotalAdditionalPayments'
+        totalPayments:
+          $ref: '#/components/schemas/TotalPayments'
         updated:
           $ref: '#/components/schemas/Updated'
         actions:
@@ -272,7 +272,7 @@ components:
         groupName:
           $ref: '#/components/schemas/GroupName'
         landArea:
-          $ref: '#/components/schemas/AreaClaimed'
+          $ref: '#/components/schemas/LandArea'
         overDeclarationPenalty:
           $ref: '#/components/schemas/OverDeclarationPenalty'
         quarterlyPaymentAmount:
@@ -540,10 +540,9 @@ components:
       description: The date the Agreement Start
       example: '2022-08-22T16:45:20.891Z'
     AnnualValue:
-      type: number
-      format: decimal
+      type: string
       description: The annual value of the action
-      example: 402.00
+      example: £1200 + £22.5/ha
     FRN:
       type: number
       description: Firm Reference Number
@@ -609,12 +608,16 @@ components:
       format: decimal
       description: The area claimed for the calculation in hectares
       example: 84.05
+    LandArea:
+      type: string
+      description: The area claimed for the calculation in hectares
+      example: 84.05
     GroupName:
       type: string
       description: The group name of the action
       example: Actions for hedgerows
     OverDeclarationPenalty:
-      type: number
+      type: string
       format: decimal
       description: The over declaration penalty
       example: 120.50
@@ -632,36 +635,34 @@ components:
       description: Unique identifier for payment as shown on the remittance advice
       example: PY1234545
     QuarterlyPaymentAmount:
-      type: number
+      type: string
       format: decimal
       description: The quarterly payment amount
-      example: 100.5
+      example: 100.50
     QuarterlyValue:
-      type: number
-      format: decimal
+      type: string
       description: The quarterly value
-      example: 100.5
+      example: £100.50
     UnitOfMeasure:
       type: string
       description: The unit of measure
       example: Ha
     Rate:
-      type: number
-      format: decimal
+      type: string
       description: Payment in pounds sterling per hectare
-      example: 22.5
-    TotalActionPayment:
-      type: number
+      example: £22.5/ha
+    TotalActionPayments:
+      type: string
       format: decimal
       description: Sum of all Action Payment
       example: 100.5
-    TotalAdditionalPayment:
-      type: number
+    TotalAdditionalPayments:
+      type: string
       format: decimal
       description: Sum of all Additional Payment
       example: 50.2
-    TotalPayment:
-      type: number
+    TotalPayments:
+      type: string
       format: decimal
       description: Sum of all Payment
       example: 150.7
