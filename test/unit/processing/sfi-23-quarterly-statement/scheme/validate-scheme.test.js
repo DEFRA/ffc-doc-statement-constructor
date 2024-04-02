@@ -7,7 +7,7 @@ let retrievedScheme
 
 describe('validate dax', () => {
   beforeEach(() => {
-    retrievedScheme = JSON.parse(JSON.stringify(require('../../../../mock-objects/mock-schene')))
+    retrievedScheme = JSON.parse(JSON.stringify(require('../../../../mock-objects/mock-scheme')))
     schema.validate.mockReturnValue({ value: retrievedScheme })
   })
 

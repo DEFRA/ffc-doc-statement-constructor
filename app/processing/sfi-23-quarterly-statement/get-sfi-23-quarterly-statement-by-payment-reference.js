@@ -5,7 +5,7 @@ const getScheme = require('./scheme')
 const getActionGroups = require('./action-groups')
 const saveDocument = require('./save-document')
 const getPreviousPaymentCountByCalculationId = require('./get-previous-payment-count-by-document-id')
-const getDocumentTypeByCode = require('./get-documentType-by-code')
+const getDocumentTypeByCode = require('./get-document-type-by-code')
 const getAddressFromOrganisation = require('./get-address-from-organisation')
 
 const { SFI23QUARTERLYSTATEMENT } = require('../../constants/document-types')
