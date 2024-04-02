@@ -454,26 +454,18 @@ components:
     SFI23QuarterlyPaymentStatement:
       type: object
       properties:
-        name:
+        businessName:
           $ref: '#/components/schemas/BusinessName'
         sbi:
           $ref: '#/components/schemas/SBI'
         frn:
           $ref: '#/components/schemas/FRN'
-        addressLine1:
-          $ref: '#/components/schemas/AddressLine1'
-        addressLine2:
-          $ref: '#/components/schemas/AddressLine2'
-        addressLine3:
-          $ref: '#/components/schemas/AddressLine3'
-        city:
-          $ref: '#/components/schemas/City'
-        county:
-          $ref: '#/components/schemas/County'
-        postcode:
-          $ref: '#/components/schemas/Postcode'
-        emailAddress:
-          $ref: '#/components/schemas/Email'
+        email:
+          $ref: '#/components/schemas/EmailAddress'
+        address:
+          $ref: '#/components/schemas/Address'
+        scheme:
+          $ref: '#/components/schemas/Scheme'
         calculationReference:
           $ref: '#/components/schemas/CalculationId'
         agreementNumber:
@@ -488,16 +480,24 @@ components:
           $ref: '#/components/schemas/CalculationDate'
         invoiceNumber:
           $ref: '#/components/schemas/InvoiceNumber'
-        schemeName:
-          $ref: '#/components/schemas/SchemeName'
+        schemeCode:
+          $ref: '#/components/schemas/SchemeCode'
         totalActionPayments:
           $ref: '#/components/schemas/TotalActionPayments'
         totalAdditionalPayments:
           $ref: '#/components/schemas/TotalAdditionalPayments'
         totalPayments:
           $ref: '#/components/schemas/TotalPayments'
-        updated:
-          $ref: '#/components/schemas/Updated'
+        paymentReference:
+          $ref: '#/components/schemas/PaymentReference'
+        calculationId:
+          $ref: '#/components/schemas/CalculationId'
+        paymentPeriod:
+          $ref: '#/components/schemas/PaymentPeriod'
+        paymentAmount:
+          $ref: '#/components/schemas/PaymentAmount'
+        transactionDate:
+          $ref: '#/components/schemas/TransactionDate'
         actionGroups:
           type: array
           items:
@@ -745,6 +745,8 @@ components:
           type: string
           description: The frequency of payments
           example: Quarterly
+        agreementNumber:
+           $ref: '#/components/schemas/AgreementNumber'
     Payment:
       type: object
       required:
