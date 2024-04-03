@@ -33,6 +33,6 @@ describe('process get calculation object', () => {
   test('should return all actions in action db table that have provided calculationReference as calculationId', async () => {
     const actionGroups = await getActionsGroupsByActions(actions)
     const groupObjects = groupBy(actions, 'groupName')
-    expect(actionGroups).toStrictEqual(Object.keys(groupObjects).map(key => ({ groupName: key, actions: JSON.stringify(groupObjects[key]) })))
+    expect(actionGroups).toStrictEqual(Object.keys(groupObjects).map(key => ({ groupName: key, actions: groupObjects[key] })))
   })
 })
