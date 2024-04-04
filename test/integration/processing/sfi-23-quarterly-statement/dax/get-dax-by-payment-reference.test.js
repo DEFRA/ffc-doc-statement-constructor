@@ -12,7 +12,6 @@ test('should return the DAX record for a given payment reference', async () => {
     transactionDate: '2022-01-01'
   }
 
-  // Mock the db.dax.findOne function to return the expected DAX record
   db.dax.findOne = jest.fn().mockResolvedValue(expectedDaxRecord)
 
   const result = await getDaxByPaymentReference(paymentReference)
@@ -36,7 +35,6 @@ test('should return the DAX record for a given payment reference', async () => {
 test('should return null if no DAX record is found for the given payment reference', async () => {
   const paymentReference = 'XYZ789'
 
-  // Mock the db.dax.findOne function to return null
   db.dax.findOne = jest.fn().mockResolvedValue(null)
 
   const result = await getDaxByPaymentReference(paymentReference)

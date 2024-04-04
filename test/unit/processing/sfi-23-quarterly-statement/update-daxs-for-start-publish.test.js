@@ -15,7 +15,7 @@ describe('updateDaxsForStartPublish', () => {
       { daxId: 2, paymentReference: 'payment2' },
       { daxId: 3, paymentReference: 'payment3' }
     ]
-    const transaction = {} // Mock transaction object
+    const transaction = {}
 
     await updateDaxsForStartPublish(daxs, transaction)
 
