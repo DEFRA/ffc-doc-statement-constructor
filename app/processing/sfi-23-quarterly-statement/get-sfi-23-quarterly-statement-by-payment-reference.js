@@ -13,7 +13,7 @@ const { SFI23QUARTERLYSTATEMENT } = require('../../constants/document-types')
 const getSfi23QuarterlyStatementByPaymentReference = async (paymentReference) => {
   const sfi23MarketingYear = '2023'
   const sfi23ShortName = 'SFI'
-  const sfi23Frequency = 'Q4'
+  const sfi23Frequency = 'Quarterly'
   const dax = await getDax(paymentReference)
   const total = await getTotal(dax.calculationId)
   const organisation = await getOrganisation(total.sbi)
