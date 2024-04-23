@@ -3,13 +3,14 @@ const { TOTAL: TOTAL_TYPE } = require('../../app/constants/types')
 const { DATE: UPDATED_TIMESTAMP } = require('../mock-components/mock-dates').UPDATED
 const SBI = require('../mock-components/mock-sbi')
 const FRN = require('../mock-components/mock-frn')
-const ACTIONS = require('../mock-objects/mock-actions')
+const CALCULATION_REFERENCE = require('../mock-components/mock-calculation-reference')
+const ACTION = require('./mock-action')
 
 module.exports = {
   sbi: SBI,
   frn: FRN,
   agreementNumber: 123456789,
-  calculationReference: 123456789,
+  calculationReference: CALCULATION_REFERENCE,
   claimReference: 123456789,
   schemeType: 'SFIA',
   calculationDate: UPDATED_TIMESTAMP,
@@ -19,7 +20,7 @@ module.exports = {
   totalAdditionalPayments: 1234.56,
   totalActionPayments: 1234.56,
   totalPayments: 9987.65,
-  actions: [ACTIONS],
+  actions: [ACTION],
   updated: UPDATED_TIMESTAMP,
   type: TOTAL_TYPE
 }

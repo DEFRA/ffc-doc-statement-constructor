@@ -1,0 +1,36 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+  <changeSet id ="1" author="Abidemi Adio">
+    <tagDatabase tag="v1.30.0" />
+  </changeSet>
+  <changeSet id="2" author="Abidemi Adio">
+    <createTable tableName="documents">
+      <column name="documentId" type="INTEGER" autoIncrement="true">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="documentsId_pkey" />
+      </column>
+      <column name="documentTypeId" type="INTEGER">
+        <constraints nullable="false"/>
+      </column>
+      <column name="documentSourceReference" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet> 
+  <changeSet author="Abidemi Adio" id="3">
+    <sql>
+      INSERT INTO "documentTypes"(code, name, description)
+        VALUES ('sfi-23-quarterly-statement', 'sfi-23 Quarterly Statement', 'SFI-23 Quarterly Statement Generated from DWH Dax record');
+    </sql>
+  </changeSet>
+  <changeSet author="Abidemi Adio" id="4">
+    <sql> 
+      ALTER SEQUENCE "documents_documentId_seq" RESTART WITH 100001 
+    </sql> 
+  </changeSet>
+    <changeSet author="Abidemi Adio" id="5">
+    <sql>
+       INSERT INTO schemes("schemeId", code, name) 
+          VALUES (14, 'SFI-23', 'Sustainable Farming Incentive');        
+    </sql> 
+  </changeSet>
+</databaseChangeLog>

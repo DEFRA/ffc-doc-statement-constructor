@@ -1,4 +1,5 @@
 module.exports = {
   STATEMENT: 'Statement',
-  SCHEDULE: 'Schedule'
+  SCHEDULE: 'Schedule',
+  SFI23QUARTERLYSTATEMENT: 'Sfi23QuarterlyStatement'
 }

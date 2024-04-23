@@ -294,7 +294,7 @@ describe('process total', () => {
     const wrapper = async () => {
       await processTotal(mockTotal)
     }
-    await expect(wrapper).rejects.toThrow(errorMessage) // expect the exact error message string
+    await expect(wrapper).rejects.toThrow(errorMessage)
   })
 
   test('should throw Error when mockTransaction.commit throws Error', async () => {

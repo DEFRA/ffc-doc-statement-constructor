@@ -1,0 +1,55 @@
+const getDax = require('./dax')
+const getOrganisation = require('./organisation')
+const getTotal = require('./total')
+const getScheme = require('./scheme')
+const getActionGroups = require('./action-groups')
+const saveDocument = require('./save-document')
+const getPreviousPaymentCountByCalculationId = require('./get-previous-payment-count-by-document-id')
+const getDocumentTypeByCode = require('./get-document-type-by-code')
+const getAddressFromOrganisation = require('./get-address-from-organisation')
+
+const { SFI23QUARTERLYSTATEMENT } = require('../../constants/document-types')
+
+const getSfi23QuarterlyStatementByPaymentReference = async (paymentReference) => {
+  const sfi23MarketingYear = '2023'
+  const sfi23ShortName = 'SFI'
+  const sfi23Frequency = 'Quarterly'
+  const dax = await getDax(paymentReference)
+  const total = await getTotal(dax.calculationId)
+  const organisation = await getOrganisation(total.sbi)
+  const address = getAddressFromOrganisation(organisation)
+  const schemeData = await getScheme(total.schemeCode)
+  const actionGroups = await getActionGroups(total.calculationReference)
+  const { documentTypeId } = await getDocumentTypeByCode(SFI23QUARTERLYSTATEMENT)
+  const previousPaymentCount = await getPreviousPaymentCountByCalculationId(dax.calculationId)
+  const scheme = {
+    name: schemeData.name,
+    shortName: sfi23ShortName,
+    year: sfi23MarketingYear,
+    frequency: sfi23Frequency,
+    agreementNumber: total.agreementNumber.toString()
+  }
+
+  const document = {
+    documentTypeId,
+    documentSourceReference: paymentReference
+  }
+
+  const { documentId } = await saveDocument(document)
+
+  return {
+    address,
+    businessName: organisation.name,
+    email: organisation.emailAddress,
+    frn: organisation.frn,
+    sbi: organisation.sbi,
+    ...dax,
+    ...total,
+    scheme,
+    actionGroups,
+    previousPaymentCount,
+    documentReference: documentId
+  }
+}
+
+module.exports = getSfi23QuarterlyStatementByPaymentReference

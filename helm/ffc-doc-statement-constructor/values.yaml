@@ -43,6 +43,7 @@ container:
   settlementProcessingInterval: 60000
   statementConstructionActive: true
   scheduleConstructionActive: true
+  sfi23QuarterlyStatementConstructionActive: true
   idleCheckBatchSize: 250
   idleCheckMaxDeliveryCount: 1
   idleCheckInterval: 60000
