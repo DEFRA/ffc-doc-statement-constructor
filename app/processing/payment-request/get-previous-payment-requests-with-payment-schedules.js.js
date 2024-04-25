@@ -5,19 +5,20 @@ const getPreviousPaymentRequestsWithPaymentSchedules = async (previousPaymentReq
   const previousPaymentRequestsWithSchedules = []
 
   for (const paymentRequest of previousPaymentRequests) {
-    // Always allow first payment request so we always have a payment request to compare against
     if (paymentRequest.paymentRequestNumber === 1) {
       previousPaymentRequestsWithSchedules.push(paymentRequest)
-    } else {
-      const completedPaymentRequest = await getCompletedPaymentRequestByCorrelationId(paymentRequest.correlationId, transaction)
-      if (completedPaymentRequest) {
-        const completedSchedule = await getCompletedSchedule(completedPaymentRequest.paymentRequestId, transaction)
-        if (completedSchedule) {
-          previousPaymentRequestsWithSchedules.push(paymentRequest)
-        }
-      }
+      continue
     }
+
+    const completedPaymentRequest = await getCompletedPaymentRequestByCorrelationId(paymentRequest.correlationId, transaction)
+    if (!completedPaymentRequest) continue
+
+    const completedSchedule = await getCompletedSchedule(completedPaymentRequest.paymentRequestId, transaction)
+    if (!completedSchedule) continue
+
+    previousPaymentRequestsWithSchedules.push(paymentRequest)
   }
+
   return previousPaymentRequestsWithSchedules
 }
 
