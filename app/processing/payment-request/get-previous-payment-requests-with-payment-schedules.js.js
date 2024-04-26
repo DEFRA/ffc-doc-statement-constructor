@@ -5,18 +5,28 @@ const getPreviousPaymentRequestsWithPaymentSchedules = async (previousPaymentReq
   const previousPaymentRequestsWithSchedules = []
 
   for (const paymentRequest of previousPaymentRequests) {
-    if (paymentRequest.paymentRequestNumber === 1) {
-      previousPaymentRequestsWithSchedules.push(paymentRequest)
-      continue
+    let completedPaymentRequest = null
+    let completedSchedule = null
+
+    try {
+      if (paymentRequest.paymentRequestNumber !== 1) {
+        completedPaymentRequest = await getCompletedPaymentRequestByCorrelationId(paymentRequest.correlationId, transaction)
+      }
+    } catch (error) {
+      console.error(`Error fetching completed payment request: ${error.message}`)
     }
 
-    const completedPaymentRequest = await getCompletedPaymentRequestByCorrelationId(paymentRequest.correlationId, transaction)
-    if (!completedPaymentRequest) continue
+    try {
+      if (completedPaymentRequest) {
+        completedSchedule = await getCompletedSchedule(completedPaymentRequest.paymentRequestId, transaction)
+      }
+    } catch (error) {
+      console.error(`Error fetching completed schedule: ${error.message}`)
+    }
 
-    const completedSchedule = await getCompletedSchedule(completedPaymentRequest.paymentRequestId, transaction)
-    if (!completedSchedule) continue
-
-    previousPaymentRequestsWithSchedules.push(paymentRequest)
+    if (paymentRequest.paymentRequestNumber === 1 || (completedPaymentRequest && completedSchedule)) {
+      previousPaymentRequestsWithSchedules.push(paymentRequest)
+    }
   }
 
   return previousPaymentRequestsWithSchedules
