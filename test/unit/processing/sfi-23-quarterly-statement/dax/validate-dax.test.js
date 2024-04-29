@@ -20,6 +20,12 @@ describe('validate dax', () => {
     expect(result).toBe(retrievedDax)
   })
 
+  test('should return retrievedDax and not throw error when no paymentPeriod', () => {
+    delete retrievedDax.paymentPeriod
+    const result = validateDax(retrievedDax)
+    expect(result).toBe(retrievedDax)
+  })
+
   test('should throw when schema.validate throws', () => {
     schema.validate.mockImplementation(() => { throw new Error('Joi validation issue') })
 
