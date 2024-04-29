@@ -7,7 +7,11 @@ const processPaymentSchedules = async () => {
 
   for (const pendingPaymentSchedule of pendingPaymentSchedules) {
     try {
-      const aggregatedSchedule = await getPaymentSchedule(pendingPaymentSchedule.paymentRequestId, pendingPaymentSchedule.scheduleId)
+      const paymentData = {
+        paymentRequestId: pendingPaymentSchedule.paymentRequestId,
+        scheduleId: pendingPaymentSchedule.scheduleId
+      }
+      const aggregatedSchedule = await getPaymentSchedule(paymentData)
       if (validatePaymentSchedule(aggregatedSchedule)) {
         await sendPaymentSchedule(aggregatedSchedule)
       }

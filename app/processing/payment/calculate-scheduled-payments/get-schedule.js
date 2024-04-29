@@ -1,23 +1,23 @@
-const getExpectedSettlementValue = require('./get-expected-settlement-value')
-const getExpectedValue = require('./get-expected-value')
-const getPeriod = require('./get-period')
+const getPeriodFromSchedule = require('./get-period-from-schedule')
 
-const getSchedule = (scheduleDate, totalPayments, settledValue, totalValue, increment, unit, currentDate) => {
+const getSchedule = ({ scheduleDate, totalPayments, increment, unit, settlementDate }, { paymentValue, settledValue, previousSettledValue, totalValue }) => {
   const scheduleDates = []
+  let expectedSettlementValue = 0
   for (let i = 1; i <= totalPayments; i++) {
-    const expectedValue = getExpectedValue(totalValue, totalPayments, i === totalPayments)
-    const expectedSettlementValue = getExpectedSettlementValue(totalValue, totalPayments, i)
+    expectedSettlementValue = getExpectedValue(totalValue, totalPayments, i)
     const cappedSettlementValue = settledValue <= expectedSettlementValue ? settledValue : expectedSettlementValue
     scheduleDates.push({
       dueDate: scheduleDate.clone(),
-      period: getPeriod(scheduleDate, increment, unit),
-      value: expectedValue,
-      outstanding: scheduleDate >= currentDate || cappedSettlementValue < expectedSettlementValue
+      outstanding: cappedSettlementValue > previousSettledValue && cappedSettlementValue <= settledValue
     })
     scheduleDate = scheduleDate.add(increment, unit)
   }
 
-  return scheduleDates
+  return getPeriodFromSchedule(totalValue, totalPayments, paymentValue, scheduleDates, increment, unit, settlementDate)
+}
+
+const getExpectedValue = (totalValue, totalPayments, segment) => {
+  return Math.trunc(totalValue / totalPayments * segment)
 }
 
 module.exports = getSchedule

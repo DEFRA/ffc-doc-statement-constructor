@@ -1,6 +1,6 @@
 const getPeriodFromSchedule = require('./get-period-from-schedule')
 
-const getSchedule = (scheduleDate, totalPayments, paymentValue, settledValue, previousSettledValue, totalValue, increment, unit, settlementDate) => {
+const getSchedule = ({ scheduleDate, totalPayments, increment, unit, settlementDate }, { paymentValue, settledValue, previousSettledValue, totalValue }) => {
   const scheduleDates = []
   let expectedSettlementValue = 0
   for (let i = 1; i <= totalPayments; i++) {
