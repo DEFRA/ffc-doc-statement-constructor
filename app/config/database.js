@@ -1,5 +1,5 @@
 const { DefaultAzureCredential } = require('@azure/identity')
-const number5432 = 5432
+const port5432 = 5432
 function isProd () {
   return process.env.NODE_ENV === 'production'
 }
@@ -32,7 +32,7 @@ const dbConfig = {
   hooks,
   host: process.env.POSTGRES_HOST || 'ffc-doc-statement-constructor-postgres',
   password: process.env.POSTGRES_PASSWORD,
-  port: process.env.POSTGRES_PORT || number5432,
+  port: process.env.POSTGRES_PORT || port5432,
   logging: process.env.POSTGRES_LOGGING || false,
   retry,
   schema: process.env.POSTGRES_SCHEMA_NAME || 'public',
