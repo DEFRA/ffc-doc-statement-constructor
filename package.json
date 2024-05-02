@@ -27,7 +27,7 @@
     "@azure/identity": "2.0.5",
     "@hapi/hapi": "20.2.2",
     "@joi/date": "2.1.0",
-    "applicationinsights": "2.3.3",
+    "applicationinsights": "2.9.5",
     "ffc-messaging": "2.6.1",
     "joi": "17.6.0",
     "log-timestamp": "0.3.0",
