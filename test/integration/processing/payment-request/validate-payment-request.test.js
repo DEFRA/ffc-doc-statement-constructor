@@ -114,4 +114,22 @@ describe('validate payment request', () => {
     const defaultSchedulePaymentRequest = { ...retrievedPaymentRequest, schedule: DAX_CODES.QUARTERLY }
     expect(result).toStrictEqual(defaultSchedulePaymentRequest)
   })
+
+  test('should return retrievedPaymentRequest with DAX_CODES.QUARTERLY schedule when it is provided', () => {
+    retrievedPaymentRequest.schedule = DAX_CODES.QUARTERLY
+    const result = validatePaymentRequest(retrievedPaymentRequest)
+    expect(result).toStrictEqual(retrievedPaymentRequest)
+  })
+
+  test('should return retrievedPaymentRequest with DAX_CODES.MONTHLY schedule when it is provided', () => {
+    retrievedPaymentRequest.schedule = DAX_CODES.MONTHLY
+    const result = validatePaymentRequest(retrievedPaymentRequest)
+    expect(result).toStrictEqual(retrievedPaymentRequest)
+  })
+
+  test('should return retrievedPaymentRequest with DAX_CODES.THREE_DAY_QUARTERLY schedule when it is provided', () => {
+    retrievedPaymentRequest.schedule = DAX_CODES.THREE_DAY_QUARTERLY
+    const result = validatePaymentRequest(retrievedPaymentRequest)
+    expect(result).toStrictEqual(retrievedPaymentRequest)
+  })
 })
