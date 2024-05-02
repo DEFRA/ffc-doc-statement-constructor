@@ -31,7 +31,7 @@
     "ffc-messaging": "2.6.1",
     "joi": "17.6.0",
     "log-timestamp": "0.3.0",
-    "moment": "2.29.4",
+    "moment": "2.30.1",
     "pg": "8.7.3",
     "pg-hstore": "2.3.4",
     "sequelize": "6.29.3"
