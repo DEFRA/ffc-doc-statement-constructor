@@ -3,7 +3,7 @@ const getScheduledPayments = require('./get-scheduled-payments')
 const validateLatestPayment = require('./validate-latest-payment')
 
 const getLatestPayment = (paymentRequest, settlement, supportingSettlements) => {
-  const supportingPaymentValue = supportingSettlements?.reduce((total, settlement) => total + settlement.paymentValue, 0) ?? 0
+  const supportingPaymentValue = supportingSettlements?.reduce((total, supportingSettlement) => total + supportingSettlement.paymentValue, 0) ?? 0
   const adjustedPaymentValue = settlement.paymentValue + supportingPaymentValue
 
   const latestPayment = {
