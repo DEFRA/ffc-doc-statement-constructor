@@ -25,28 +25,20 @@ const getPaymentSchedule = (schedule, dueDate, paymentValue, settledValue, previ
 
   switch (schedule) {
     case DAX_CODES.QUARTERLY:
-<<<<<<< HEAD
-      payment.totalPayments = 4
-      scheduleData.increment = 3
+      payment.totalPayments = number4
+      scheduleData.increment = number3
       scheduleData.unit = 'month'
       break
     case DAX_CODES.MONTHLY:
-      payment.totalPayments = 12
-      scheduleData.increment = 1
+      payment.totalPayments = number12
+      scheduleData.increment = number1
       scheduleData.unit = 'month'
       break
     case DAX_CODES.THREE_DAY_QUARTERLY:
-      payment.totalPayments = 4
-      scheduleData.increment = 3
+      payment.totalPayments = number4
+      scheduleData.increment = number3
       scheduleData.unit = 'day'
       break
-=======
-      return getSchedule(scheduleDate, number4, paymentValue, settledValue, previousSettledValue, totalValue, number3, 'month', currentDate)
-    case DAX_CODES.MONTHLY:
-      return getSchedule(scheduleDate, number12, paymentValue, settledValue, previousSettledValue, totalValue, number1, 'month', currentDate)
-    case DAX_CODES.THREE_DAY_QUARTERLY:
-      return getSchedule(scheduleDate, number4, paymentValue, settledValue, previousSettledValue, totalValue, number3, 'day', currentDate)
->>>>>>> 2babcfe243e5526042c0817240bd80b3a6fc7d24
     default:
       throw new Error(`Unknown schedule ${schedule}`)
   }
