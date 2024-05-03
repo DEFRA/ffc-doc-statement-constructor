@@ -1,11 +1,11 @@
 const validateStatement = (statement) => {
-  return hasPaymentValue(statement.payments)
+  return validatePaymentValue(statement.payments)
 }
 
-const hasPaymentValue = (payments) => {
-  const hasPaymentValue = payments[0].value > 0
+const validatePaymentValue = (payments) => {
+  const isPaymentValueNonZero = payments[0].value > 0
 
-  if (!hasPaymentValue) {
+  if (!isPaymentValueNonZero) {
     console.log(`Skipping construction of zero value payment for ${payments[0].invoiceNumber}`)
     return false
   }

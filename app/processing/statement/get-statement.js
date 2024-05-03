@@ -24,8 +24,8 @@ const getStatement = async (settlementId, scheduleId) => {
       const sfiaScheme = await getScheme(paymentRequest.year, paymentRequest.frequency, paymentRequest.agreementNumber, paymentRequest.sourceSystem)
       const supportingSettlements = await getSupportingSettlements(settlement.settlementDate, paymentRequest.agreementNumber, paymentRequest.year, transaction)
       paymentRequest.schedule = 'Q4'
-      const latestPayment = getLatestPayment(paymentRequest, settlement, supportingSettlements)
-      const sfiaPayments = getDetailedPayments(sfiaCalculation, latestPayment, settlement)
+      const latestPaymentSfia = getLatestPayment(paymentRequest, settlement, supportingSettlements)
+      const sfiaPayments = getDetailedPayments(sfiaCalculation, latestPaymentSfia, settlement)
       const sfiaFunding = sfiaGetFunding
 
       await transaction.commit()
