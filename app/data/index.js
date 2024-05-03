@@ -5,12 +5,13 @@ const config = require('../config')
 const dbConfig = config.dbConfig[config.env]
 const modelPath = path.join(__dirname, 'models')
 const db = {}
+const minus3 = -3
 
 const sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, dbConfig)
 
 fs.readdirSync(modelPath)
   .filter(file => {
-    return (file.indexOf('.') !== 0) && (file !== 'index.js') && (file.slice(-3) === '.js')
+    return (file.indexOf('.') !== 0) && (file !== 'index.js') && (file.slice(minus3) === '.js')
   })
   .forEach(file => {
     const model = require(path.join(modelPath, file))(sequelize, DataTypes)

@@ -1,4 +1,7 @@
 const Joi = require('joi')
+const number1 = 1
+const number250 = 250
+const number10000 = 10000
 
 const mqSchema = Joi.object({
   messageQueue: {
@@ -32,9 +35,9 @@ const mqSchema = Joi.object({
     address: Joi.string(),
     source: Joi.string()
   },
-  idleCheckBatchSize: Joi.number().default(250),
-  idleCheckMaxDeliveryCount: Joi.number().default(1),
-  idleCheckInterval: Joi.number().default(10000)
+  idleCheckBatchSize: Joi.number().default(number250),
+  idleCheckMaxDeliveryCount: Joi.number().default(number1),
+  idleCheckInterval: Joi.number().default(number10000)
 })
 
 const mqConfig = {
