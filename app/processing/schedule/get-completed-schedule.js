@@ -1,7 +1,7 @@
 const db = require('../../data')
 
 const getCompletedSchedule = async (paymentRequestId, transaction) => {
-  return await db.schedule.findOne({
+  return db.schedule.findOne({
     transaction,
     where: {
       paymentRequestId,
