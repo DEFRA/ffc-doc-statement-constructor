@@ -1,12 +1,8 @@
-const config = require('../config/message')
+
 const waitForIdleSubscription = require('./wait-for-idle-subscription')
 
-const waitForIdleMessaging = async () => {
-  await Promise.all(getSubscriptions().map(subscription => waitForIdleSubscription(subscription)))
-}
-
-const getSubscriptions = () => {
-  return [config.processingSubscription, config.submitSubscription, config.returnSubscription, config.statementDataSubscription]
+const waitForIdleMessaging = async (subscriptions) => {
+  await Promise.all(subscriptions.map(subscription => waitForIdleSubscription(subscription)))
 }
 
 module.exports = waitForIdleMessaging
