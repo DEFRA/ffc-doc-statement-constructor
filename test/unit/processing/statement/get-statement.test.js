@@ -24,6 +24,9 @@ const getLastSettlement = require('../../../../app/processing/settlement/get-las
 jest.mock('../../../../app/processing/settlement/get-supporting-settlements')
 const getSupportingSettlements = require('../../../../app/processing/settlement/get-supporting-settlements')
 
+jest.mock('../../../../app/processing/settlement/get-supporting-settlements')
+const getSFIASupportingSettlements = require('../../../../app/processing/settlement/get-supporting-settlements')
+
 jest.mock('../../../../app/processing/payment/get-latest-payment')
 const getLatestPayment = require('../../../../app/processing/payment/get-latest-payment')
 
@@ -110,6 +113,7 @@ describe('get various components and transform to statement object', () => {
     getScheme.mockResolvedValue(scheme)
     getLastSettlement.mockResolvedValue(lastSettlement)
     getSupportingSettlements.mockResolvedValue([])
+    getSFIASupportingSettlements.mockResolvedValue([])
     getLatestPayment.mockReturnValue(latestPayment)
     getDetailedPayments.mockResolvedValue(detailedPayments)
   })
@@ -134,6 +138,12 @@ describe('get various components and transform to statement object', () => {
     const settlementId = 1
     await getStatement(settlementId)
     expect(getSupportingSettlements).toHaveBeenCalledTimes(1)
+  })
+
+  test('should call getSFIASupportingSettlements when a settlementId is given', async () => {
+    const settlementId = 1
+    await getStatement(settlementId)
+    expect(getSFIASupportingSettlements).toHaveBeenCalled()
   })
 
   test('should call getSettlement when a settlementId is given', async () => {
