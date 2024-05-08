@@ -7,8 +7,8 @@ const schema = Joi.object({
   settlementProcessingInterval: Joi.number().default(number10000), // 10 seconds
   scheduleProcessingMaxElapsedTime: Joi.number().default(number300000), // 5 minutes
   scheduleProcessingMaxBatchSize: Joi.number().default(number100),
-  statementConstructionActive: Joi.boolean().default(true),
-  scheduleConstructionActive: Joi.boolean().default(true),
+  statementConstructionActive: Joi.boolean().default(false),
+  scheduleConstructionActive: Joi.boolean().default(false),
   sfi23QuarterlyStatementConstructionActive: Joi.boolean().default(true),
   settlementWaitTime: Joi.number().default(number10000) // 10 seconds
 })
