@@ -42,6 +42,17 @@ describe('publishSfi23QuarterlyStatement', () => {
     expect(saveRptUnequalTotalPayment).not.toHaveBeenCalled()
   })
 
+  test('should not call saveRptUnequalTotalPayment when actual value of paymentAmount is equal actual value of totalPayment but different decimal point', async () => {
+    const amount = 100.00
+    const paymentAmountValue = amount.toFixed(2)
+    const totalPaymentsValue = amount.toFixed(0)
+    const sfi23QuarterlyStatement = { totalPayments: totalPaymentsValue, paymentAmount: paymentAmountValue, scheme: { name: 'schemeName' } }
+
+    await publishSfi23QuarterlyStatement(sfi23QuarterlyStatement)
+
+    expect(saveRptUnequalTotalPayment).not.toHaveBeenCalled()
+  })
+
   test('should log the sent statement', async () => {
     const sfi23QuarterlyStatement = { /* mock statement object */ }
     const consoleLogSpy = jest.spyOn(console, 'log')

@@ -5,13 +5,15 @@ const sendMessage = require('../../messaging/send-message')
 const saveRptUnequalTotalPayment = require('./save-rpt-unequal-total-payment')
 
 const publishSfi23QuarterlyStatement = async (sfi23QuarterlyStatement) => {
-  if (sfi23QuarterlyStatement.paymentAmount !== sfi23QuarterlyStatement.totalPayments) {
+  const paymentAmountValue = new Intl.NumberFormat().format(Number(sfi23QuarterlyStatement.paymentAmount)).toString()
+  const totalPaymentsValue = new Intl.NumberFormat().format(Number(sfi23QuarterlyStatement.totalPayments)).toString()
+  if (paymentAmountValue !== totalPaymentsValue) {
     const unequalTotalPayment = {
       paymentReference: sfi23QuarterlyStatement.paymentReference,
       calculationId: sfi23QuarterlyStatement.calculationId,
       paymentPeriod: sfi23QuarterlyStatement.paymentPeriod,
-      expectedQuarterlyPayment: sfi23QuarterlyStatement.totalPayments,
-      actualQuarterlyPayment: sfi23QuarterlyStatement.paymentAmount,
+      expectedQuarterlyPayment: totalPaymentsValue,
+      actualQuarterlyPayment: paymentAmountValue,
       transactionDate: sfi23QuarterlyStatement.transactionDate,
       sbi: sfi23QuarterlyStatement.sbi,
       frn: sfi23QuarterlyStatement.frn,
