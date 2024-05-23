@@ -1,0 +1,36 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+    <changeSet id="1" author="Abidemi Adio">
+        <tagDatabase tag="v1.32.0" />
+    </changeSet>    
+    <changeSet id="2" author="Abidemi Adio">
+        <createTable tableName="rptUnequalTotalPayment">
+            <column name="paymentReference" type="VARCHAR(30)">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="rptUnequalTotalPaymentId_pkey"/>
+            </column>
+            <column name="calculationId" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="paymentPeriod" type="VARCHAR(200)">
+            </column>
+            <column name="expectedQuarterlyPayment" type="NUMERIC">
+                <constraints nullable="false"/>
+            </column>
+            <column name="actualQuarterlyPayment" type="NUMERIC">
+                <constraints nullable="false"/>
+            </column>
+            <column name="transactionDate" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="frn" type="BIGINT" >
+            </column>
+            <column name="sbi" type="INTEGER">
+            </column>
+            <column name="schemeName" type="VARCHAR(450)">
+            </column>
+            <column name="reportGenerated" type="TIMESTAMP">
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
