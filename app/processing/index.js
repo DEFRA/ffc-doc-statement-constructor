@@ -1,4 +1,5 @@
 const { processingConfig } = require('../config')
+const messageConfig = require('../config/message')
 const waitForIdleMessaging = require('../messaging/wait-for-idle-messaging')
 const processPaymentSchedules = require('./process-payment-schedules')
 const processStatements = require('./process-statements')
@@ -7,15 +8,18 @@ const processSfi23QuarterlyStatement = require('./process-sfi-23-quarterly-state
 const start = async () => {
   try {
     if (processingConfig.sfi23QuarterlyStatementConstructionActive) {
-      await waitForIdleMessaging()
+      const relatedSubscriptions = [messageConfig.statementDataSubscription]
+      await waitForIdleMessaging(relatedSubscriptions)
       await processSfi23QuarterlyStatement()
     }
     if (processingConfig.statementConstructionActive) {
-      await waitForIdleMessaging()
+      const relatedSubscriptions = [messageConfig.processingSubscription, messageConfig.submitSubscription, messageConfig.returnSubscription, messageConfig.statementDataSubscription]
+      await waitForIdleMessaging(relatedSubscriptions)
       await processStatements()
     }
     if (processingConfig.scheduleConstructionActive) {
-      await waitForIdleMessaging()
+      const relatedSubscriptions = [messageConfig.processingSubscription, messageConfig.submitSubscription, messageConfig.returnSubscription, messageConfig.statementDataSubscription]
+      await waitForIdleMessaging(relatedSubscriptions)
       await processPaymentSchedules()
     }
   } catch (err) {

@@ -6,28 +6,26 @@ const waitForIdleMessaging = require('../../../app/messaging/wait-for-idle-messa
 const config = require('../../../app/config/message')
 
 describe('wait for idle messaging', () => {
-  test('should call waitForIdleSubscription for each subscription', async () => {
-    await waitForIdleMessaging()
+  beforeEach(async () => {
+    jest.clearAllMocks()
+  })
+  test('should call waitForIdleSubscription for each subscription in the list of subscriptions provided', async () => {
+    const relatedSubscriptions = [config.processingSubscription, config.submitSubscription, config.returnSubscription, config.statementDataSubscription]
+    await waitForIdleMessaging(relatedSubscriptions)
     expect(waitForIdleSubscription).toHaveBeenCalledTimes(4)
-  })
-
-  test('should call waitForIdleSubscription with processing subscription', async () => {
-    await waitForIdleMessaging()
     expect(waitForIdleSubscription).toHaveBeenCalledWith(config.processingSubscription)
-  })
-
-  test('should call waitForIdleSubscription with submit subscription', async () => {
-    await waitForIdleMessaging()
     expect(waitForIdleSubscription).toHaveBeenCalledWith(config.submitSubscription)
-  })
-
-  test('should call waitForIdleSubscription with return subscription', async () => {
-    await waitForIdleMessaging()
     expect(waitForIdleSubscription).toHaveBeenCalledWith(config.returnSubscription)
+    expect(waitForIdleSubscription).toHaveBeenCalledWith(config.statementDataSubscription)
   })
 
-  test('should call waitForIdleSubscription with statement data subscription', async () => {
-    await waitForIdleMessaging()
+  test('should call waitForIdleSubscription for only the subscriptions in the list of subscriptions provided', async () => {
+    const relatedSubscriptions = [config.returnSubscription, config.statementDataSubscription]
+    await waitForIdleMessaging(relatedSubscriptions)
+    expect(waitForIdleSubscription).toHaveBeenCalledTimes(2)
+    expect(waitForIdleSubscription).not.toHaveBeenCalledWith(config.processingSubscription)
+    expect(waitForIdleSubscription).not.toHaveBeenCalledWith(config.submitSubscription)
+    expect(waitForIdleSubscription).toHaveBeenCalledWith(config.returnSubscription)
     expect(waitForIdleSubscription).toHaveBeenCalledWith(config.statementDataSubscription)
   })
 })

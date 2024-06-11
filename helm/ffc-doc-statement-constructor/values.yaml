@@ -41,8 +41,8 @@ container:
   dataSubscriptionAddress: ffc-doc-statement-constructor
   statementTopicAddress: ffc-doc-statements
   settlementProcessingInterval: 60000
-  statementConstructionActive: true
-  scheduleConstructionActive: true
+  statementConstructionActive: false
+  scheduleConstructionActive: false
   sfi23QuarterlyStatementConstructionActive: true
   idleCheckBatchSize: 250
   idleCheckMaxDeliveryCount: 1
