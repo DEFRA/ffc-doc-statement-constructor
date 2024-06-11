@@ -187,4 +187,16 @@ describe('get various components and transform to statement object', () => {
     await getStatement(settlementId)
     expect(getDetailedPayments).toHaveBeenCalled()
   })
+  test('should throw an error when settlementId is blank', async () => {
+    const settlementId = ''
+    await expect(getStatement(settlementId)).rejects.toThrow('Invalid settlementId')
+  })
+
+  test('should throw an error when settlementId is blank', async () => {
+    const settlementId = ''
+    getSettlement.mockImplementation(() => {
+      throw new Error('Invalid settlementId')
+    })
+    await expect(getStatement(settlementId)).rejects.toThrow('Invalid settlementId')
+  })
 })

@@ -10,6 +10,9 @@ const getOrganisationByFrn = require('../organisation/get-organisation-by-frn')
 const sfiaGetFunding = require('../components/sfia-hard-coded/sfia-fundings')
 
 const getStatement = async (settlementId, scheduleId) => {
+  if (!settlementId) {
+    throw new Error('Invalid settlementId')
+  }
   const transaction = await db.sequelize.transaction()
   try {
     const settlement = await getSettlement(settlementId, transaction)
