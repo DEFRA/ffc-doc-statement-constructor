@@ -31,7 +31,7 @@ module.exports = Joi.object({
   }),
   type: Joi.string().required().allow(DAX).messages({
     'string.base': 'type should be a type of string',
-    'any.required': 'The field type is not present but it is required ',
+    'any.required': 'The field type is not present but it is required',
     'any.only': `type must be ${DAX}`
   })
 })
