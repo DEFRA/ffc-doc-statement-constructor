@@ -1,25 +1,29 @@
-const Joi = require('joi')
-const number5 = 5
-const number10 = 10
-const number15 = 15
-const number18 = 18
-const number50 = 50
-const number100 = 100
+const { Joi, constants, numberSchema, stringSchema, precisionSchema } = require('../../../utility/common-schema-fields')
 
 module.exports = Joi.array().items(
   Joi.object({
-    actionReference: Joi.number().required(),
-    calculationReference: Joi.number().required(),
-    actionCode: Joi.string().max(number5).required(),
-    actionName: Joi.string().max(number100).required(),
-    fundingCode: Joi.string().max(number5).required(),
-    rate: Joi.string().required().max(number100).required(),
-    landArea: Joi.string().max(number18).allow('', null).optional(),
-    uom: Joi.string().max(number10).allow('', null).optional(),
-    annualValue: Joi.string().max(number50).required(),
-    quarterlyValue: Joi.string().max(number15).required(),
-    overDeclarationPenalty: Joi.number().precision(number15).required(),
-    quarterlyPaymentAmount: Joi.string().max(number15).required(),
-    groupName: Joi.string().max(number100).required()
+    actionReference: numberSchema('actionReference'),
+    calculationReference: numberSchema('calculationReference'),
+    actionCode: stringSchema('actionCode', constants.number5),
+    actionName: stringSchema('actionName', constants.number100),
+    fundingCode: stringSchema('fundingCode', constants.number5),
+    rate: stringSchema('rate', constants.number100),
+    landArea: Joi.string().max(constants.number18).allow('', null).optional().messages({
+      'string.base': 'landArea should be a type of string',
+      'string.max': `landArea should have a maximum length of ${constants.number18}`
+    }),
+    uom: Joi.string().max(constants.number10).allow('', null).optional().messages({
+      'string.base': 'uom should be a type of string',
+      'string.max': `uom should have a maximum length of ${constants.number10}`
+    }),
+    annualValue: stringSchema('annualValue', constants.number50),
+    quarterlyValue: stringSchema('quarterlyValue', constants.number15),
+    overDeclarationPenalty: precisionSchema('overDeclarationPenalty', constants.number15),
+    quarterlyPaymentAmount: stringSchema('quarterlyPaymentAmount', constants.number15),
+    groupName: stringSchema('groupName', constants.number100)
   })
-).min(1).required()
+).min(1).required().messages({
+  'array.base': 'The input should be an array',
+  'array.min': 'The array should have at least 1 item',
+  'any.required': 'The array is not present but it is required'
+})

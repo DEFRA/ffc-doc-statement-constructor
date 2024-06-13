@@ -1,48 +1,66 @@
-const Joi = require('joi')
-const TOTAL = 'total'
-
-const minSbi = 105000000
-const maxSbi = 999999999
-const minFrn = 1000000000
-const maxFrn = 9999999999
-const number5 = 5
-const number10 = 10
-const number15 = 15
-const number18 = 18
-const number20 = 20
-const number50 = 50
-const number100 = 100
+const { Joi, constants, numberSchema, stringSchema, dateSchema, precisionSchema } = require('../../utility/common-schema-fields')
 
 module.exports = Joi.object({
-  calculationReference: Joi.number().integer().required(),
-  sbi: Joi.number().integer().min(minSbi).max(maxSbi).required(),
-  frn: Joi.number().integer().min(minFrn).max(maxFrn).required(),
-  agreementNumber: Joi.number().integer().required(),
-  claimReference: Joi.number().integer().required(),
-  schemeType: Joi.string().max(number50).required(),
-  calculationDate: Joi.date().required(),
-  invoiceNumber: Joi.string().max(number20).required(),
-  agreementStart: Joi.date().required(),
-  agreementEnd: Joi.date().required(),
-  totalAdditionalPayments: Joi.number().precision(number15).required(),
-  totalActionPayments: Joi.number().precision(number15).required(),
-  totalPayments: Joi.number().precision(number15).required(),
-  updated: Joi.date().required(),
-  datePublished: Joi.date().allow(null),
-  type: Joi.string().required().allow(TOTAL),
+  calculationReference: numberSchema('calculationReference'),
+  sbi: Joi.number().integer().min(constants.minSbi).max(constants.maxSbi).required().messages({
+    'number.base': 'sbi should be a type of number',
+    'number.integer': 'sbi should be an integer',
+    'number.min': `sbi should have a minimum value of ${constants.minSbi}`,
+    'number.max': `sbi should have a maximum value of ${constants.maxSbi}`,
+    'any.required': 'The field sbi is not present but it is required'
+  }),
+  frn: Joi.number().integer().min(constants.minFrn).max(constants.maxFrn).required().messages({
+    'number.base': 'frn should be a type of number',
+    'number.integer': 'frn should be an integer',
+    'number.min': `frn should have a minimum value of ${constants.minFrn}`,
+    'number.max': `frn should have a maximum value of ${constants.maxFrn}`,
+    'any.required': 'The field frn is not present but it is required'
+  }),
+  agreementNumber: numberSchema('agreementNumber'),
+  claimReference: numberSchema('claimReference'),
+  schemeType: stringSchema('schemeType', constants.number50),
+  calculationDate: dateSchema('calculationDate'),
+  invoiceNumber: stringSchema('invoiceNumber', constants.number20),
+  agreementStart: dateSchema('agreementStart'),
+  agreementEnd: dateSchema('agreementEnd'),
+  totalAdditionalPayments: precisionSchema('totalAdditionalPayments', constants.number15),
+  totalActionPayments: precisionSchema('totalActionPayments', constants.number15),
+  totalPayments: precisionSchema('totalPayments', constants.number15),
+  updated: dateSchema('updated'),
+  datePublished: Joi.date().allow(null).messages({
+    'date.base': 'datePublished should be a type of date'
+  }),
+  type: Joi.string().required().valid(constants.TOTAL).messages({
+    'string.base': 'type should be a type of string',
+    'any.required': 'The field type is not present but it is required',
+    'any.only': `type must be ${constants.TOTAL}`
+  }),
   actions: Joi.array().items(Joi.object({
-    actionReference: Joi.number().required(),
-    calculationReference: Joi.number().required(),
-    actionCode: Joi.string().max(number5).required(),
-    actionName: Joi.string().max(number100).required(),
-    fundingCode: Joi.string().max(number5).required(),
-    rate: Joi.string().required().max(number100).required(),
-    landArea: Joi.string().max(number18),
-    uom: Joi.string().max(number10),
-    annualValue: Joi.string().max(number50).required(),
-    quarterlyValue: Joi.string().max(number15).required(),
-    overDeclarationPenalty: Joi.number().precision(number15).required(),
-    quarterlyPaymentAmount: Joi.string().max(number15).required(),
-    groupName: Joi.string().max(number100).required()
-  })).min(1).required()
+    actionReference: numberSchema('actionReference'),
+    calculationReference: numberSchema('calculationReference'),
+    actionCode: stringSchema('actionCode', constants.number5),
+    actionName: stringSchema('actionName', constants.number100),
+    fundingCode: stringSchema('fundingCode', constants.number5),
+    rate: stringSchema('rate', constants.number100),
+    landArea: Joi.string().max(constants.number18).messages({
+      'string.base': 'landArea should be a type of string',
+      'string.max': `landArea should have a maximum length of ${constants.number18}`
+    }),
+    uom: Joi.string().max(constants.number10).messages({
+      'string.base': 'uom should be a type of string',
+      'string.max': `uom should have a maximum length of ${constants.number10}`
+    }),
+    annualValue: stringSchema('annualValue', constants.number50),
+    quarterlyValue: stringSchema('quarterlyValue', constants.number15),
+    overDeclarationPenalty: precisionSchema('overDeclarationPenalty', constants.number15),
+    quarterlyPaymentAmount: stringSchema('quarterlyPaymentAmount', constants.number15),
+    groupName: stringSchema('groupName', constants.number100)
+  })).min(1).required().messages({
+    'array.base': 'actions should be a type of array',
+    'array.min': 'actions array should have a minimum length of 1',
+    'any.required': 'The field actions is not present but it is required'
+  })
+}).required().messages({
+  'object.base': 'The input should be an object',
+  'any.required': 'The input is not present but it is required'
 })
