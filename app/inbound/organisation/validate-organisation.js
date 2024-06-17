@@ -6,7 +6,7 @@ const validateOrganisation = (organisation, sbi) => {
   })
 
   if (result.error) {
-    throw new Error(`organisation validation on sbi: ${sbi} does not have the required organisation data: ${result.error.message}`)
+    throw new Error(`Organisation validation on sbi: ${sbi} does not have the required organisation data: ${result.error.message}`)
   }
 
   return result.value
