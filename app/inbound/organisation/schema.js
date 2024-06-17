@@ -51,12 +51,12 @@ module.exports = Joi.object({
     'string.base': 'name should be a type of string',
     'any.required': 'The field name is not present but it is required'
   }),
-  postcode: Joi.string().length(postcodeMax).required().messages({
+  postcode: Joi.string().max(postcodeMax).required().messages({
     'string.base': 'postcode should be a type of string',
     'string.length': `postcode should have a length of ${postcodeMax}`,
     'any.required': 'The field postcode is not present but it is required'
   }),
-  type: Joi.string().valid(`${CALCULATION}, ${ORGANISATION}`).required().messages({
+  type: Joi.string().valid(CALCULATION, ORGANISATION).required().messages({
     'string.base': 'type should be a type of string',
     'any.only': `type must be either ${CALCULATION} or ${ORGANISATION}`,
     'any.required': 'The field type is not present but it is required'
