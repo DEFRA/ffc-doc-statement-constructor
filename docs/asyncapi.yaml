@@ -608,6 +608,8 @@ components:
       type: string
       description: The postcode
       example: AB1 2CD
+      minimum: 0
+      maximum: 8
     Updated:
       type: string
       format: date-time
