@@ -52,7 +52,7 @@ describe('batch schedule', () => {
     await db.sequelize.close()
   })
 
-  test('should return mapped schedule array when existing schedule with null completed and null started exists', async () => {
+  test('should return mapped-schedule array when existing schedule with null completed and null started exists', async () => {
     await db.schedule.create(schedule)
 
     const result = await schedulePendingSettlements(STATEMENT)
