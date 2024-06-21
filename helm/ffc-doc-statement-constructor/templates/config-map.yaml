@@ -28,6 +28,7 @@ data:
   SETTLEMENT_PROCESSING_INTERVAL: {{ quote .Values.container.settlementProcessingInterval }}
   STATEMENT_CONSTRUCTION_ACTIVE: {{ quote .Values.container.statementConstructionActive }}
   SCHEDULE_CONSTRUCTION_ACTIVE: {{ quote .Values.container.scheduleConstructionActive }}
+  SFI_23_ADVANCED_STATEMENT_CONSTRUCTION_ACTIVE: {{ quote .Values.container.sfi23AdvancedStatementConstructionActive }}
   SFI_23_QUARTERLY_STATEMENT_CONSTRUCTION_ACTIVE: {{ quote .Values.container.sfi23QuarterlyStatementConstructionActive }}
   IDLE_CHECK_BATCH_SIZE: {{ quote .Values.container.idleCheckBatchSize }}
   IDLE_CHECK_MAX_DELIVERY_COUNT: {{ quote .Values.container.idleCheckMaxDeliveryCount }}

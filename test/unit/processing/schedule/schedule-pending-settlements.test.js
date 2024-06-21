@@ -29,6 +29,8 @@ const getUpdatedScheduled = require('../../../../app/processing/schedule/get-upd
 
 const schedulePendingSettlements = require('../../../../app/processing/schedule/schedule-pending-settlements')
 
+const { STATEMENT } = require('../../../../app/constants/categories')
+
 let retrievedSchedules
 
 describe('batch schedule', () => {
@@ -67,9 +69,9 @@ describe('batch schedule', () => {
     expect(getScheduledSettlements).toHaveBeenCalledTimes(1)
   })
 
-  test('should call getScheduledSettlements with new Date() and mockTransaction', async () => {
-    await schedulePendingSettlements()
-    expect(getScheduledSettlements).toHaveBeenCalledWith(new Date(), mockTransaction)
+  test('should call getScheduledSettlements with new Date(), documentType and mockTransaction', async () => {
+    await schedulePendingSettlements(STATEMENT)
+    expect(getScheduledSettlements).toHaveBeenCalledWith(new Date(), STATEMENT, mockTransaction)
   })
 
   test('should call getValidScheduledSettlements', async () => {

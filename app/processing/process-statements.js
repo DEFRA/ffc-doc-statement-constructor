@@ -1,9 +1,10 @@
 const { schedulePendingSettlements } = require('./schedule')
 const { getStatement, sendStatement, validateStatement } = require('./statement')
 const updateScheduleByScheduleId = require('./update-schedule-by-schedule-id')
+const { STATEMENT } = require('../constants/categories')
 
 const processStatements = async () => {
-  const pendingStatements = await schedulePendingSettlements()
+  const pendingStatements = await schedulePendingSettlements(STATEMENT)
 
   for (const pendingStatement of pendingStatements) {
     try {
