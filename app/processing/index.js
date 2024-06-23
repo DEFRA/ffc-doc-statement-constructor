@@ -18,7 +18,7 @@ const start = async () => {
       await waitForIdleMessaging(relatedSubscriptions)
       await processStatements()
     }
-    if (processingConfig.Sfi23AdvancedtatementConstructionActive) {
+    if (processingConfig.sfi23AdvancedStatementConstructionActive) {
       const relatedSubscriptions = [messageConfig.processingSubscription, messageConfig.submitSubscription, messageConfig.returnSubscription, messageConfig.statementDataSubscription]
       await waitForIdleMessaging(relatedSubscriptions)
       await processSfi23AdvancedStatement()
