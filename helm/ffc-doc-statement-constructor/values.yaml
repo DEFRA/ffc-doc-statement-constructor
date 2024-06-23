@@ -44,6 +44,7 @@ container:
   statementConstructionActive: false
   scheduleConstructionActive: false
   sfi23QuarterlyStatementConstructionActive: true
+  sfi23AdvancedStatementConstructionActive: true
   idleCheckBatchSize: 250
   idleCheckMaxDeliveryCount: 1
   idleCheckInterval: 60000
