@@ -5,6 +5,7 @@ const { getSettlement, getSupportingSettlements } = require('../settlement')
 const { getLatestPayment } = require('../payment')
 const getPaymentRequestByPaymentRequestId = require('../../inbound/get-payment-request-by-payment-request-id')
 const getOrganisationByFrn = require('../organisation/get-organisation-by-frn')
+const { SHORT_NAMES } = require('../../constants/scheme-names')
 const sfiaGetFunding = require('../components/sfia-hard-coded/sfia-fundings')
 
 const getSfi23AdvancedStatement = async (settlementId, scheduleId) => {
@@ -18,7 +19,7 @@ const getSfi23AdvancedStatement = async (settlementId, scheduleId) => {
     const sfiaSbi = sfiaCalculation.sbi
     const sfiaDetails = await getDetails(sfiaSbi, transaction)
     const sfiaAddress = await getAddress(sfiaSbi, transaction)
-    const sfiaScheme = await getScheme(paymentRequest.year, paymentRequest.frequency, paymentRequest.agreementNumber, paymentRequest.sourceSystem)
+    const sfiaScheme = await getScheme(paymentRequest.year, paymentRequest.frequency, paymentRequest.agreementNumber, SHORT_NAMES.SFIA)
     const supportingSettlements = await getSupportingSettlements(settlement.settlementDate, paymentRequest.agreementNumber, paymentRequest.year, transaction)
     paymentRequest.schedule = 'Q4'
     const latestPaymentSfia = getLatestPayment(paymentRequest, settlement, supportingSettlements)
