@@ -12,7 +12,6 @@ const getScheduleDates = (previousPaymentSchedule, newPaymentSchedule, deltaValu
   const nonAdjustmentValue = 0
 
   if (deltaValue < nonAdjustmentValue) {
-    // we need to avoid a balloon reduction, so we spread the reduction for any paid segments across remaining segments only
     const correctionValue = ((Math.abs(deltaValue) / previousPaymentSchedule.length) * paidSegments.length) / newPaymentSchedule.length
     newPaymentSchedule.forEach(x => { x.value = x.value - correctionValue < 0 ? 0 : x.value - correctionValue })
   }
