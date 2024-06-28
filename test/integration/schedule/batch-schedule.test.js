@@ -13,6 +13,8 @@ const MORE_TIME_THAN_ELAPSED_MAX = moment(new Date()).subtract(config.schedulePr
 const LESS_TIME_THAN_WAIT_TIME = moment(new Date()).subtract(config.settlementWaitTime - 500).toDate()
 const MORE_TIME_THAN_WAIT_TIME = moment(new Date()).subtract(config.settlementWaitTime + 500).toDate()
 
+const { STATEMENT } = require('../../../app/constants/categories')
+
 let settlement
 let schedule
 
@@ -50,10 +52,10 @@ describe('batch schedule', () => {
     await db.sequelize.close()
   })
 
-  test('should return mapped schedule array when existing schedule with null completed and null started exists', async () => {
+  test('should return mapped-schedule array when existing schedule with null completed and null started exists', async () => {
     await db.schedule.create(schedule)
 
-    const result = await schedulePendingSettlements()
+    const result = await schedulePendingSettlements(STATEMENT)
 
     expect(result).toStrictEqual([{
       scheduleId: 1,
@@ -67,7 +69,7 @@ describe('batch schedule', () => {
       restartIdentity: true
     })
 
-    const result = await schedulePendingSettlements()
+    const result = await schedulePendingSettlements(STATEMENT)
 
     expect(result).toStrictEqual([])
   })
@@ -76,7 +78,7 @@ describe('batch schedule', () => {
     schedule.started = MORE_TIME_THAN_ELAPSED_MAX
     await db.schedule.create(schedule)
 
-    const result = await schedulePendingSettlements()
+    const result = await schedulePendingSettlements(STATEMENT)
 
     expect(result).toStrictEqual([{
       scheduleId: 1,
@@ -88,7 +90,7 @@ describe('batch schedule', () => {
     schedule.started = LESS_TIME_THAN_ELAPSED_MAX
     await db.schedule.create(schedule)
 
-    const result = await schedulePendingSettlements()
+    const result = await schedulePendingSettlements(STATEMENT)
 
     expect(result).toStrictEqual([])
   })
@@ -97,7 +99,7 @@ describe('batch schedule', () => {
     schedule.completed = new Date()
     await db.schedule.create(schedule)
 
-    const result = await schedulePendingSettlements()
+    const result = await schedulePendingSettlements(STATEMENT)
 
     expect(result).toStrictEqual([])
   })
@@ -107,7 +109,7 @@ describe('batch schedule', () => {
     schedule.completed = new Date()
     await db.schedule.create(schedule)
 
-    const result = await schedulePendingSettlements()
+    const result = await schedulePendingSettlements(STATEMENT)
 
     expect(result).toStrictEqual([])
   })
@@ -117,7 +119,7 @@ describe('batch schedule', () => {
     schedule.completed = new Date()
     await db.schedule.create(schedule)
 
-    const result = await schedulePendingSettlements()
+    const result = await schedulePendingSettlements(STATEMENT)
 
     expect(result).toStrictEqual([])
   })
@@ -126,7 +128,7 @@ describe('batch schedule', () => {
     await db.settlement.update({ received: MORE_TIME_THAN_WAIT_TIME }, { where: { paymentRequestId: 1 } })
     await db.schedule.create(schedule)
 
-    const result = await schedulePendingSettlements()
+    const result = await schedulePendingSettlements(STATEMENT)
 
     expect(result).toStrictEqual([{
       scheduleId: 1,
@@ -138,7 +140,7 @@ describe('batch schedule', () => {
     await db.settlement.update({ received: LESS_TIME_THAN_WAIT_TIME }, { where: { paymentRequestId: 1 } })
     await db.schedule.create(schedule)
 
-    const result = await schedulePendingSettlements()
+    const result = await schedulePendingSettlements(STATEMENT)
 
     expect(result).toStrictEqual([])
   })
@@ -147,7 +149,7 @@ describe('batch schedule', () => {
     await db.schedule.create(schedule)
     const startedTimeBefore = (await db.schedule.findOne({ where: { scheduleId: 1 } })).started
 
-    await schedulePendingSettlements()
+    await schedulePendingSettlements(STATEMENT)
 
     const startedTimeAfter = (await db.schedule.findOne({ where: { scheduleId: 1 } })).started
     expect(startedTimeBefore).toBeNull()
@@ -159,7 +161,7 @@ describe('batch schedule', () => {
     await db.schedule.create(schedule)
     const startedTimeBefore = (await db.schedule.findOne({ where: { scheduleId: 1 } })).started
 
-    await schedulePendingSettlements()
+    await schedulePendingSettlements(STATEMENT)
 
     const startedTimeAfter = (await db.schedule.findOne({ where: { scheduleId: 1 } })).started
     expect(startedTimeBefore).toStrictEqual(LESS_TIME_THAN_ELAPSED_MAX)
@@ -171,7 +173,7 @@ describe('batch schedule', () => {
     await db.schedule.create(schedule)
     const startedTimeBefore = (await db.schedule.findOne({ where: { scheduleId: 1 } })).started
 
-    await schedulePendingSettlements()
+    await schedulePendingSettlements(STATEMENT)
 
     const startedTimeAfter = (await db.schedule.findOne({ where: { scheduleId: 1 } })).started
     expect(startedTimeBefore).toBeNull()
@@ -197,7 +199,7 @@ describe('batch schedule', () => {
     await db.schedule.create(schedule)
     const startedTimeBefore = (await db.schedule.findOne({ where: { scheduleId: 1 } })).started
 
-    await schedulePendingSettlements()
+    await schedulePendingSettlements(STATEMENT)
 
     const startedTimeAfter = (await db.schedule.findOne({ where: { scheduleId: 1 } })).started
     expect(startedTimeBefore).toStrictEqual(LESS_TIME_THAN_ELAPSED_MAX)

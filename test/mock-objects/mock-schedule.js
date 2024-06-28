@@ -1,4 +1,4 @@
-const { STATEMENT, SCHEDULE } = require('../../app/constants/categories')
+const { STATEMENT, SCHEDULE, SFI23ADVANCEDSTATEMENT } = require('../../app/constants/categories')
 
 module.exports = {
   STATEMENT: {
@@ -13,6 +13,13 @@ module.exports = {
     completed: null,
     started: null,
     category: SCHEDULE,
+    isActiveDocument: true
+  },
+  SFI23ADVANCEDSTATEMENT: {
+    settlementId: 1,
+    completed: null,
+    started: null,
+    category: SFI23ADVANCEDSTATEMENT,
     isActiveDocument: true
   }
 }

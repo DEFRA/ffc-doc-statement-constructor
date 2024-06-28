@@ -1,0 +1,20 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+ <changeSet author="Abidemi Adio" id="1">
+    <tagDatabase tag="v1.32.0" />
+  </changeSet>
+  <changeSet author="Abidemi Adio" id="2">
+    <sql splitStatements="false">
+      DO $$
+        DECLARE document_type_id INTEGER;
+        BEGIN
+          INSERT INTO "documentTypes"("code", "name", "description") 
+          VALUES ('SFI23ADVANCEDSTATEMENT', 'SFI23ADVANCEDSTATEMENT', 'SFI 23 Advanced Statement') 
+          RETURNING "documentTypeId" INTO document_type_id;
+
+          INSERT INTO "documentStatuses"("documentTypeId", "schemeId", "marketingYear", "isCurrent", "isActive") 
+          VALUES   (document_type_id, 12, 2023, true, true);
+    END $$;
+    </sql>
+  </changeSet>
+</databaseChangeLog>

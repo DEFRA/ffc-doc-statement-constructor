@@ -30,6 +30,9 @@ const processPaymentSchedules = require('../../../app/processing/process-payment
 jest.mock('../../../app/processing/process-sfi-23-quarterly-statements')
 const processSfi23QuarterlyStatement = require('../../../app/processing/process-sfi-23-quarterly-statements')
 
+jest.mock('../../../app/processing/process-sfi-23-advanced-statements')
+const processSfi23AdvancedStatements = require('../../../app/processing/process-sfi-23-advanced-statements')
+
 jest.mock('../../../app/messaging/wait-for-idle-messaging')
 const waitForIdleMessaging = require('../../../app/messaging/wait-for-idle-messaging')
 
@@ -49,6 +52,7 @@ describe('start processing', () => {
       processingConfig.statementConstructionActive = true
       processingConfig.scheduleConstructionActive = true
       processingConfig.sfi23QuarterlyStatementConstructionActive = true
+      processingConfig.sfi23AdvancedStatementConstructionActive = true
     })
 
     test('should call waitForIdleMessaging', async () => {
@@ -58,7 +62,7 @@ describe('start processing', () => {
 
     test('should call waitForIdleMessaging thrice', async () => {
       await processing.start()
-      expect(waitForIdleMessaging).toHaveBeenCalledTimes(3)
+      expect(waitForIdleMessaging).toHaveBeenCalledTimes(4)
     })
 
     test('should call processSfi23QuarterlyStatement', async () => {
@@ -90,6 +94,16 @@ describe('start processing', () => {
       expect(processPaymentSchedules).toHaveBeenCalledTimes(1)
     })
 
+    test('should call processSfi23AdvancedStatements', async () => {
+      await processing.start()
+      expect(processSfi23AdvancedStatements).toHaveBeenCalled()
+    })
+
+    test('should call processSfi23AdvancedStatements once', async () => {
+      await processing.start()
+      expect(processSfi23AdvancedStatements).toHaveBeenCalledTimes(1)
+    })
+
     test('should call setTimeout', async () => {
       await processing.start()
       expect(setTimeout).toHaveBeenCalled()
@@ -111,6 +125,7 @@ describe('start processing', () => {
       processingConfig.statementConstructionActive = true
       processingConfig.scheduleConstructionActive = false
       processingConfig.sfi23QuarterlyStatementConstructionActive = false
+      processingConfig.sfi23AdvancedStatementConstructionActive = false
     })
 
     test('should call waitForIdleMessaging', async () => {
@@ -164,6 +179,7 @@ describe('start processing', () => {
       processingConfig.statementConstructionActive = false
       processingConfig.scheduleConstructionActive = true
       processingConfig.sf123QuarterlyStatementConstructionActive = false
+      processingConfig.sfi23AdvancedStatementConstructionActive = false
     })
 
     test('should call waitForIdleMessaging', async () => {
@@ -217,6 +233,7 @@ describe('start processing', () => {
       processingConfig.statementConstructionActive = false
       processingConfig.scheduleConstructionActive = false
       processingConfig.sfi23QuarterlyStatementConstructionActive = true
+      processingConfig.sfi23AdvancedStatementConstructionActive = false
     })
 
     test('should call waitForIdleMessaging', async () => {
@@ -270,6 +287,7 @@ describe('start processing', () => {
       processingConfig.statementConstructionActive = false
       processingConfig.scheduleConstructionActive = false
       processingConfig.sfi23QuarterlyStatementConstructionActive = false
+      processingConfig.sfi23AdvancedStatementConstructionActive = false
     })
 
     test('should not call waitForIdleMessaging', async () => {

@@ -1,9 +1,8 @@
 const moment = require('moment')
 const db = require('../../data')
 const config = require('../../config').processingConfig
-const { STATEMENT } = require('../../constants/categories')
 
-const getScheduledSettlements = async (started, transaction) => {
+const getScheduledSettlements = async (started, documentType, transaction) => {
   return db.schedule.findAll({
     lock: true,
     skipLocked: true,
@@ -19,7 +18,7 @@ const getScheduledSettlements = async (started, transaction) => {
       'settlementId'
     ],
     where: {
-      category: STATEMENT,
+      category: documentType,
       completed: null,
       isActiveDocument: true,
       '$settlements.received$': {
