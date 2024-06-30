@@ -3,11 +3,13 @@ const sendSfi23QuarterlyStatement = require('./send-sfi-23-quarterly-statement')
 const updateDaxCompletePublishByDaxId = require('./update-dax-complete-publish-by-dax-id')
 const resetDaxUnCompletePublishByDaxId = require('./reset-dax-un-complete-publish-by-dax-id')
 const getSfi23QuarterlyStatementByPaymentReference = require('./get-sfi-23-quarterly-statement-by-payment-reference')
+const getExcludedPaymentReferenceByPaymentReference = require('./get-excluded-payment-reference-by-payment-reference')
 
 module.exports = {
   getVerifiedDaxsSfi23QuarterlyStatements,
   sendSfi23QuarterlyStatement,
   updateDaxCompletePublishByDaxId,
   resetDaxUnCompletePublishByDaxId,
-  getSfi23QuarterlyStatementByPaymentReference
+  getSfi23QuarterlyStatementByPaymentReference,
+  getExcludedPaymentReferenceByPaymentReference
 }
