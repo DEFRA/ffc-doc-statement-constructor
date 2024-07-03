@@ -4,6 +4,11 @@ info:
   version: 1.0.1
   description: Construct payment statements
 channels:
+  ffc-doc-statement-data/delinked:
+    address: ffc-doc-statement-data
+    messages:
+      subscribe.message:
+        $ref: '#/components/messages/DelinkedCalculation'
   ffc-doc-statement-data/calculation:
     address: ffc-doc-statement-data
     messages:
@@ -49,6 +54,11 @@ channels:
     messages:
       publish.message:
         $ref: '#/components/messages/SFI23QuarterlyPaymentStatement'
+  ffc-doc-statements/delinked-statement:
+    address: ffc-doc-statements
+    messages:
+      publish.message:
+        $ref: '#/components/messages/DelinkedStatement'
 operations:
   ffc-doc-statement-data/calculation.subscribe:
     action: receive
@@ -104,8 +114,19 @@ operations:
       $ref: '#/channels/ffc-doc-statements~1sfi-23-quarterly-statement'
     messages:
       - $ref: '#/channels/ffc-doc-statements~1sfi-23-quarterly-statement/messages/publish.message'
+  ffc-doc-statements/delinked-statement:
+    action: send
+    channel:
+      $ref: '#/channels/ffc-doc-statements~1delinked-statement'
+    messages:
+      - $ref: '#/channels/ffc-doc-statements~1delinked-statement/messages/publish.message'
 components:
   messages:
+    DelinkedCalculation:
+      name: Delinked calculation from DWH
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/DelinkedCalculation'        
     DWHCalculation:
       name: Calculation information from DWH
       contentType: application/json
@@ -151,6 +172,11 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/SFI23QuarterlyPaymentStatement'
+    DelinkedStatement:
+      name: Delinked Payment statement
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/DelinkedStatement'
   schemas:
     DWHCalculation:
       type: object
@@ -283,7 +309,49 @@ components:
           $ref: '#/components/schemas/Rate'
         uom:
           $ref: '#/components/schemas/UnitOfMeasure'
-    
+    DelinkedCalculation:
+      type: object
+      properties:
+        calculationId:
+          $ref: '#/components/schemas/CalculationId'
+        applicationId:
+          $ref: '#/components/schemas/ApplicationId'
+        frn:
+          $ref: '#/components/schemas/FRN'
+        sbi:
+          $ref: '#/components/schemas/SBI'
+        paymentBand1:
+          $ref: '#/components/schemas/PaymentBand1'
+        paymentBand2:
+          $ref: '#/components/schemas/PaymentBand2'
+        paymentBand3:
+          $ref: '#/components/schemas/PaymentBand3'
+        paymentBand4:
+          $ref: '#/components/schemas/PaymentBand4'
+        percentageReduction1:
+          $ref: '#/components/schemas/PercentageReduction1'
+        percentageReduction2:
+          $ref: '#/components/schemas/PercentageReduction2'
+        percentageReduction3:
+          $ref: '#/components/schemas/PercentageReduction3'
+        percentageReduction4:
+          $ref: '#/components/schemas/PercentageReduction4'
+        progressiveReductions1:
+          $ref: '#/components/schemas/ProgressiveReductions1'
+        progressiveReductions2:
+          $ref: '#/components/schemas/ProgressiveReductions2'
+        progressiveReductions3:
+          $ref: '#/components/schemas/ProgressiveReductions3'
+        progressiveReductions4:
+          $ref: '#/components/schemas/ProgressiveReductions4'
+        referenceAmount:
+          $ref: '#/components/schemas/ReferenceAmount'
+        totalProgressiveReduction:
+          $ref: '#/components/schemas/TotalProgressiveReduction'
+        totalDelinkedPayment:
+          $ref: '#/components/schemas/TotalDelinkedPayment'
+        paymentAmountCalculated:
+          $ref: '#/components/schemas/PaymentAmountCalculated'
     PaymentRequestProcessing:
       type: object
       required:
@@ -632,6 +700,74 @@ components:
       type: number
       description: Unique Identifier for claim
       example: 12345687
+    ApplicationId:
+      type: number
+      description: ApplicationId for calculation Data 
+      example: 1234567
+    PaymentBand1:
+      type: string
+      description: first payment band bracket amount 
+      example: Up to £30000
+    PaymentBand2:
+      type: string
+      description: second payment band bracket amount 
+      example: £30,000.01 to £50,000
+    PaymentBand3:
+      type: string
+      description: third payment band bracket amount 
+      example: £50,000.01 to £150,000
+    PaymentBand4:
+      type: string
+      description: fourth payment band bracket amount 
+      example: Above £150,000
+    PercentageReduction1:
+      type: string
+      description: First percentage bracket for progressive reductions 
+      example: 50
+    PercentageReduction2:
+      type: string
+      description: Second percentage bracket for progressive reductions 
+      example: 55
+    PercentageReduction3:
+      type: string
+      description: Third percentage bracket for progressive reductions 
+      example: 60
+    PercentageReduction4:
+      type: string
+      description: Fourth percentage bracket for progressive reductions 
+      example: 70
+    ProgressiveReductions1:
+      type: string
+      description: Value against band1 for progressive reductions 
+      example: 11000
+    ProgressiveReductions2:
+      type: string
+      description: Value against band2 for progressive reductions 
+      example: 22000
+    ProgressiveReductions3:
+      type: string
+      description: Value against band3 for progressive reductions 
+      example: 33000
+    ProgressiveReductions4:
+      type: string
+      description: Value against band4 for progressive reductions 
+      example: 44000
+    ReferenceAmount:
+      type: string
+      description: Current reference amount of total
+      example: 125000
+    TotalProgressiveReduction:
+      type: string
+      description: Total progressive reduction amount
+      example: 74750
+    TotalDelinkedPayment:
+      type: string
+      description: Total annual delinked payment amount
+      example: 50250
+    PaymentAmountCalculated:
+      type: string
+      description: TotalDelinkedPayment /2 should match paymentAmount
+      example: 25125
     InvoiceNumber:
       type: string
       description: Invoice number of payment request
@@ -723,6 +859,73 @@ components:
           $ref: '#/components/schemas/County'
         postcode:
           $ref: '#/components/schemas/Postcode'
+    DelinkedStatement:
+      type: object
+      properties:
+        calculationId:
+          $ref: '#/components/schemas/CalculationId'
+        applicationId:
+          $ref: '#/components/schemas/ApplicationId'
+        frn:
+          $ref: '#/components/schemas/FRN'
+        sbi:
+          $ref: '#/components/schemas/SBI'
+        Email:
+          type: string
+          description: The business email address
+          example: farm@farms.com
+        address:
+          type: object
+          properties:
+            line1:
+              $ref: '#/components/schemas/AddressLine1'
+            line2:
+              $ref: '#/components/schemas/AddressLine2'
+            line3:
+              $ref: '#/components/schemas/AddressLine3'
+            line4:
+              $ref: '#/components/schemas/City'
+            line5:
+              $ref: '#/components/schemas/County'
+            postcode:
+              $ref: '#/components/schemas/Postcode'
+        schemeYear:
+          type: string
+          format: integer
+          description: Scheme or marketing year
+          example: 2024
+        paymentBand1:
+          $ref: '#/components/schemas/PaymentBand1'
+        paymentBand2:
+          $ref: '#/components/schemas/PaymentBand2'
+        paymentBand3:
+          $ref: '#/components/schemas/PaymentBand3'
+        paymentBand4:
+          $ref: '#/components/schemas/PaymentBand4'
+        percentageReduction1:
+          $ref: '#/components/schemas/PercentageReduction1'
+        percentageReduction2:
+          $ref: '#/components/schemas/PercentageReduction2'
+        percentageReduction3:
+          $ref: '#/components/schemas/PercentageReduction3'
+        percentageReduction4:
+          $ref: '#/components/schemas/PercentageReduction4'
+        progressiveReductions1:
+          $ref: '#/components/schemas/ProgressiveReductions1'
+        progressiveReductions2:
+          $ref: '#/components/schemas/ProgressiveReductions2'
+        progressiveReductions3:
+          $ref: '#/components/schemas/ProgressiveReductions3'
+        progressiveReductions4:
+          $ref: '#/components/schemas/ProgressiveReductions4'
+        referenceAmount:
+          $ref: '#/components/schemas/ReferenceAmount'
+        totalProgressiveReduction:
+          $ref: '#/components/schemas/TotalProgressiveReduction'
+        totalDelinkedPayment:
+          $ref: '#/components/schemas/TotalDelinkedPayment'
+        paymentAmountCalculated:
+          $ref: '#/components/schemas/PaymentAmountCalculated'
     Scheme:
       type: object
       required:
