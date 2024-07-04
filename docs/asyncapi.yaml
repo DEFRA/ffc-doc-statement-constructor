@@ -1,7 +1,7 @@
 asyncapi: 3.0.0
 info:
   title: FFC Document Statement Constructor
-  version: 1.0.2
+  version: 1.0.1
   description: Construct payment statements
 channels:
   ffc-doc-statement-data/delinked:
@@ -356,6 +356,8 @@ components:
           $ref: '#/components/schemas/TotalDelinkedPayment'
         paymentAmountCalculated:
           $ref: '#/components/schemas/PaymentAmountCalculated'
+        type:
+          $ref: '#/components/schemas/TypeDelinked'
     PaymentRequestProcessing:
       type: object
       required:
@@ -878,21 +880,18 @@ components:
           type: string
           description: The business email address
           example: farm@farms.com
-        address:
-          type: object
-          properties:
-            line1:
-              $ref: '#/components/schemas/AddressLine1'
-            line2:
-              $ref: '#/components/schemas/AddressLine2'
-            line3:
-              $ref: '#/components/schemas/AddressLine3'
-            line4:
-              $ref: '#/components/schemas/City'
-            line5:
-              $ref: '#/components/schemas/County'
-            postcode:
-              $ref: '#/components/schemas/Postcode'
+        businessName:
+          $ref: '#/components/schemas/BusinessName'
+        addressLine1:
+          $ref: '#/components/schemas/AddressLine1'
+        addressLine2:
+          $ref: '#/components/schemas/AddressLine2'
+        addressLine3:
+          $ref: '#/components/schemas/AddressLine3'
+        city:
+          $ref: '#/components/schemas/City'
+        county:
+          $ref: '#/components/schemas/County'
         schemeYear:
           type: string
           format: integer
@@ -1346,6 +1345,10 @@ components:
       type: string
       description: Constant CALCULATION
       example: calculation
+    TypeDelinked:
+      type: string
+      description: Constant DELINKED
+      example: delinked
     TypeDax:
       type: string
       description: Constant DAX
