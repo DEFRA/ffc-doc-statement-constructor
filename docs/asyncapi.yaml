@@ -1,7 +1,7 @@
 asyncapi: 3.0.0
 info:
   title: FFC Document Statement Constructor
-  version: 1.0.1
+  version: 1.0.2
   description: Construct payment statements
 channels:
   ffc-doc-statement-data/delinked:
@@ -64,8 +64,12 @@ operations:
     action: receive
     channel:
       $ref: '#/channels/ffc-doc-statement-data~1calculation'
+  ffc-doc-statement-data/delinkedCalculation.subscribe:
+    action: receive
+    channel:
+      $ref: '#/channels/ffc-doc-statement-data~1delinked'
     messages:
-      - $ref: '#/channels/ffc-doc-statement-data~1calculation/messages/subscribe.message'
+      - $ref: '#/channels/ffc-doc-statement-data~1delinked/messages/subscribe.message'
   ffc-doc-statement-data/organisation.subscribe:
     action: receive
     channel:
@@ -926,6 +930,10 @@ components:
           $ref: '#/components/schemas/TotalDelinkedPayment'
         paymentAmountCalculated:
           $ref: '#/components/schemas/PaymentAmountCalculated'
+        transactionDate:
+          $ref: '#/components/schemas/TransactionDate'
+        paymentReference:
+          $ref: '#/components/schemas/PaymentReference'
     Scheme:
       type: object
       required:
