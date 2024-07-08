@@ -1349,8 +1349,8 @@ components:
       example: calculation
     TypeDelinked:
       type: string
-      description: Constant DELINKED
-      example: delinked
+      description: Constant DELINKEDCALCULATION
+      example: delinkedCalculation
     TypeDax:
       type: string
       description: Constant DAX
