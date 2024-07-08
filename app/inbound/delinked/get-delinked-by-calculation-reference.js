@@ -1,11 +1,11 @@
 const db = require('../../data')
 
-const getDelinkedByCalculationReference = async (calculationReference, transaction) => {
-  return db.delinked.findOne({
+const getDelinkedByCalculationReference = async (calculationId, transaction) => {
+  return db.delinkedCalculation.findOne({
     transaction,
     lock: true,
     where: {
-      calculationReference
+      calculationId
     }
   })
 }

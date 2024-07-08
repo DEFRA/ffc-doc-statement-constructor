@@ -1,5 +1,4 @@
 const db = require('../../data')
-
 const savePlaceholderOrganisation = require('./save-placeholder-organisation')
 const getDelinkedByCalculationReference = require('./get-delinked-by-calculation-reference')
 const saveDelinked = require('./save-delinked')
@@ -8,9 +7,9 @@ const processDelinked = async (delinked) => {
   const transaction = await db.sequelize.transaction()
 
   try {
-    const existingDelinked = await getDelinkedByCalculationReference(delinked.calculationReference, transaction)
+    const existingDelinked = await getDelinkedByCalculationReference(delinked.calculationId, transaction)
     if (existingDelinked) {
-      console.info(`Duplicate delinked received, skipping ${existingDelinked.calculationReference}`)
+      console.info(`Duplicate delinked received, skipping ${existingDelinked.calculationId}`)
       await transaction.rollback()
     } else {
       await savePlaceholderOrganisation({ sbi: delinked.sbi }, delinked.sbi)

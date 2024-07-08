@@ -1,7 +1,7 @@
 const db = require('../../data')
 
-const saveDelinked = async (calculation, transaction) => {
-  return db.delinked.create(calculation, { transaction })
+const saveDelinked = async (calculationId, transaction) => {
+  return db.delinkedCalculation.create(calculationId, { transaction })
 }
 
 module.exports = saveDelinked

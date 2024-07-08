@@ -1,7 +1,7 @@
 const db = require('../../data')
 
 const updateDelinkedPaymentRequestId = async (paymentRequestId, calculationId, transaction) => {
-  await db.delinked.update({ paymentRequestId }, {
+  await db.delinkedCalculation.update({ paymentRequestId }, {
     transaction,
     lock: true,
     where: {
