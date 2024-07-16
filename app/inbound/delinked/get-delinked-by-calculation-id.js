@@ -1,6 +1,6 @@
 const db = require('../../data')
 
-const getDelinkedByCalculationReference = async (calculationId, transaction) => {
+const getDelinkedByCalculationId = async (calculationId, transaction) => {
   return db.delinkedCalculation.findOne({
     transaction,
     lock: true,
@@ -10,4 +10,4 @@ const getDelinkedByCalculationReference = async (calculationId, transaction) => 
   })
 }
 
-module.exports = getDelinkedByCalculationReference
+module.exports = getDelinkedByCalculationId
