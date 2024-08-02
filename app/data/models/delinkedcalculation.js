@@ -1,12 +1,12 @@
 module.exports = (sequelize, DataTypes) => {
-  const number0 = 0
-  const number11 = 11
+  const scale0 = 0
+  const precision11 = 11
   const maxFRN = 16
   const maxSBI = 38
   const delinkedCalculation = sequelize.define('delinkedCalculation', {
-    applicationId: { type: DataTypes.NUMBER(number11, number0), allowNull: false },
-    calculationId: { type: DataTypes.NUMBER(number11, number0), primaryKey: true, allowNull: false },
-    sbi: { type: DataTypes.NUMBER(maxSBI, number0), allowNull: false },
+    applicationId: { type: DataTypes.NUMBER(precision11, scale0), allowNull: false },
+    calculationId: { type: DataTypes.NUMBER(precision11, scale0), primaryKey: true, allowNull: false },
+    sbi: { type: DataTypes.NUMBER(maxSBI, scale0), allowNull: false },
     frn: { type: DataTypes.STRING(maxFRN), allowNull: false },
     paymentBand1: { type: DataTypes.STRING, allowNull: false },
     paymentBand2: { type: DataTypes.STRING, allowNull: false },
