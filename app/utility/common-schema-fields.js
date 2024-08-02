@@ -12,7 +12,8 @@ const constants = {
   number20: 20,
   number50: 50,
   number100: 100,
-  TOTAL: 'total'
+  TOTAL: 'total',
+  DELINKEDCALCULATION: 'delinkedCalculation'
 }
 
 const messages = {
