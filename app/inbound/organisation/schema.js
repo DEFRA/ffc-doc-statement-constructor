@@ -15,30 +15,24 @@ module.exports = Joi.object({
     'number.max': `sbi must have a maximum value of ${sbiMax}`,
     'any.required': 'The field sbi is not present but it is required'
   }),
-  addressLine1: Joi.string().required().messages({
-    'string.base': 'addressLine1 must be a type of string',
-    'any.required': 'The field addressLine1 is not present but it is required'
+  addressLine1: Joi.string().allow(null).messages({
+    'string.base': 'addressLine1 must be a type of string'
   }),
-  addressLine2: Joi.string().required().messages({
-    'string.base': 'addressLine2 must be a type of string',
-    'any.required': 'The field addressLine2 is not present but it is required'
+  addressLine2: Joi.string().allow(null).messages({
+    'string.base': 'addressLine2 must be a type of string'
   }),
-  addressLine3: Joi.string().required().messages({
-    'string.base': 'addressLine3 must be a type of string',
-    'any.required': 'The field addressLine3 is not present but it is required'
+  addressLine3: Joi.string().allow(null).messages({
+    'string.base': 'addressLine3 must be a type of string'
   }),
-  city: Joi.string().required().messages({
-    'string.base': 'city must be a type of string',
-    'any.required': 'The field city is not present but it is required'
+  city: Joi.string().allow(null).messages({
+    'string.base': 'city must be a type of string'
   }),
-  county: Joi.string().required().messages({
-    'string.base': 'county must be a type of string',
-    'any.required': 'The field county is not present but it is required'
+  county: Joi.string().allow(null).messages({
+    'string.base': 'county must be a type of string'
   }),
-  emailAddress: Joi.string().email().required().messages({
+  emailAddress: Joi.string().email().allow(null).messages({
     'string.base': 'emailAddress must be a type of string',
-    'string.email': 'emailAddress must be a valid email',
-    'any.required': 'The field emailAddress is not present but it is required'
+    'string.email': 'emailAddress must be a valid email'
   }),
   frn: Joi.number().integer().min(frnMin).max(frnMax).required().messages({
     'number.base': 'frn must be a type of number',
