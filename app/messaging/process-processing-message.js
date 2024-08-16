@@ -9,9 +9,6 @@ const processProcessingMessage = async (message, receiver) => {
     await receiver.completeMessage(message)
   } catch (err) {
     console.error('Unable to process processing message:', err)
-    // if (specific type of error) {
-    //   receiver.deadLetterMessgae(message)
-    // }
   }
 }
 
