@@ -28,8 +28,13 @@ describe('process get document type by code', () => {
     await db.sequelize.close()
   })
 
-  test('getExcludedPaymentReferenceByPaymentReference returns when present', async () => {
+  test('getExcludedPaymentReferenceByPaymentReference returns true when present', async () => {
     const result = await getExcludedPaymentReferenceByPaymentReference(excludedPaymentReferences[0].paymentReference)
-    expect(result.paymentReference).toBe(excludedPaymentReferences[0].paymentReference)
+    expect(result).toBe(true)
+  })
+
+  test('getExcludedPaymentReferenceByPaymentReference returns false when not present', async () => {
+    const result = await getExcludedPaymentReferenceByPaymentReference('123456')
+    expect(result).toBe(false)
   })
 })

@@ -10,7 +10,7 @@ const getAddressFromOrganisation = require('./get-address-from-organisation')
 
 const { SFI23QUARTERLYSTATEMENT } = require('../../constants/document-types')
 
-const getSfi23QuarterlyStatementByPaymentReference = async (paymentReference) => {
+const getSfi23QuarterlyStatementByPaymentReference = async (paymentReference, excluded) => {
   const sfi23MarketingYear = '2023'
   const sfi23ShortName = 'SFI'
   const sfi23Frequency = 'Quarterly'
@@ -48,7 +48,8 @@ const getSfi23QuarterlyStatementByPaymentReference = async (paymentReference) =>
     scheme,
     actionGroups,
     previousPaymentCount,
-    documentReference: documentId
+    documentReference: documentId,
+    excludedFromNotify: excluded
   }
 }
 
