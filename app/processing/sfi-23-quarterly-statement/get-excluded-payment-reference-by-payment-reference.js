@@ -11,10 +11,7 @@ const getExcludedPaymentReferenceByPaymentReference = async (paymentReference) =
     },
     raw: true
   })
-  if (excludedPaymentReference) {
-    return true
-  }
-  return false
+  return !!excludedPaymentReference
 }
 
 module.exports = getExcludedPaymentReferenceByPaymentReference
