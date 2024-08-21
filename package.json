@@ -1,6 +1,6 @@
 {
   "name": "ffc-doc-statement-constructor",
-  "version": "1.12.32",
+  "version": "1.12.33",
   "description": "Data construction for statement generation",
   "homepage": "https://github.com/DEFRA/ffc-doc-statement-constructor",
   "main": "app/index.js",

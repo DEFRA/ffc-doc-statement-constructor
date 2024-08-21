@@ -1,7 +1,7 @@
 const db = require('../../data')
 
 const getExcludedPaymentReferenceByPaymentReference = async (paymentReference) => {
-  return db.excludedPaymentReference.findOne({
+  const excludedPaymentReference = await db.excludedPaymentReference.findOne({
     attributes: [
       'frn',
       'paymentReference'
@@ -11,6 +11,7 @@ const getExcludedPaymentReferenceByPaymentReference = async (paymentReference) =
     },
     raw: true
   })
+  return !!excludedPaymentReference
 }
 
 module.exports = getExcludedPaymentReferenceByPaymentReference

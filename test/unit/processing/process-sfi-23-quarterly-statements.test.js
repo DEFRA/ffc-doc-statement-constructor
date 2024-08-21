@@ -15,7 +15,7 @@ let retrievedDax
 describe('process statements', () => {
   beforeEach(async () => {
     const dax = JSON.parse(JSON.stringify(require('../../mock-objects/mock-dax')))
-    retrievedDax = [{ ...dax }, { ...dax, paymaentReference: 'P54542352' }, { ...dax, paymaentReference: 'P545882352' }]
+    retrievedDax = [{ ...dax }, { ...dax, paymentReference: 'P54542352' }, { ...dax, paymentReference: 'P545882352' }]
 
     getVerifiedDaxsSfi23QuarterlyStatements.mockResolvedValue([retrievedDax])
     updateDaxCompletePublishByDaxId.mockReturnValue(undefined)
@@ -56,11 +56,5 @@ describe('process statements', () => {
   test('should call resetDaxUnCompletePublishByDaxId', async () => {
     await processSfi23QuarterlyStatements()
     expect(resetDaxUnCompletePublishByDaxId).toHaveBeenCalled()
-  })
-
-  test('should not call sendSfi23QuarterlyStatement if payment reference is excluded', async () => {
-    getExcludedPaymentReferenceByPaymentReference.mockResolvedValue(true)
-    await processSfi23QuarterlyStatements()
-    expect(sendSfi23QuarterlyStatement).not.toHaveBeenCalled()
   })
 })
