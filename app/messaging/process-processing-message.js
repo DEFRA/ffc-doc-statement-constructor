@@ -9,6 +9,7 @@ const processProcessingMessage = async (message, receiver) => {
     await receiver.completeMessage(message)
   } catch (err) {
     console.error('Unable to process processing message:', err)
+    receiver.deadLetterMessage(message)
   }
 }
 

@@ -15,22 +15,22 @@ module.exports = Joi.object({
     'number.max': `sbi must have a maximum value of ${sbiMax}`,
     'any.required': 'The field sbi is not present but it is required'
   }),
-  addressLine1: Joi.string().allow(null).messages({
+  addressLine1: Joi.string().allow('').messages({
     'string.base': 'addressLine1 must be a type of string'
   }),
-  addressLine2: Joi.string().allow(null).messages({
+  addressLine2: Joi.string().allow('').messages({
     'string.base': 'addressLine2 must be a type of string'
   }),
-  addressLine3: Joi.string().allow(null).messages({
+  addressLine3: Joi.string().allow('').messages({
     'string.base': 'addressLine3 must be a type of string'
   }),
-  city: Joi.string().allow(null).messages({
+  city: Joi.string().allow('').messages({
     'string.base': 'city must be a type of string'
   }),
-  county: Joi.string().allow(null).messages({
+  county: Joi.string().allow('').messages({
     'string.base': 'county must be a type of string'
   }),
-  emailAddress: Joi.string().email().allow(null).messages({
+  emailAddress: Joi.string().email().allow('').messages({
     'string.base': 'emailAddress must be a type of string',
     'string.email': 'emailAddress must be a valid email'
   }),

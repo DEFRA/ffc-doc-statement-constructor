@@ -1,13 +1,13 @@
 const db = require('../../../data')
 
-const getSchemeByCode = async (code) => {
+const getSchemeByCode = async (name) => {
   return db.scheme.findOne({
     attributes: [
       'name',
       'code'
     ],
     where: {
-      code
+      name
     },
     raw: true
   })
