@@ -1,7 +1,6 @@
 const getDax = require('./dax')
 const getOrganisation = require('./organisation')
 const getTotal = require('./total')
-const getScheme = require('./scheme')
 const getActionGroups = require('./action-groups')
 const saveDocument = require('./save-document')
 const getPreviousPaymentCountByCalculationId = require('./get-previous-payment-count-by-document-id')
