@@ -3,7 +3,7 @@ const Long = require('long')
 const config = require('../config/message')
 const sleep = require('./sleep')
 
-const waitForIdleSubscription = async (subscription) => {
+const waitForIdleSubscription = async (subscription, processName) => {
   let receiver
   try {
     receiver = new MessageReceiver(subscription)
@@ -13,7 +13,7 @@ const waitForIdleSubscription = async (subscription) => {
       const idleCount = messages.filter(message => message.deliveryCount > config.idleCheckMaxDeliveryCount).length
       idle = idleCount === messages.length
       if (!idle) {
-        console.info(`Waiting for ${messages.length - idleCount} messages to be idle on topic ${subscription.topic}`)
+        console.info(`${processName} processing paused - waiting for ${messages.length - idleCount} messages to be idle on topic ${subscription.topic}`)
         await sleep(config.idleCheckInterval)
       }
     } while (!idle)

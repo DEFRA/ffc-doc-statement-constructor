@@ -1,6 +1,14 @@
 const {
-  LNR: LNR_ID,
+  BPS: BPS_ID,
+  CS: CS_ID,
+  DP: DP_ID,
+  ES: ES_ID,
+  ESFIO: ESFIO_ID,
+  FC: FC_ID,
+  FDMR: FDMR_ID,
+  IMPS: IMPS_ID,
   LUMP_SUMS: LUMP_SUMS_ID,
+  MANUAL: MANUAL_ID,
   SFI: SFI_ID,
   SFIA: SFIA_ID,
   SFI_PILOT: SFI_PILOT_ID,
@@ -8,8 +16,16 @@ const {
 } = require('./scheme-ids')
 
 const {
-  LNR,
+  BPS,
+  CS,
+  DP,
+  ES,
+  ESFIO,
+  FC,
+  FDMR,
+  IMPS,
   LUMP_SUMS,
+  MANUAL,
   SFI,
   SFIA,
   SFI_PILOT,
@@ -17,14 +33,54 @@ const {
 } = require('./scheme-names').SHORT_NAMES
 
 module.exports = [{
-  schemeId: LNR_ID,
-  name: LNR,
-  code: LNR_ID.toString() + LNR.toString()
+  schemeId: BPS_ID,
+  name: BPS,
+  code: BPS_ID.toString() + BPS.toString()
+},
+{
+  schemeId: CS_ID,
+  name: CS,
+  code: CS_ID.toString() + CS.toString()
+},
+{
+  schemeId: DP_ID,
+  name: DP,
+  code: DP_ID.toString() + DP.toString()
+},
+{
+  schemeId: ES_ID,
+  name: ES,
+  code: ES_ID.toString() + ES.toString()
+},
+{
+  schemeId: ESFIO_ID,
+  name: ESFIO,
+  code: ESFIO_ID.toString() + ESFIO.toString()
+},
+{
+  schemeId: FC_ID,
+  name: FC,
+  code: FC_ID.toString() + FC.toString()
+},
+{
+  schemeId: FDMR_ID,
+  name: FDMR,
+  code: FDMR_ID.toString() + FDMR.toString()
+},
+{
+  schemeId: IMPS_ID,
+  name: IMPS,
+  code: IMPS_ID.toString() + IMPS.toString()
 },
 {
   schemeId: LUMP_SUMS_ID,
   name: LUMP_SUMS,
   code: LUMP_SUMS_ID.toString() + LUMP_SUMS.toString()
+},
+{
+  schemeId: MANUAL_ID,
+  name: MANUAL,
+  code: MANUAL_ID.toString() + MANUAL.toString()
 },
 {
   schemeId: SFI_ID,
