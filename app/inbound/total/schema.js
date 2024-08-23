@@ -55,10 +55,9 @@ module.exports = Joi.object({
     overDeclarationPenalty: precisionSchema('overDeclarationPenalty', constants.number15),
     quarterlyPaymentAmount: stringSchema('quarterlyPaymentAmount', constants.number15),
     groupName: stringSchema('groupName', constants.number100)
-  })).min(1).required().messages({
+  })).min(1).optional().messages({
     'array.base': 'actions should be a type of array',
-    'array.min': 'actions array should have a minimum length of 1',
-    'any.required': 'The field actions is not present but it is required'
+    'array.min': 'actions array should have a minimum length of 1'
   })
 }).required().messages({
   'object.base': 'The input should be an object',
