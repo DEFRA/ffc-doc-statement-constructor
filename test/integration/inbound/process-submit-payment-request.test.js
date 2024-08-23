@@ -4,7 +4,6 @@ const db = require('../../../app/data')
 
 const {
   SFI_PILOT: SFI_PILOT_SCHEME_ID,
-  LNR: LNR_SCHEME_ID,
   LUMP_SUMS: LUMP_SUMS_SCHEME_ID,
   VET_VISITS: VET_VISITS_SCHEME_ID
 } = require('../../../app/constants/scheme-ids')
