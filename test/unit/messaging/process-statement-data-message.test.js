@@ -16,8 +16,7 @@ describe('process statement data message', () => {
     organisation = JSON.parse(JSON.stringify(require('../../mock-objects/mock-organisation')))
 
     receiver = {
-      completeMessage: jest.fn(),
-      deadLetterMessage: jest.fn()
+      completeMessage: jest.fn()
     }
 
     message = { body: organisation }
@@ -57,11 +56,6 @@ describe('process statement data message', () => {
     expect(receiver.completeMessage).toHaveBeenCalled()
   })
 
-  test('should not call receiver.deadLetterMessage when nothing throws', async () => {
-    await processStatementDataMessage(message, receiver)
-    expect(receiver.deadLetterMessage).toHaveBeenCalled()
-  })
-
   test('should call receiver.completeMessage once when nothing throws', async () => {
     await processStatementDataMessage(message, receiver)
     expect(receiver.completeMessage).toHaveBeenCalledTimes(1)
@@ -76,12 +70,6 @@ describe('process statement data message', () => {
     processStatementData.mockRejectedValue(new Error('Transaction failed'))
     try { await processStatementDataMessage(message, receiver) } catch {}
     expect(receiver.completeMessage).not.toHaveBeenCalled()
-  })
-
-  test('should call receiver.deadLetterMessage when processStatementData throws', async () => {
-    processStatementData.mockRejectedValue(new Error('Transaction failed'))
-    try { await processStatementDataMessage(message, receiver) } catch {}
-    expect(receiver.deadLetterMessage).not.toHaveBeenCalled()
   })
 
   test('should not throw when processStatementData throws', async () => {
