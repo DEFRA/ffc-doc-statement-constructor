@@ -9,6 +9,7 @@ const processSubmitMessage = async (message, receiver) => {
     await receiver.completeMessage(message)
   } catch (err) {
     console.error('Unable to process submit message:', err)
+    await receiver.deadLetterMessage(message)
   }
 }
 

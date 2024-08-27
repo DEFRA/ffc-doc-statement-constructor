@@ -1,4 +1,3 @@
-
 module.exports = [{
   documentTypeId: 1,
   code: 'STATEMENT',

@@ -1,4 +1,3 @@
-
 const getActions = require('../../../../../app/processing/sfi-23-quarterly-statement/action-groups/get-actions')
 
 jest.mock('../../../../../app/processing/sfi-23-quarterly-statement/action-groups/get-actions-by-calculation-reference')

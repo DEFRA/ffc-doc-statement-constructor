@@ -1,4 +1,3 @@
-
 const mockCommit = jest.fn()
 const mockRollback = jest.fn()
 const mockTransaction = {

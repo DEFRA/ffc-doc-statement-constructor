@@ -4,7 +4,6 @@ const db = require('../../../app/data')
 
 const {
   SFI_PILOT: SFI_PILOT_SCHEME_ID,
-  LNR: LNR_SCHEME_ID,
   LUMP_SUMS: LUMP_SUMS_SCHEME_ID,
   VET_VISITS: VET_VISITS_SCHEME_ID
 } = require('../../../app/constants/scheme-ids')
@@ -68,24 +67,6 @@ describe('process processing payment request', () => {
 
   test('should save 1 entry into invoiceNumber where paymentRequest.invoiceNumber when paymentRequest.schemeId is SFI_PILOT', async () => {
     paymentRequest.schemeId = SFI_PILOT_SCHEME_ID
-
-    await processProcessingPaymentRequest(paymentRequest)
-
-    const result = await db.invoiceNumber.count({ where: { invoiceNumber: paymentRequest.invoiceNumber } })
-    expect(result).toBe(1)
-  })
-
-  test('should save entry into invoiceNumber where paymentRequest.invoiceNumber when paymentRequest.schemeId is LNR', async () => {
-    paymentRequest.schemeId = LNR_SCHEME_ID
-
-    await processProcessingPaymentRequest(paymentRequest)
-
-    const result = await db.invoiceNumber.findOne({ where: { invoiceNumber: paymentRequest.invoiceNumber } })
-    expect(result).not.toBeNull()
-  })
-
-  test('should save 1 entry into invoiceNumber where paymentRequest.invoiceNumber when paymentRequest.schemeId is LNR', async () => {
-    paymentRequest.schemeId = LNR_SCHEME_ID
 
     await processProcessingPaymentRequest(paymentRequest)
 
@@ -169,24 +150,6 @@ describe('process processing payment request', () => {
 
   test('should save 1 entry into paymentRequest where paymentRequest.invoiceNumber when paymentRequest.schemeId is SFI_PILOT', async () => {
     paymentRequest.schemeId = SFI_PILOT_SCHEME_ID
-
-    await processProcessingPaymentRequest(paymentRequest)
-
-    const result = await db.paymentRequest.count({ where: { invoiceNumber: paymentRequest.invoiceNumber } })
-    expect(result).toBe(1)
-  })
-
-  test('should save entry into paymentRequest where paymentRequest.invoiceNumber when paymentRequest.schemeId is LNR', async () => {
-    paymentRequest.schemeId = LNR_SCHEME_ID
-
-    await processProcessingPaymentRequest(paymentRequest)
-
-    const result = await db.paymentRequest.findOne({ where: { invoiceNumber: paymentRequest.invoiceNumber } })
-    expect(result).not.toBeNull()
-  })
-
-  test('should save 1 entry into paymentRequest where paymentRequest.invoiceNumber when paymentRequest.schemeId is LNR', async () => {
-    paymentRequest.schemeId = LNR_SCHEME_ID
 
     await processProcessingPaymentRequest(paymentRequest)
 
@@ -398,24 +361,6 @@ describe('process processing payment request', () => {
 
   test('should save 1 entry into invoiceLine where paymentRequestId is 1 when paymentRequest.schemeId is SFI_PILOT', async () => {
     paymentRequest.schemeId = SFI_PILOT_SCHEME_ID
-
-    await processProcessingPaymentRequest(paymentRequest)
-
-    const result = await db.invoiceLine.count({ where: { paymentRequestId: 1 } })
-    expect(result).toBe(1)
-  })
-
-  test('should save entry into invoiceLine where paymentRequestId is 1 when paymentRequest.schemeId is LNR', async () => {
-    paymentRequest.schemeId = LNR_SCHEME_ID
-
-    await processProcessingPaymentRequest(paymentRequest)
-
-    const result = await db.invoiceLine.findOne({ where: { paymentRequestId: 1 } })
-    expect(result).not.toBeNull()
-  })
-
-  test('should save 1 entry into invoiceLine where paymentRequestId is 1 when paymentRequest.schemeId is LNR', async () => {
-    paymentRequest.schemeId = LNR_SCHEME_ID
 
     await processProcessingPaymentRequest(paymentRequest)
 

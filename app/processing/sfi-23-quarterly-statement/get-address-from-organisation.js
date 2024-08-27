@@ -1,4 +1,3 @@
-
 const getAddressFromOrganisation = (organisation) => {
   return {
     line1: organisation.addressLine1,

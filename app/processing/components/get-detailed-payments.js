@@ -1,4 +1,3 @@
-
 const moment = require('moment')
 const { convertToPounds } = require('../../utility')
 const dateFormats = [

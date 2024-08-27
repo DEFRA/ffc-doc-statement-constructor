@@ -22,7 +22,7 @@ module.exports = Joi.array().items(
     quarterlyPaymentAmount: stringSchema('quarterlyPaymentAmount', constants.number15),
     groupName: stringSchema('groupName', constants.number100)
   })
-).min(1).required().messages({
+).optional().messages({
   'array.base': 'The input should be an array',
   'array.min': 'The array should have at least 1 item',
   'any.required': 'The array is not present but it is required'

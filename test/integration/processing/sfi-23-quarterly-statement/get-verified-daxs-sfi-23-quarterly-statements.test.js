@@ -1,4 +1,3 @@
-
 jest.mock('../../../../app/data')
 const db = require('../../../../app/data')
 

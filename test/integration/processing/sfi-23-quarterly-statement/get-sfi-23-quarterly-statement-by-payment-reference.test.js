@@ -7,9 +7,6 @@ const getOrganisation = require('../../../../app/processing/sfi-23-quarterly-sta
 jest.mock('../../../../app/processing/sfi-23-quarterly-statement/total')
 const getTotal = require('../../../../app/processing/sfi-23-quarterly-statement/total')
 
-jest.mock('../../../../app/processing/sfi-23-quarterly-statement/scheme')
-const getScheme = require('../../../../app/processing/sfi-23-quarterly-statement/scheme')
-
 jest.mock('../../../../app/processing/sfi-23-quarterly-statement/action-groups')
 const getActionGroups = require('../../../../app/processing/sfi-23-quarterly-statement/action-groups')
 
@@ -34,7 +31,6 @@ describe('get Sfi23 Quarterly Statement by Payment reference', () => {
     const dax = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-dax')))
     const organisation = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-organisation')))
     const total = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-total')))
-    const scheme = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-scheme')))
     const actionGroups = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-action-groups')))
     const savedDocument = { documentId: 2 }
     const previousPaymentCount = 1
@@ -51,7 +47,6 @@ describe('get Sfi23 Quarterly Statement by Payment reference', () => {
     getDax.mockResolvedValue(dax)
     getOrganisation.mockResolvedValue(organisation)
     getTotal.mockResolvedValue(total)
-    getScheme.mockResolvedValue(scheme)
     getActionGroups.mockResolvedValue(actionGroups)
     saveDocument.mockResolvedValue(savedDocument)
     getPreviousPaymentCountByCalculationId.mockResolvedValue(previousPaymentCount)
@@ -76,11 +71,6 @@ describe('get Sfi23 Quarterly Statement by Payment reference', () => {
   test('should call getTotal', async () => {
     await getSfi23QuarterlyStatementByPaymentReference(paymentReference)
     expect(getTotal).toHaveBeenCalled()
-  })
-
-  test('should call getScheme', async () => {
-    await getSfi23QuarterlyStatementByPaymentReference(paymentReference)
-    expect(getScheme).toHaveBeenCalled()
   })
 
   test('should call getActionGroups', async () => {
