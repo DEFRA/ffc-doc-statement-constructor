@@ -14,7 +14,8 @@ describe('process return message', () => {
     processReturnSettlement.mockReturnValue(undefined)
     settlement = JSON.parse(JSON.stringify(require('../../mock-objects/mock-settlement')))
     receiver = {
-      completeMessage: jest.fn()
+      completeMessage: jest.fn(),
+      deadLetterMessage: jest.fn()
     }
     message = { body: settlement }
   })
@@ -53,6 +54,11 @@ describe('process return message', () => {
     expect(receiver.completeMessage).toHaveBeenCalled()
   })
 
+  test('should not call receiver.deadLetterMessage when nothing throws', async () => {
+    await processReturnMessage(message, receiver)
+    expect(receiver.deadLetterMessage).not.toHaveBeenCalled()
+  })
+
   test('should call receiver.completeMessage once when nothing throws', async () => {
     await processReturnMessage(message, receiver)
     expect(receiver.completeMessage).toHaveBeenCalledTimes(1)
@@ -67,6 +73,12 @@ describe('process return message', () => {
     processReturnSettlement.mockRejectedValue(new Error('Transaction failed'))
     try { await processReturnMessage(message, receiver) } catch {}
     expect(receiver.completeMessage).not.toHaveBeenCalled()
+  })
+
+  test('should call receiver.deadLetterMessage when processReturnSettlement throws', async () => {
+    processReturnSettlement.mockRejectedValue(new Error('Transaction failed'))
+    try { await processReturnMessage(message, receiver) } catch {}
+    expect(receiver.deadLetterMessage).toHaveBeenCalled()
   })
 
   test('should not throw when processReturnSettlement throws', async () => {

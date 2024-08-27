@@ -16,7 +16,8 @@ describe('process submit message', () => {
     paymentRequest = JSON.parse(JSON.stringify(require('../../mock-objects/mock-payment-request').submitPaymentRequest))
 
     receiver = {
-      completeMessage: jest.fn()
+      completeMessage: jest.fn(),
+      deadLetterMessage: jest.fn()
     }
 
     message = { body: paymentRequest }
@@ -56,6 +57,11 @@ describe('process submit message', () => {
     expect(receiver.completeMessage).toHaveBeenCalled()
   })
 
+  test('should not call receiver.deadLetterMessage when nothing throws', async () => {
+    await processSubmitMessage(message, receiver)
+    expect(receiver.deadLetterMessage).not.toHaveBeenCalled()
+  })
+
   test('should call receiver.completeMessage once when nothing throws', async () => {
     await processSubmitMessage(message, receiver)
     expect(receiver.completeMessage).toHaveBeenCalledTimes(1)
@@ -70,6 +76,12 @@ describe('process submit message', () => {
     processSubmitPaymentRequest.mockRejectedValue(new Error('Transaction failed'))
     try { await processSubmitMessage(message, receiver) } catch {}
     expect(receiver.completeMessage).not.toHaveBeenCalled()
+  })
+
+  test('should call receiver.deadLetterMessage when processSubmitPaymentRequest throws', async () => {
+    processSubmitPaymentRequest.mockRejectedValue(new Error('Transaction failed'))
+    try { await processSubmitMessage(message, receiver) } catch {}
+    expect(receiver.deadLetterMessage).toHaveBeenCalled()
   })
 
   test('should not throw when processSubmitPaymentRequest throws', async () => {
