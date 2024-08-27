@@ -56,7 +56,7 @@ module.exports = Joi.object({
     quarterlyPaymentAmount: stringSchema('quarterlyPaymentAmount', constants.number15),
     groupName: stringSchema('groupName', constants.number100)
   })).optional().messages({
-    'array.base': 'actions should be a type of array',
+    'array.base': 'actions should be a type of array'
   })
 }).required().messages({
   'object.base': 'The input should be an object',

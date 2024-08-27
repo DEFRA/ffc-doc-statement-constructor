@@ -1,4 +1,3 @@
-
 const getActionGroups = require('../../../../../app/processing/sfi-23-quarterly-statement/action-groups/get-action-groups')
 
 jest.mock('../../../../../app/processing/sfi-23-quarterly-statement/action-groups/get-actions')
