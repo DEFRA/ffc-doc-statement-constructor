@@ -12,7 +12,9 @@ const getSupportingInvoiceNumbers = async (settlementDate, agreementNumber, mark
       required: true,
       attributes: [],
       where: {
-        settlementDate,
+        settlementDate: {
+          [db.Sequelize.Op.lte]: settlementDate
+        },
         settled: true
       }
     }],
