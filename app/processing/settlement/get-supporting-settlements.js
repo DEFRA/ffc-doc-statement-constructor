@@ -1,4 +1,3 @@
-const util = require('util')
 const getCompletedInvoiceNumbers = require('./get-supporting-invoice-numbers')
 const getLastSettlement = require('./get-last-settlement')
 const getSettlementsByInvoiceNumber = require('./get-settlements-by-invoice-number')
@@ -6,7 +5,6 @@ const getPaymentValue = require('./get-payment-value')
 
 const getSupportingSettlements = async (settlementDate, agreementNumber, marketingYear, transaction) => {
   const completedInvoiceNumbers = await getCompletedInvoiceNumbers(settlementDate, agreementNumber, marketingYear, transaction)
-  console.log('Completed Invoice Numbers:', util.inspect(completedInvoiceNumbers, false, null, true))
   const supportingSettlements = await getSettlementsByInvoiceNumber(settlementDate, completedInvoiceNumbers, transaction)
   for (const supportingSettlement of supportingSettlements) {
     const lastSettlement = await getLastSettlement(supportingSettlement.settlementDate, supportingSettlement.value, supportingSettlement.invoiceNumber, transaction)
