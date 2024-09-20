@@ -9,7 +9,9 @@ const getSettlementsByInvoiceNumber = async (settlementDate, completedInvoiceNum
       'value'
     ],
     where: {
-      settlementDate,
+      settlementDate: {
+        [db.Sequelize.Op.lte]: settlementDate
+      },
       invoiceNumber: {
         [db.Sequelize.Op.in]: completedInvoiceNumbers
       },

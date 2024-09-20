@@ -16,7 +16,9 @@ const getLatestCompletedPaymentRequest = async (settlementDate, agreementNumber,
       required: true,
       attributes: [],
       where: {
-        settlementDate,
+        settlementDate: {
+          [db.Sequelize.Op.lte]: settlementDate
+        },
         settled: true
       }
     }],

@@ -1,6 +1,6 @@
-const db = require('../../data')
+const db = require('../../../data')
 
-const getLastSettlement = async (settlementDate, value, invoiceNumber, transaction) => {
+const getPreviousSettlement = async (settlementDate, value, invoiceNumber, reference, transaction) => {
   const valueParam = value > 0 ? db.Sequelize.Op.lt : db.Sequelize.Op.gt
   return db.settlement.findOne({
     transaction,
@@ -15,13 +15,17 @@ const getLastSettlement = async (settlementDate, value, invoiceNumber, transacti
         [valueParam]: value
       },
       invoiceNumber,
+      reference: {
+        [db.Sequelize.Op.ne]: reference
+      },
       settled: true
     },
     order: [
-      ['settlementDate', 'DESC']
+      ['settlementDate', 'DESC'],
+      ['value', 'DESC']
     ],
     raw: true
   })
 }
 
-module.exports = getLastSettlement
+module.exports = getPreviousSettlement

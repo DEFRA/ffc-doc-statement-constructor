@@ -1,6 +1,9 @@
 jest.mock('../../../../app/processing/sfi-23-quarterly-statement/dax')
 const getDax = require('../../../../app/processing/sfi-23-quarterly-statement/dax')
 
+jest.mock('../../../../app/processing/sfi-23-quarterly-statement/value-override/get-amount-from-settlements')
+const { getAmountFromSettlements } = require('../../../../app/processing/sfi-23-quarterly-statement/value-override/get-amount-from-settlements')
+
 jest.mock('../../../../app/processing/sfi-23-quarterly-statement/organisation')
 const getOrganisation = require('../../../../app/processing/sfi-23-quarterly-statement/organisation')
 
@@ -23,6 +26,7 @@ jest.mock('../../../../app/processing/sfi-23-quarterly-statement/get-address-fro
 const getAddressFromOrganisation = require('../../../../app/processing/sfi-23-quarterly-statement/get-address-from-organisation')
 
 const getSfi23QuarterlyStatementByPaymentReference = require('../../../../app/processing/sfi-23-quarterly-statement/get-sfi-23-quarterly-statement-by-payment-reference')
+const { processingConfig } = require('../../../../app/config')
 
 const paymentReference = 'PY12345670'
 
@@ -45,6 +49,7 @@ describe('get Sfi23 Quarterly Statement by Payment reference', () => {
     }
 
     getDax.mockResolvedValue(dax)
+    getAmountFromSettlements.mockResolvedValue(1234.56)
     getOrganisation.mockResolvedValue(organisation)
     getTotal.mockResolvedValue(total)
     getActionGroups.mockResolvedValue(actionGroups)
@@ -63,6 +68,17 @@ describe('get Sfi23 Quarterly Statement by Payment reference', () => {
     expect(getDax).toHaveBeenCalled()
   })
 
+  test('should call getAmountFromSettlements if processingConfig.sfi23OverrideDWHValue is true', async () => {
+    processingConfig.sfi23OverrideDWHValue = true
+    await getSfi23QuarterlyStatementByPaymentReference(paymentReference)
+    expect(getAmountFromSettlements).toHaveBeenCalled()
+  })
+
+  test('should not call getAmountFromSettlements if processingConfig.sfi23OverrideDWHValue is false', async () => {
+    processingConfig.sfi23OverrideDWHValue = false
+    await getSfi23QuarterlyStatementByPaymentReference(paymentReference)
+    expect(getAmountFromSettlements).not.toHaveBeenCalled()
+  })
   test('should call getOrganisation', async () => {
     await getSfi23QuarterlyStatementByPaymentReference(paymentReference)
     expect(getOrganisation).toHaveBeenCalled()
