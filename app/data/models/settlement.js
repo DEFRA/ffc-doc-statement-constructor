@@ -1,4 +1,3 @@
-
 module.exports = (sequelize, DataTypes) => {
   const settlement = sequelize.define('settlement', {
     settlementId: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },

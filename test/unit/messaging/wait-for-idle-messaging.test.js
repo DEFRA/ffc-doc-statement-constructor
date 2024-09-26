@@ -9,23 +9,24 @@ describe('wait for idle messaging', () => {
   beforeEach(async () => {
     jest.clearAllMocks()
   })
+
   test('should call waitForIdleSubscription for each subscription in the list of subscriptions provided', async () => {
     const relatedSubscriptions = [config.processingSubscription, config.submitSubscription, config.returnSubscription, config.statementDataSubscription]
-    await waitForIdleMessaging(relatedSubscriptions)
+    await waitForIdleMessaging(relatedSubscriptions, 'Statement Name')
     expect(waitForIdleSubscription).toHaveBeenCalledTimes(4)
-    expect(waitForIdleSubscription).toHaveBeenCalledWith(config.processingSubscription)
-    expect(waitForIdleSubscription).toHaveBeenCalledWith(config.submitSubscription)
-    expect(waitForIdleSubscription).toHaveBeenCalledWith(config.returnSubscription)
-    expect(waitForIdleSubscription).toHaveBeenCalledWith(config.statementDataSubscription)
+    expect(waitForIdleSubscription).toHaveBeenCalledWith(config.processingSubscription, 'Statement Name')
+    expect(waitForIdleSubscription).toHaveBeenCalledWith(config.submitSubscription, 'Statement Name')
+    expect(waitForIdleSubscription).toHaveBeenCalledWith(config.returnSubscription, 'Statement Name')
+    expect(waitForIdleSubscription).toHaveBeenCalledWith(config.statementDataSubscription, 'Statement Name')
   })
 
   test('should call waitForIdleSubscription for only the subscriptions in the list of subscriptions provided', async () => {
     const relatedSubscriptions = [config.returnSubscription, config.statementDataSubscription]
-    await waitForIdleMessaging(relatedSubscriptions)
+    await waitForIdleMessaging(relatedSubscriptions, 'Statement Name')
     expect(waitForIdleSubscription).toHaveBeenCalledTimes(2)
-    expect(waitForIdleSubscription).not.toHaveBeenCalledWith(config.processingSubscription)
-    expect(waitForIdleSubscription).not.toHaveBeenCalledWith(config.submitSubscription)
-    expect(waitForIdleSubscription).toHaveBeenCalledWith(config.returnSubscription)
-    expect(waitForIdleSubscription).toHaveBeenCalledWith(config.statementDataSubscription)
+    expect(waitForIdleSubscription).not.toHaveBeenCalledWith(config.processingSubscription, 'Statement Name')
+    expect(waitForIdleSubscription).not.toHaveBeenCalledWith(config.submitSubscription, 'Statement Name')
+    expect(waitForIdleSubscription).toHaveBeenCalledWith(config.returnSubscription, 'Statement Name')
+    expect(waitForIdleSubscription).toHaveBeenCalledWith(config.statementDataSubscription, 'Statement Name')
   })
 })

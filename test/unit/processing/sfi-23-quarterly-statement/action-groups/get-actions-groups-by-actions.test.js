@@ -1,4 +1,3 @@
-
 const getActionsGroupsByActions = require('../../../../../app/processing/sfi-23-quarterly-statement/action-groups/get-actions-groups-by-actions')
 const groupBy = require('../../../../../app/processing/sfi-23-quarterly-statement/action-groups/group-by')
 

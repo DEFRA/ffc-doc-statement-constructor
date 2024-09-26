@@ -1,4 +1,3 @@
-
 const updateDaxsForStartPublish = require('../../../../app/processing/sfi-23-quarterly-statement/update-daxs-for-start-publish')
 
 jest.mock('../../../../app/processing/sfi-23-quarterly-statement/update-dax-start-publish-by-dax-id')

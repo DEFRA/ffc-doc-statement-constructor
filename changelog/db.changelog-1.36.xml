@@ -1,0 +1,60 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+  <changeSet author="Sam Plackett" id="1">
+    <tagDatabase tag="v1.36.0" />
+    </changeSet>
+    <changeSet id="2" author="Sam Plackett">
+        <insert tableName="schemes">
+            <column name="schemeId" value="6" />
+            <column name="code" value="6BPS" />
+            <column name="name" value="BPS" />
+        </insert>
+        <insert tableName="schemes">
+            <column name="schemeId" value="7" />
+            <column name="code" value="7FDMR" />
+            <column name="name" value="FDMR" />
+        </insert>
+        <insert tableName="schemes">
+            <column name="schemeId" value="8" />
+            <column name="code" value="8Manual Invoice" />
+            <column name="name" value="Manual Invoice" />
+        </insert>
+        <insert tableName="schemes">
+            <column name="schemeId" value="9" />
+            <column name="code" value="9ES" />
+            <column name="name" value="ES" />
+        </insert>
+        <insert tableName="schemes">
+            <column name="schemeId" value="10" />
+            <column name="code" value="10FC" />
+            <column name="name" value="FC" />
+        </insert>
+        <insert tableName="schemes">
+            <column name="schemeId" value="11" />
+            <column name="code" value="11IMPS" />
+            <column name="name" value="IMPS" />
+        </insert>
+        <insert tableName="schemes">
+            <column name="schemeId" value="13" />
+            <column name="code" value="13Delinked Payments" />
+            <column name="name" value="Delinked Payments" />
+        </insert>
+    </changeSet>
+    <changeSet id="3" author="Sam Plackett">
+        <update tableName="schemes">
+            <column name="name" value="Vet Visits" />
+            <column name="code" value="4Vet Visits" />
+            <where>"schemeId" = 4</where>
+        </update>
+        <update tableName="schemes">
+            <column name="name" value="CS" />
+            <column name="code" value="5CS" />
+            <where>"schemeId" = 5</where>
+        </update>
+        <update tableName="schemes">
+            <column name="name" value="Expanded SFI Offer" />
+            <column name="code" value="14Expanded SFI Offer" />
+            <where>"schemeId" = 14</where>
+        </update>
+    </changeSet>
+</databaseChangeLog>
