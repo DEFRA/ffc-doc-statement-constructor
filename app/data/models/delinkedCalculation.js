@@ -1,15 +1,13 @@
 module.exports = (sequelize, DataTypes) => {
-  const scale0 = 0
-  const precision11 = 11
   const maxFRN = 16
   const maxSBI = 38
 
   const commonStringField = { type: DataTypes.STRING, allowNull: false }
 
   const delinkedCalculation = sequelize.define('delinkedCalculation', {
-    calculationReference: { type: DataTypes.NUMBER(precision11, scale0), primaryKey: true, allowNull: false },
-    applicationReference: { type: DataTypes.NUMBER(precision11, scale0), allowNull: false },
-    sbi: { type: DataTypes.NUMBER(maxSBI, scale0), allowNull: false },
+    calculationId: { type: DataTypes.INTEGER, primaryKey: true, allowNull: false },
+    applicationId: { type: DataTypes.INTEGER, allowNull: false },
+    sbi: { type: DataTypes.INTEGER(maxSBI), allowNull: false },
     frn: { type: DataTypes.STRING(maxFRN), allowNull: false },
     ...Array.from({ length: 4 }, (_, i) => ({
       [`paymentBand${i + 1}`]: commonStringField,
@@ -36,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
     })
     delinkedCalculation.belongsTo(models.organisation, {
       foreignKey: 'sbi',
-      as: 'organisations'
+      as: 'organisation'
     })
   }
 

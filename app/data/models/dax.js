@@ -19,9 +19,13 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: false
   })
   dax.associate = function (models) {
-    dax.belongsTo(models.dax, {
+    dax.belongsTo(models.delinkedCalculation, {
       foreignKey: 'calculationId',
-      as: 'daxEntries'
+      as: 'delinkedCalculation'
+    })
+    dax.belongsTo(models.total, {
+      foreignKey: 'calculationId',
+      as: 'total'
     })
   }
   return dax

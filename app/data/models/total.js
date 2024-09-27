@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
     })
     total.belongsTo(models.organisation, {
       foreignKey: 'sbi',
-      as: 'organisations'
+      as: 'organisation'
     })
   }
   return total

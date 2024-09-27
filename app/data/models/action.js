@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
   action.associate = function (models) {
     action.belongsTo(models.total, {
       foreignKey: 'calculationId',
-      as: 'actions'
+      as: 'total'
     })
   }
   return action

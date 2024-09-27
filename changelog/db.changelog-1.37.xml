@@ -1,6 +1,10 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
-  <changeSet author="Leigh Godson" id="1">
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+  <changeSet id="1" author="Leigh Godson">
     <tagDatabase tag="v1.37.0" />
   </changeSet>
   <changeSet id="2" author="Leigh Godson">
@@ -8,5 +12,36 @@
     <addColumn tableName="delinkedCalculation">
       <column name="updated" type="TIMESTAMP"/>
     </addColumn>
+  </changeSet>
+  <changeSet id="3" author="Leigh Godson">
+    <addForeignKeyConstraint baseTableName="totals" baseColumnNames="sbi"
+                             constraintName="fk_totals_organisation"
+                             referencedTableName="organisations" referencedColumnNames="sbi"/>
+    <addForeignKeyConstraint baseTableName="delinkedCalculation" baseColumnNames="sbi"
+                             constraintName="fk_delinkedCalculation_organisation"
+                             referencedTableName="organisations" referencedColumnNames="sbi"/>
+  </changeSet>
+  <changeSet id="4" author="Leigh Godson">
+    <modifyDataType tableName="delinkedCalculation" columnName="calculationId" newDataType="INTEGER"/>
+    <modifyDataType tableName="delinkedCalculation" columnName="applicationId" newDataType="INTEGER"/>
+    <modifyDataType tableName="delinkedCalculation" columnName="sbi" newDataType="INTEGER"/>
+  </changeSet>
+  <changeSet id="5" author="Leigh Godson">
+    <addUniqueConstraint tableName="dax" columnNames="calculationId" constraintName="uq_dax_calculationId"/>
+  </changeSet>
+  <changeSet id="6" author="Leigh Godson">
+    <addForeignKeyConstraint baseTableName="delinkedCalculation" baseColumnNames="calculationId"
+                             constraintName="fk_delinkedCalculation_dax"
+                             referencedTableName="dax" referencedColumnNames="calculationId"/>
+  </changeSet>
+  <changeSet id="7" author="Leigh Godson">
+    <addForeignKeyConstraint baseTableName="totals" baseColumnNames="calculationId"
+                             constraintName="fk_totals_dax"
+                             referencedTableName="dax" referencedColumnNames="calculationId"/>
+  </changeSet>
+  <changeSet id="8" author="Leigh Godson">
+    <addForeignKeyConstraint baseTableName="dax" baseColumnNames="calculationId"
+                             constraintName="fk_dax_delinkedCalculation"
+                             referencedTableName="delinkedCalculation" referencedColumnNames="calculationId"/>
   </changeSet>
 </databaseChangeLog>
