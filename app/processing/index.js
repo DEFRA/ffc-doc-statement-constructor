@@ -12,9 +12,12 @@ const processTask = async (subscriptions, processFunction, processName) => {
 }
 
 const start = async () => {
+  console.log("Processing")
+  
   const tasks = []
 
   if (processingConfig.sfi23QuarterlyStatementConstructionActive) {
+    console.log("Processing SFI23Quarterly Statements")
     const relatedSubscriptions = [messageConfig.statementDataSubscription]
     tasks.push(() => processTask(relatedSubscriptions, processSfi23QuarterlyStatement, 'SFI23 Quarterly Statement'))
   }

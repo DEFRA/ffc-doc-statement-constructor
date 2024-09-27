@@ -1,0 +1,24 @@
+services:
+  ffc-doc-statement-constructor:
+    build:
+      target: development
+    image: ffc-doc-statement-constructor-development
+    container_name: ffc-doc-statement-constructor-development
+    ports:
+      - "9286:9229"
+    volumes:
+      - ../.gitignore:/workspaces:cached/.gitignore
+      - ..:/workspaces:cached
+    environment:
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk
+      SFI_23_QUARTERLY_STATEMENT_CONSTRUCTION_ACTIVE: true
+  
+  ffc-doc-statement-constructor-postgres:
+    ports:
+      - "5486:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  azurite_data:
+  postgres_data:

@@ -40,7 +40,9 @@
   "devDependencies": {
     "jest": "29.6.4",
     "jest-junit": "14.0.1",
+    "mockery": "^2.1.0",
     "nodemon": "3.1.4",
+    "sequelize-mock": "^0.10.2",
     "standard": "17.0.0"
   },
   "standard": {
