@@ -1,5 +1,3 @@
-const { DELINKED } = require('../../constants/types')
-
 module.exports = (sequelize, DataTypes) => {
   const scale0 = 0
   const precision11 = 11
@@ -9,8 +7,8 @@ module.exports = (sequelize, DataTypes) => {
   const commonStringField = { type: DataTypes.STRING, allowNull: false }
 
   const delinkedCalculation = sequelize.define('delinkedCalculation', {
-    applicationReference: { type: DataTypes.NUMBER(precision11, scale0), allowNull: false },
     calculationReference: { type: DataTypes.NUMBER(precision11, scale0), primaryKey: true, allowNull: false },
+    applicationReference: { type: DataTypes.NUMBER(precision11, scale0), allowNull: false },
     sbi: { type: DataTypes.NUMBER(maxSBI, scale0), allowNull: false },
     frn: { type: DataTypes.STRING(maxFRN), allowNull: false },
     ...Array.from({ length: 4 }, (_, i) => ({
@@ -23,8 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     totalDelinkedPayment: commonStringField,
     paymentAmountCalculated: commonStringField,
     datePublished: { type: DataTypes.DATE, allowNull: false },
-    updated: { type: DataTypes.DATE, allowNull: false },
-    type: DELINKED
+    updated: { type: DataTypes.DATE, allowNull: false }
   },
   {
     tableName: 'delinkedCalculation',

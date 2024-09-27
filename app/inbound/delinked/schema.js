@@ -1,4 +1,5 @@
 const { Joi, constants, numberSchema } = require('../../utility/common-schema-fields')
+const { DELINKED } = require('../../constants/types')
 
 const createStringField = (fieldName) => Joi.string().required().messages({
   'string.base': `${fieldName} should be a type of string`,
@@ -26,12 +27,8 @@ const progressiveReductions = Array.from({ length: 4 }, (_, i) => ({
 })).reduce((acc, curr) => ({ ...acc, ...curr }), {})
 
 module.exports = Joi.object({
-  applicationReference: Joi.number().integer().required().messages({
-    'number.base': 'applicationId should be a type of number',
-    'number.integer': 'applicationId should be an integer',
-    'any.required': 'The field applicationId is not present but it is required'
-  }),
   calculationReference: numberSchema('calculationReference'),
+  applicationReference: numberSchema('applicationReference'),
   sbi: createNumberField('sbi', constants.minSbi, constants.maxSbi),
   frn: createNumberField('frn', constants.minFrn, constants.maxFrn),
   ...paymentBands,
@@ -45,9 +42,9 @@ module.exports = Joi.object({
     'date.base': 'datePublished should be a type of date',
     'date.strict': 'datePublished should be a type of date or null'
   }),
-  type: Joi.string().required().allow(constants.DELINKEDCALCULATION).messages({
+  type: Joi.string().required().allow(DELINKED).messages({
     'string.base': 'type should be a type of string',
     'any.required': 'The field type is not present but it is required',
-    'any.only': `type must be : ${constants.DELINKEDCALCULATION}`
+    'any.only': `type must be : ${DELINKED}`
   })
 })
