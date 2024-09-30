@@ -1,6 +1,6 @@
 {
   "name": "ffc-doc-statement-constructor",
-  "version": "1.12.36",
+  "version": "1.12.37",
   "description": "Data construction for statement generation",
   "homepage": "https://github.com/DEFRA/ffc-doc-statement-constructor",
   "main": "app/index.js",
@@ -28,7 +28,7 @@
     "@azure/identity": "4.2.1",
     "@hapi/hapi": "20.2.2",
     "@joi/date": "2.1.0",
-    "applicationinsights": "2.3.3",
+    "applicationinsights": "3.3.0",
     "ffc-messaging": "2.9.1",
     "joi": "17.6.0",
     "log-timestamp": "0.3.0",
