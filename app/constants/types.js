@@ -3,5 +3,6 @@ module.exports = {
   ORGANISATION: 'organisation',
   TOTAL: 'total',
   DELINKED: 'delinkedCalculation',
-  DAX: 'dax'
+  DAX: 'dax',
+  D365: 'd365'
 }
