@@ -6,21 +6,28 @@ module.exports = (sequelize, DataTypes) => {
   const commonStringField = { type: DataTypes.STRING, allowNull: false }
 
   const delinkedCalculation = sequelize.define('delinkedCalculation', {
-    calculationReference: { type: DataTypes.INTEGER(), primaryKey: true, allowNull: false },
-    applicationReference: { type: DataTypes.INTEGER(), allowNull: false },
+    calculationId: { type: DataTypes.INTEGER(), primaryKey: true, allowNull: false },
+    applicationId: { type: DataTypes.INTEGER(), allowNull: false },
     sbi: { type: DataTypes.NUMBER(maxSBI, zeroValue), allowNull: false },
     frn: { type: DataTypes.STRING(maxFRN), allowNull: false },
-    ...Array.from({ length: 4 }, (_, i) => ({
-      [`paymentBand${i + 1}`]: commonStringField,
-      [`percentageReduction${i + 1}`]: commonStringField,
-      [`progressiveReductions${i + 1}`]: commonStringField
-    })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
+    paymentBand1: commonStringField,
+    paymentBand2: commonStringField,
+    paymentBand3: commonStringField,
+    paymentBand4: commonStringField,
+    percentageReduction1: commonStringField,
+    percentageReduction2: commonStringField,
+    percentageReduction3: commonStringField,
+    percentageReduction4: commonStringField,
+    progressiveReductions1: commonStringField,
+    progressiveReductions2: commonStringField,
+    progressiveReductions3: commonStringField,
+    progressiveReductions4: commonStringField,
     referenceAmount: commonStringField,
     totalProgressiveReduction: commonStringField,
     totalDelinkedPayment: commonStringField,
     paymentAmountCalculated: commonStringField,
-    datePublished: { type: DataTypes.DATE, allowNull: false },
-    updated: { type: DataTypes.DATE, allowNull: false }
+    datePublished: { type: DataTypes.DATE },
+    updated: { type: DataTypes.DATE }
   },
   {
     tableName: 'delinkedCalculation',

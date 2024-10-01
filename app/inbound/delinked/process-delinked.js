@@ -13,7 +13,18 @@ const processDelinked = async (delinked) => {
       await transaction.rollback()
     } else {
       await savePlaceholderOrganisation({ sbi: delinked.sbi }, delinked.sbi)
-      await saveDelinked(delinked, transaction)
+
+      // De-aliasing calculationReference and applicationReference
+      const transformedDelinked = {
+        ...delinked,
+        calculationId: delinked.calculationReference,
+        applicationId: delinked.applicationReference
+      }
+
+      delete transformedDelinked.calculationReference
+      delete transformedDelinked.applicationReference
+
+      await saveDelinked(transformedDelinked, transaction)
       await transaction.commit()
     }
   } catch (error) {

@@ -29,7 +29,7 @@ module.exports = Joi.object({
   datePublished: Joi.date().allow(null).messages({
     'date.base': 'datePublished should be a type of date'
   }),
-  type: Joi.string().required().allow(D365).messages({
+  type: Joi.string().required().valid(D365).messages({
     'string.base': 'type should be a type of string',
     'any.required': 'The field type is not present but it is required',
     'any.only': `type must be ${D365}`

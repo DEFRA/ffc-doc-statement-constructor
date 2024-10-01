@@ -9,4 +9,44 @@
       <column name="updated" type="TIMESTAMP"/>
     </addColumn>
   </changeSet>
+  <changeSet id="3" author="Leigh Godson">
+    <createTable tableName="d365">
+      <column name="d365Id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="paymentReference" type="VARCHAR(30)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="calculationId" type="INTEGER"/>
+      <column name="paymentPeriod" type="VARCHAR(200)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="paymentAmount" type="DECIMAL">
+        <constraints nullable="false"/>
+      </column>
+      <column name="transactionDate" type="DATE">
+        <constraints nullable="false"/>
+      </column>
+      <column name="datePublished" type="DATE">
+        <constraints nullable="true"/>
+      </column>
+      <column name="startPublish" type="DATE">
+        <constraints nullable="true"/>
+      </column>
+      <column name="completePublish" type="DATE">
+        <constraints nullable="true"/>
+      </column>
+      <column name="lastProcessAttempt" type="DATE">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet id="4" author="Leigh Godson">
+    <addForeignKeyConstraint 
+      baseTableName="d365" 
+      baseColumnNames="calculationId" 
+      constraintName="fk_365_delinkedCalculation" 
+      referencedTableName="delinkedCalculation" 
+      referencedColumnNames="calculationId"/>
+  </changeSet>
 </databaseChangeLog>

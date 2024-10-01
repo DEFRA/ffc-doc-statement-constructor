@@ -2,18 +2,10 @@ const db = require('../../data')
 
 const saveDelinked = async (delinkedCalculation, transaction) => {
   try {
-    const transformedDelinked = {
-      ...delinkedCalculation,
-      calculationId: delinkedCalculation.calculationReference,
-      applicationId: delinkedCalculation.applicationReference
-    }
-
-    delete transformedDelinked.calculationReference
-    delete transformedDelinked.applicationReference
-
-    await db.delinkedCalculation.create(transformedDelinked, { transaction })
+    console.log('Transformed delinkedCalculation:', delinkedCalculation)
+    await db.delinkedCalculation.create(delinkedCalculation, { transaction })
   } catch (error) {
-    throw new Error(`Error saving total with Calculation Id ${delinkedCalculation.calculationReference}: ${error.message}`)
+    throw new Error(`Error saving total with Calculation Id ${delinkedCalculation.calculationId}: ${error.message}`)
   }
 }
 

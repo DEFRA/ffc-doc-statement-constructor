@@ -14,17 +14,26 @@ const createNumberField = (fieldName, min, max) => Joi.number().integer().min(mi
   'any.required': `The field ${fieldName} is not present but it is required`
 })
 
-const paymentBands = Array.from({ length: 4 }, (_, i) => ({
-  [`paymentBand${i + 1}`]: createStringField(`paymentBand${i + 1}`)
-})).reduce((acc, curr) => ({ ...acc, ...curr }), {})
+const paymentBands = {
+  paymentBand1: createStringField('paymentBand1'),
+  paymentBand2: createStringField('paymentBand2'),
+  paymentBand3: createStringField('paymentBand3'),
+  paymentBand4: createStringField('paymentBand4')
+}
 
-const percentageReductions = Array.from({ length: 4 }, (_, i) => ({
-  [`percentageReduction${i + 1}`]: createStringField(`percentageReduction${i + 1}`)
-})).reduce((acc, curr) => ({ ...acc, ...curr }), {})
+const percentageReductions = {
+  percentageReduction1: createStringField('percentageReduction1'),
+  percentageReduction2: createStringField('percentageReduction2'),
+  percentageReduction3: createStringField('percentageReduction3'),
+  percentageReduction4: createStringField('percentageReduction4')
+}
 
-const progressiveReductions = Array.from({ length: 4 }, (_, i) => ({
-  [`progressiveReductions${i + 1}`]: createStringField(`progressiveReductions${i + 1}`)
-})).reduce((acc, curr) => ({ ...acc, ...curr }), {})
+const progressiveReductions = {
+  progressiveReductions1: createStringField('progressiveReductions1'),
+  progressiveReductions2: createStringField('progressiveReductions2'),
+  progressiveReductions3: createStringField('progressiveReductions3'),
+  progressiveReductions4: createStringField('progressiveReductions4')
+}
 
 module.exports = Joi.object({
   calculationReference: numberSchema('calculationReference'),
@@ -42,7 +51,7 @@ module.exports = Joi.object({
     'date.base': 'datePublished should be a type of date',
     'date.strict': 'datePublished should be a type of date or null'
   }),
-  type: Joi.string().required().allow(DELINKED).messages({
+  type: Joi.string().required().valid(DELINKED).messages({
     'string.base': 'type should be a type of string',
     'any.required': 'The field type is not present but it is required',
     'any.only': `type must be : ${DELINKED}`
