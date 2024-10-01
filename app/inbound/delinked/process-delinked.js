@@ -2,6 +2,7 @@ const db = require('../../data')
 const savePlaceholderOrganisation = require('./save-placeholder-organisation')
 const getDelinkedByCalculationId = require('./get-delinked-by-calculation-id')
 const saveDelinked = require('./save-delinked')
+const validateDelinked = require('./validate-delinked')
 
 const processDelinked = async (delinked) => {
   const transaction = await db.sequelize.transaction()
@@ -23,7 +24,7 @@ const processDelinked = async (delinked) => {
 
       delete transformedDelinked.calculationReference
       delete transformedDelinked.applicationReference
-
+      await validateDelinked(transformedDelinked, transformedDelinked.calculationId)
       await saveDelinked(transformedDelinked, transaction)
       await transaction.commit()
     }

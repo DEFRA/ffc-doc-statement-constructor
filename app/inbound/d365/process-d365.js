@@ -12,6 +12,13 @@ const processD365 = async (d365) => {
       console.info(`Duplicate D365 paymentReference received, skipping ${existingD365.paymentReference}`)
       await transaction.rollback()
     } else {
+      // De-aliasing calculationReference
+      const transformedD365 = {
+        ...d365,
+        calculationId: d365.calculationReference
+      }
+
+      delete transformedD365.calculationReference
       validateD365(d365, d365.paymentReference)
       await saveD365(d365, transaction)
       await transaction.commit()

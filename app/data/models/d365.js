@@ -2,8 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   const number30 = 30
   const number200 = 200
   const d365 = sequelize.define('d365', {
-    d365Id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-    paymentReference: { type: DataTypes.STRING(number30), allowNull: false, unique: true },
+    paymentReference: { type: DataTypes.STRING(number30), primaryKey: true, allowNull: false, unique: true },
     calculationId: { type: DataTypes.INTEGER, allowNull: true },
     paymentPeriod: { type: DataTypes.STRING(number200), allowNull: true },
     paymentAmount: { type: DataTypes.NUMERIC, allowNull: false },

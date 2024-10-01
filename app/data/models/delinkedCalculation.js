@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
   const maxFRN = 16
   const maxSBI = 38
 
-  const commonStringField = { type: DataTypes.STRING, allowNull: false }
+  const commonStringField = { type: DataTypes.STRING, allowNull: true }
 
   const delinkedCalculation = sequelize.define('delinkedCalculation', {
     calculationId: { type: DataTypes.INTEGER(), primaryKey: true, allowNull: false },
