@@ -1,7 +1,7 @@
 const schema = require('./schema')
 
-const validateD365 = (d365, paymentReference) => {
-  const result = schema.validate(d365, {
+const validateD365 = (transformedD365, paymentReference) => {
+  const result = schema.validate(transformedD365, {
     abortEarly: false
   })
 

@@ -1,11 +1,10 @@
 const db = require('../../data')
 
-const saveDelinked = async (delinkedCalculation, transaction) => {
+const saveDelinked = async (transformedDelinked, transaction) => {
   try {
-    console.log('Transformed delinkedCalculation:', delinkedCalculation)
-    await db.delinkedCalculation.create(delinkedCalculation, { transaction })
+    await db.delinkedCalculation.create(transformedDelinked, { transaction })
   } catch (error) {
-    throw new Error(`Error saving total with Calculation Id ${delinkedCalculation.calculationId}: ${error.message}`)
+    throw new Error(`Error saving total with Calculation Id ${transformedDelinked.calculationId}: ${error.message}`)
   }
 }
 

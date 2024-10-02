@@ -1,14 +1,14 @@
 const schema = require('./schema')
 
-const validateDelinked = (delinked, calculationId) => {
-  const result = schema.validate(delinked, {
+const validateDelinked = (transformedDelinked, calculationId) => {
+  const result = schema.validate(transformedDelinked, {
     abortEarly: false
   })
 
   if (result.error) {
     throw new Error(`Total with calculationId: ${calculationId} does not have the required DELINKED data: ${result.error.message}`)
   }
-
+  console.log('Validated delinkedCalculation:', result.value)
   return result.value
 }
 

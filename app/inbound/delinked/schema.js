@@ -1,52 +1,61 @@
-const { Joi, constants, numberSchema } = require('../../utility/common-schema-fields')
+const { Joi, constants, numberSchema, stringSchema } = require('../../utility/common-schema-fields')
 const { DELINKED } = require('../../constants/types')
 
-const createStringField = (fieldName) => Joi.string().required().messages({
-  'string.base': `${fieldName} should be a type of string`,
-  'any.required': `The field ${fieldName} is not present but it is required`
-})
-
-const createNumberField = (fieldName, min, max) => Joi.number().integer().min(min).max(max).required().messages({
-  'number.base': `${fieldName} should be a type of number`,
-  'number.integer': `${fieldName} should be an integer`,
-  'number.min': `${fieldName} should have a minimum value of ${min}`,
-  'number.max': `${fieldName} should have a maximum value of ${max}`,
-  'any.required': `The field ${fieldName} is not present but it is required`
-})
-
 const paymentBands = {
-  paymentBand1: createStringField('paymentBand1'),
-  paymentBand2: createStringField('paymentBand2'),
-  paymentBand3: createStringField('paymentBand3'),
-  paymentBand4: createStringField('paymentBand4')
+  paymentBand1: stringSchema('paymentBand1', 255),
+  paymentBand2: stringSchema('paymentBand2', 255),
+  paymentBand3: stringSchema('paymentBand3', 255),
+  paymentBand4: stringSchema('paymentBand4', 255)
 }
 
 const percentageReductions = {
-  percentageReduction1: createStringField('percentageReduction1'),
-  percentageReduction2: createStringField('percentageReduction2'),
-  percentageReduction3: createStringField('percentageReduction3'),
-  percentageReduction4: createStringField('percentageReduction4')
+  percentageReduction1: stringSchema('percentageReduction1', 255),
+  percentageReduction2: stringSchema('percentageReduction2', 255),
+  percentageReduction3: stringSchema('percentageReduction3', 255),
+  percentageReduction4: stringSchema('percentageReduction4', 255)
 }
 
 const progressiveReductions = {
-  progressiveReductions1: createStringField('progressiveReductions1'),
-  progressiveReductions2: createStringField('progressiveReductions2'),
-  progressiveReductions3: createStringField('progressiveReductions3'),
-  progressiveReductions4: createStringField('progressiveReductions4')
+  progressiveReductions1: Joi.string().allow(null).messages({
+    'string.base': 'progressiveReductions1 should be a type of string'
+  }),
+  progressiveReductions2: Joi.string().allow(null).messages({
+    'string.base': 'progressiveReductions2 should be a type of string'
+  }),
+  progressiveReductions3: Joi.string().allow(null).messages({
+    'string.base': 'progressiveReductions3 should be a type of string'
+  }),
+  progressiveReductions4: Joi.string().allow(null).messages({
+    'string.base': 'progressiveReductions4 should be a type of string'
+  })
 }
 
 module.exports = Joi.object({
-  calculationReference: numberSchema('calculationReference'),
-  applicationReference: numberSchema('applicationReference'),
-  sbi: createNumberField('sbi', constants.minSbi, constants.maxSbi),
-  frn: createNumberField('frn', constants.minFrn, constants.maxFrn),
+  calculationId: numberSchema('calculationId'),
+  applicationId: numberSchema('applicationId'),
+  calculationReference: numberSchema('calculationReference').optional(),
+  applicationReference: numberSchema('applicationReference').optional(),
+  sbi: Joi.number().integer().min(constants.minSbi).max(constants.maxSbi).required().messages({
+    'number.base': 'sbi should be a type of number',
+    'number.integer': 'sbi should be an integer',
+    'number.min': `sbi should have a minimum value of ${constants.minSbi}`,
+    'number.max': `sbi should have a maximum value of ${constants.maxSbi}`,
+    'any.required': 'The field sbi is not present but it is required'
+  }),
+  frn: Joi.number().integer().min(constants.minFrn).max(constants.maxFrn).required().messages({
+    'number.base': 'frn should be a type of number',
+    'number.integer': 'frn should be an integer',
+    'number.min': `frn should have a minimum value of ${constants.minFrn}`,
+    'number.max': `frn should have a maximum value of ${constants.maxFrn}`,
+    'any.required': 'The field frn is not present but it is required'
+  }),
   ...paymentBands,
   ...percentageReductions,
   ...progressiveReductions,
-  referenceAmount: createStringField('referenceAmount'),
-  totalProgressiveReduction: createStringField('totalProgressiveReduction'),
-  totalDelinkedPayment: createStringField('totalDelinkedPayment'),
-  paymentAmountCalculated: createStringField('paymentAmountCalculated'),
+  referenceAmount: stringSchema('referenceAmount', 255),
+  totalProgressiveReduction: stringSchema('totalProgressiveReduction', 255),
+  totalDelinkedPayment: stringSchema('totalDelinkedPayment', 255),
+  paymentAmountCalculated: stringSchema('paymentAmountCalculated', 255),
   datePublished: Joi.date().allow(null).messages({
     'date.base': 'datePublished should be a type of date',
     'date.strict': 'datePublished should be a type of date or null'
