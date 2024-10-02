@@ -8,6 +8,14 @@ const createProgressiveReductionSchema = (name) => Joi.string().allow(null).mess
   'string.base': `${name} should be a type of string`
 })
 
+const createNumberSchemaWithMessages = (name, min, max) => Joi.number().integer().min(min).max(max).required().messages({
+  'number.base': `${name} should be a type of number`,
+  'number.integer': `${name} should be an integer`,
+  'number.min': `${name} should have a minimum value of ${min}`,
+  'number.max': `${name} should have a maximum value of ${max}`,
+  'any.required': `The field ${name} is not present but it is required`
+})
+
 const paymentBands = {
   paymentBand1: createStringSchema('paymentBand1'),
   paymentBand2: createStringSchema('paymentBand2'),
@@ -34,20 +42,8 @@ module.exports = Joi.object({
   applicationId: numberSchema('applicationId'),
   calculationReference: numberSchema('calculationReference').optional(),
   applicationReference: numberSchema('applicationReference').optional(),
-  sbi: Joi.number().integer().min(constants.minSbi).max(constants.maxSbi).required().messages({
-    'number.base': 'sbi should be a type of number',
-    'number.integer': 'sbi should be an integer',
-    'number.min': `sbi should have a minimum value of ${constants.minSbi}`,
-    'number.max': `sbi should have a maximum value of ${constants.maxSbi}`,
-    'any.required': 'The field sbi is not present but it is required'
-  }),
-  frn: Joi.number().integer().min(constants.minFrn).max(constants.maxFrn).required().messages({
-    'number.base': 'frn should be a type of number',
-    'number.integer': 'frn should be an integer',
-    'number.min': `frn should have a minimum value of ${constants.minFrn}`,
-    'number.max': `frn should have a maximum value of ${constants.maxFrn}`,
-    'any.required': 'The field frn is not present but it is required'
-  }),
+  sbi: createNumberSchemaWithMessages('sbi', constants.minSbi, constants.maxSbi),
+  frn: createNumberSchemaWithMessages('frn', constants.minFrn, constants.maxFrn),
   ...paymentBands,
   ...percentageReductions,
   ...progressiveReductions,
