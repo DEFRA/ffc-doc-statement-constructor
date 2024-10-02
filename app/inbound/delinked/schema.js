@@ -1,18 +1,19 @@
 const { Joi, constants, numberSchema, stringSchema } = require('../../utility/common-schema-fields')
 const { DELINKED } = require('../../constants/types')
+const maxChars = 4000
 
 const paymentBands = {
-  paymentBand1: stringSchema('paymentBand1', 255),
-  paymentBand2: stringSchema('paymentBand2', 255),
-  paymentBand3: stringSchema('paymentBand3', 255),
-  paymentBand4: stringSchema('paymentBand4', 255)
+  paymentBand1: stringSchema('paymentBand1', maxChars),
+  paymentBand2: stringSchema('paymentBand2', maxChars),
+  paymentBand3: stringSchema('paymentBand3', maxChars),
+  paymentBand4: stringSchema('paymentBand4', maxChars)
 }
 
 const percentageReductions = {
-  percentageReduction1: stringSchema('percentageReduction1', 255),
-  percentageReduction2: stringSchema('percentageReduction2', 255),
-  percentageReduction3: stringSchema('percentageReduction3', 255),
-  percentageReduction4: stringSchema('percentageReduction4', 255)
+  percentageReduction1: stringSchema('percentageReduction1', maxChars),
+  percentageReduction2: stringSchema('percentageReduction2', maxChars),
+  percentageReduction3: stringSchema('percentageReduction3', maxChars),
+  percentageReduction4: stringSchema('percentageReduction4', maxChars)
 }
 
 const progressiveReductions = {
@@ -52,10 +53,10 @@ module.exports = Joi.object({
   ...paymentBands,
   ...percentageReductions,
   ...progressiveReductions,
-  referenceAmount: stringSchema('referenceAmount', 255),
-  totalProgressiveReduction: stringSchema('totalProgressiveReduction', 255),
-  totalDelinkedPayment: stringSchema('totalDelinkedPayment', 255),
-  paymentAmountCalculated: stringSchema('paymentAmountCalculated', 255),
+  referenceAmount: stringSchema('referenceAmount', maxChars),
+  totalProgressiveReduction: stringSchema('totalProgressiveReduction', maxChars),
+  totalDelinkedPayment: stringSchema('totalDelinkedPayment', maxChars),
+  paymentAmountCalculated: stringSchema('paymentAmountCalculated', maxChars),
   datePublished: Joi.date().allow(null).messages({
     'date.base': 'datePublished should be a type of date',
     'date.strict': 'datePublished should be a type of date or null'
