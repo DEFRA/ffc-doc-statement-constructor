@@ -6,8 +6,8 @@ jest.mock('../../../app/data')
 describe('saveDelinked', () => {
   const transaction = {}
   const delinkedCalculation = {
-    calculationReference: 'calculationReference1',
-    applicationReference: 'applicationReference1'
+    calculationId: 'calculationReference1',
+    applicationId: 'applicationReference1'
   }
 
   afterEach(() => {

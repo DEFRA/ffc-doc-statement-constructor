@@ -6,8 +6,8 @@ jest.mock('../../../app/inbound/delinked/schema')
 describe('validateDelinked', () => {
   const calculationId = 'calculationId1'
   const validDelinked = {
-    applicationReference: 123456,
-    calculationReference: 123456,
+    applicationId: 123456,
+    calculationId: 123456,
     sbi: 123456789,
     frn: 123456789,
     paymentBand1: 'validString',
@@ -27,7 +27,7 @@ describe('validateDelinked', () => {
     totalDelinkedPayment: 'validString',
     paymentAmountCalculated: 'validString',
     datePublished: new Date(),
-    type: 'DELINKEDCALCULATION'
+    type: 'DELINKED'
   }
 
   afterEach(() => {

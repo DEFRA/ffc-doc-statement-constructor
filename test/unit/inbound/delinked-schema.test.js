@@ -4,7 +4,9 @@ const { constants } = require('../../../app/utility/common-schema-fields')
 describe('delinked-schema', () => {
   const validData = {
     applicationReference: 123456,
+    applicationId: 123456,
     calculationReference: 123456,
+    calculationId: 123456,
     sbi: constants.minSbi,
     frn: constants.minFrn,
     paymentBand1: 'validString',
@@ -24,7 +26,7 @@ describe('delinked-schema', () => {
     totalDelinkedPayment: 'validString',
     paymentAmountCalculated: 'validString',
     datePublished: new Date(),
-    type: constants.DELINKEDCALCULATION
+    type: constants.DELINKED
   }
 
   test('should validate a valid object', () => {

@@ -6,7 +6,7 @@ const mockTransaction = {
 }
 
 const processDelinked = require('../../../app/inbound/delinked/process-delinked')
-const { mockDelinked1, mockDelinked2 } = require('../../mock-objects/mock-delinked')
+const { mockDelinked1 } = require('../../mock-objects/mock-delinked')
 
 jest.mock('../../../app/data', () => {
   return {
