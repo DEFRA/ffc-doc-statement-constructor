@@ -2,33 +2,31 @@ const { Joi, constants, numberSchema, stringSchema } = require('../../utility/co
 const { DELINKED } = require('../../constants/types')
 const maxChars = 4000
 
+const createStringSchema = (name) => stringSchema(name, maxChars)
+
+const createProgressiveReductionSchema = (name) => Joi.string().allow(null).messages({
+  'string.base': `${name} should be a type of string`
+})
+
 const paymentBands = {
-  paymentBand1: stringSchema('paymentBand1', maxChars),
-  paymentBand2: stringSchema('paymentBand2', maxChars),
-  paymentBand3: stringSchema('paymentBand3', maxChars),
-  paymentBand4: stringSchema('paymentBand4', maxChars)
+  paymentBand1: createStringSchema('paymentBand1'),
+  paymentBand2: createStringSchema('paymentBand2'),
+  paymentBand3: createStringSchema('paymentBand3'),
+  paymentBand4: createStringSchema('paymentBand4')
 }
 
 const percentageReductions = {
-  percentageReduction1: stringSchema('percentageReduction1', maxChars),
-  percentageReduction2: stringSchema('percentageReduction2', maxChars),
-  percentageReduction3: stringSchema('percentageReduction3', maxChars),
-  percentageReduction4: stringSchema('percentageReduction4', maxChars)
+  percentageReduction1: createStringSchema('percentageReduction1'),
+  percentageReduction2: createStringSchema('percentageReduction2'),
+  percentageReduction3: createStringSchema('percentageReduction3'),
+  percentageReduction4: createStringSchema('percentageReduction4')
 }
 
 const progressiveReductions = {
-  progressiveReductions1: Joi.string().allow(null).messages({
-    'string.base': 'progressiveReductions1 should be a type of string'
-  }),
-  progressiveReductions2: Joi.string().allow(null).messages({
-    'string.base': 'progressiveReductions2 should be a type of string'
-  }),
-  progressiveReductions3: Joi.string().allow(null).messages({
-    'string.base': 'progressiveReductions3 should be a type of string'
-  }),
-  progressiveReductions4: Joi.string().allow(null).messages({
-    'string.base': 'progressiveReductions4 should be a type of string'
-  })
+  progressiveReductions1: createProgressiveReductionSchema('progressiveReductions1'),
+  progressiveReductions2: createProgressiveReductionSchema('progressiveReductions2'),
+  progressiveReductions3: createProgressiveReductionSchema('progressiveReductions3'),
+  progressiveReductions4: createProgressiveReductionSchema('progressiveReductions4')
 }
 
 module.exports = Joi.object({
@@ -53,10 +51,10 @@ module.exports = Joi.object({
   ...paymentBands,
   ...percentageReductions,
   ...progressiveReductions,
-  referenceAmount: stringSchema('referenceAmount', maxChars),
-  totalProgressiveReduction: stringSchema('totalProgressiveReduction', maxChars),
-  totalDelinkedPayment: stringSchema('totalDelinkedPayment', maxChars),
-  paymentAmountCalculated: stringSchema('paymentAmountCalculated', maxChars),
+  referenceAmount: createStringSchema('referenceAmount'),
+  totalProgressiveReduction: createStringSchema('totalProgressiveReduction'),
+  totalDelinkedPayment: createStringSchema('totalDelinkedPayment'),
+  paymentAmountCalculated: createStringSchema('paymentAmountCalculated'),
   datePublished: Joi.date().allow(null).messages({
     'date.base': 'datePublished should be a type of date',
     'date.strict': 'datePublished should be a type of date or null'
