@@ -24,8 +24,8 @@ module.exports = (sequelize, DataTypes) => {
     totalProgressiveReduction: { type: DataTypes.STRING, allowNull: true },
     totalDelinkedPayment: { type: DataTypes.STRING, allowNull: true },
     paymentAmountCalculated: { type: DataTypes.STRING, allowNull: false },
-    datePublished: { type: DataTypes.DATE },
-    updated: { type: DataTypes.DATE }
+    datePublished: { type: DataTypes.DATE, allowNull: true },
+    updated: { type: DataTypes.DATE, allowNull: true }
   },
   {
     tableName: 'delinkedCalculation',

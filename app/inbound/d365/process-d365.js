@@ -20,11 +20,7 @@ const processD365 = async (d365) => {
 
       delete transformedD365.calculationReference
       console.log('Transformed D365:', transformedD365)
-
-      // Validate transformedD365
       validateD365(transformedD365, transformedD365.paymentReference)
-
-      // Save transformedD365
       await saveD365(transformedD365, transaction)
       await transaction.commit()
     }
