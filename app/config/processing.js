@@ -11,7 +11,8 @@ const schema = Joi.object({
   scheduleConstructionActive: Joi.boolean().default(false),
   sfi23AdvancedStatementConstructionActive: Joi.boolean().default(true),
   sfi23QuarterlyStatementConstructionActive: Joi.boolean().default(true),
-  settlementWaitTime: Joi.number().default(number10000) // 10 seconds
+  settlementWaitTime: Joi.number().default(number10000), // 10 seconds
+  printAndPostProcessingActive: Joi.boolean().default(false)
 })
 
 const config = {
@@ -22,7 +23,8 @@ const config = {
   scheduleConstructionActive: process.env.SCHEDULE_CONSTRUCTION_ACTIVE,
   sfi23AdvancedStatementConstructionActive: process.env.SFI_23_ADVANCED_STATEMENT_CONSTRUCTION_ACTIVE,
   sfi23QuarterlyStatementConstructionActive: process.env.SFI_23_QUARTERLY_STATEMENT_CONSTRUCTION_ACTIVE,
-  settlementWaitTime: process.env.SETTLEMENT_WAIT_TIME
+  settlementWaitTime: process.env.SETTLEMENT_WAIT_TIME,
+  printAndPostProcessingActive: process.env.PRINT_AND_POST_PROCESSING_ACTIVE
 }
 
 const result = schema.validate(config, {
