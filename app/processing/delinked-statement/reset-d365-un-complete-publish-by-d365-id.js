@@ -1,12 +1,12 @@
 const db = require('../../data')
 
-const resetDaxUnCompletePublishByDaxId = async (daxId) => {
-  await db.dax.update({ startPublish: null }, {
+const resetD365UnCompletePublishByDaxId = async (d365Id) => {
+  await db.d365.update({ startPublish: null }, {
     where: {
-      daxId,
+      d365Id,
       completePublish: null
     }
   })
 }
 
-module.exports = resetDaxUnCompletePublishByDaxId
+module.exports = resetD365UnCompletePublishByDaxId

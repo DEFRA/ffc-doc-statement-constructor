@@ -1,36 +1,36 @@
 const {
-  getVerifiedDaxsSfi23QuarterlyStatements,
-  sendSfi23QuarterlyStatement,
-  updateDaxCompletePublishByDaxId,
-  resetDaxUnCompletePublishByDaxId,
-  getSfi23QuarterlyStatementByPaymentReference,
+  getVerifiedD365DelinkedPaymentStatements,
+  sendDelinkedStatement,
+  updateD365CompletePublishByD365Id,
+  resetD365UnCompletePublishByD365Id,
+  getDelinkedStatementByPaymentReference,
   getExcludedPaymentReferenceByPaymentReference
-} = require('./sfi-23-quarterly-statement')
+} = require('./delinked-statement')
 
-const processSfi23QuarterlyStatement = async () => {
-  const daxs = await getVerifiedDaxsSfi23QuarterlyStatements()
+const processDelinkedStatement = async () => {
+  const d365 = await getVerifiedD365DelinkedPaymentStatements()
 
-  for (const dax of daxs) {
+  for (const item of d365) {
     try {
-      const paymentReferenceIsExcluded = await getExcludedPaymentReferenceByPaymentReference(dax.paymentReference)
+      const paymentReferenceIsExcluded = await getExcludedPaymentReferenceByPaymentReference(item.paymentReference)
       if (paymentReferenceIsExcluded) {
-        console.log(`Payment reference ${dax.paymentReference} is excluded from SFI-23 quarterly statement processing`)
+        console.log(`Payment reference ${item.paymentReference} is excluded from Delinked statement processing`)
       }
-      const sfi23QuarterlyStatement = await getSfi23QuarterlyStatementByPaymentReference(dax.paymentReference, paymentReferenceIsExcluded)
-      await sendSfi23QuarterlyStatement(sfi23QuarterlyStatement)
-      await updateDaxCompletePublishByDaxId(dax.daxId)
+      const delinkedStatement = await getDelinkedStatementByPaymentReference(item.paymentReference, paymentReferenceIsExcluded)
+      await sendDelinkedStatement(delinkedStatement)
+      await updateD365CompletePublishByD365Id(item.d365Id)
     } catch (err) {
       console.error(err.message)
     }
   }
 
-  for (const dax of daxs) {
+  for (const item of d365) {
     try {
-      await resetDaxUnCompletePublishByDaxId(dax.daxId)
+      await resetD365UnCompletePublishByD365Id(item.d365Id)
     } catch (err) {
       console.error(err.message)
     }
   }
 }
 
-module.exports = processSfi23QuarterlyStatement
+module.exports = processDelinkedStatement
