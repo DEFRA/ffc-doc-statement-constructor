@@ -11,7 +11,7 @@ const sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.p
 
 fs.readdirSync(modelPath)
   .filter(file => {
-    return (file.indexOf('.') !== 0) && (file !== 'index.js') && (file.slice(minus3) === '.js')
+    return (!file.startsWith('.')) && (file !== 'index.js') && (file.slice(minus3) === '.js')
   })
   .forEach(file => {
     const model = require(path.join(modelPath, file))(sequelize, DataTypes)
