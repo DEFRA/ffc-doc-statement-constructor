@@ -1,3 +1,3 @@
-const getTotal = require('./get-total')
+const getDelinked = require('./get-delinked')
 
-module.exports = getTotal
+module.exports = getDelinked

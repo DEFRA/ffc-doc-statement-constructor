@@ -1,22 +1,17 @@
 const {
-  getVerifiedD365DelinkedPaymentStatements,
+  getVerifiedD365DelinkedStatements,
   sendDelinkedStatement,
   updateD365CompletePublishByD365Id,
   resetD365UnCompletePublishByD365Id,
-  getDelinkedStatementByPaymentReference,
-  getExcludedPaymentReferenceByPaymentReference
+  getDelinkedStatementByPaymentReference
 } = require('./delinked-statement')
 
 const processDelinkedStatement = async () => {
-  const d365 = await getVerifiedD365DelinkedPaymentStatements()
+  const d365 = await getVerifiedD365DelinkedStatements()
 
   for (const item of d365) {
     try {
-      const paymentReferenceIsExcluded = await getExcludedPaymentReferenceByPaymentReference(item.paymentReference)
-      if (paymentReferenceIsExcluded) {
-        console.log(`Payment reference ${item.paymentReference} is excluded from Delinked statement processing`)
-      }
-      const delinkedStatement = await getDelinkedStatementByPaymentReference(item.paymentReference, paymentReferenceIsExcluded)
+      const delinkedStatement = await getDelinkedStatementByPaymentReference(item.paymentReference)
       await sendDelinkedStatement(delinkedStatement)
       await updateD365CompletePublishByD365Id(item.d365Id)
     } catch (err) {

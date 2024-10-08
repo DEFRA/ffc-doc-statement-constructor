@@ -2,17 +2,16 @@ const getD365 = require('./d365')
 const getOrganisation = require('./organisation')
 const getDelinkedCalculation = require('./delinkedCalculation')
 const saveDocument = require('./save-document')
-const getPreviousPaymentCountByCalculationId = require('./get-previous-payment-count-by-document-id')
+const getPreviousPaymentCountByCalculationId = require('./get-previous-payment-count-by-calculation-id')
 const getDocumentTypeByCode = require('./get-document-type-by-code')
 const getAddressFromOrganisation = require('./get-address-from-organisation')
 
 const { DELINKED } = require('../../constants/document-types')
 
 const getDelinkedStatementByPaymentReference = async (paymentReference, excluded) => {
-  const delinkedMarketingYear = '2023'
-  const delinkedFullName = 'Sustainable Farming Incentive'
-  const delinkedShortName = 'SFI'
-  const delinkedFrequency = 'Quarterly'
+  const delinkedMarketingYear = '2024'
+  const delinkedFullName = 'Delinked Payment Statement'
+  const delinkedShortName = 'DP'
   const d365 = await getD365(paymentReference)
   const delinkedCalculation = await getDelinkedCalculation(d365.calculationId)
   const organisation = await getOrganisation(delinkedCalculation.sbi)
@@ -22,8 +21,7 @@ const getDelinkedStatementByPaymentReference = async (paymentReference, excluded
   const scheme = {
     name: delinkedFullName,
     shortName: delinkedShortName,
-    year: delinkedMarketingYear,
-    frequency: delinkedFrequency
+    year: delinkedMarketingYear
   }
 
   const document = {
@@ -43,8 +41,7 @@ const getDelinkedStatementByPaymentReference = async (paymentReference, excluded
     ...delinkedCalculation,
     scheme,
     previousPaymentCount,
-    documentReference: documentId,
-    excludedFromNotify: excluded
+    documentReference: documentId
   }
 }
 
