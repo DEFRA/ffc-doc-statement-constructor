@@ -1,7 +1,7 @@
 const db = require('../../data')
 
 const getDocumentTypeByCode = async (code) => {
-  return db.documentType.findOne({
+  const result = await db.documentType.findOne({
     attributes: [
       'documentTypeId'
     ],
@@ -10,6 +10,12 @@ const getDocumentTypeByCode = async (code) => {
     },
     raw: true
   })
+
+  if (!result) {
+    throw new Error(`Document type with code ${code} not found`)
+  }
+
+  return result
 }
 
 module.exports = getDocumentTypeByCode

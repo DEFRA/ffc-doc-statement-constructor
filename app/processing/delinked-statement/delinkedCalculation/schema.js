@@ -1,5 +1,4 @@
 const { Joi, constants, numberSchema, stringSchema } = require('../../../utility/common-schema-fields')
-const { DELINKED } = require('../../../constants/types')
 const maxChars = 4000
 
 const createStringSchema = (name) => stringSchema(name, maxChars)
@@ -54,10 +53,5 @@ module.exports = Joi.object({
   datePublished: Joi.date().allow(null).messages({
     'date.base': 'datePublished should be a type of date',
     'date.strict': 'datePublished should be a type of date or null'
-  }),
-  type: Joi.string().required().valid(DELINKED).messages({
-    'string.base': 'type should be a type of string',
-    'any.required': 'The field type is not present but it is required',
-    'any.only': `type must be : ${DELINKED}`
   })
 })

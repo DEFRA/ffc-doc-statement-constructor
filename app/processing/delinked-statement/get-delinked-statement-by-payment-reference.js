@@ -5,7 +5,6 @@ const saveDocument = require('./save-document')
 const getPreviousPaymentCountByCalculationId = require('./get-previous-payment-count-by-calculation-id')
 const getDocumentTypeByCode = require('./get-document-type-by-code')
 const getAddressFromOrganisation = require('./get-address-from-organisation')
-
 const { DELINKED } = require('../../constants/document-types')
 
 const getDelinkedStatementByPaymentReference = async (paymentReference, excluded) => {
@@ -23,14 +22,11 @@ const getDelinkedStatementByPaymentReference = async (paymentReference, excluded
     shortName: delinkedShortName,
     year: delinkedMarketingYear
   }
-
   const document = {
     documentTypeId,
     documentSourceReference: paymentReference
   }
-
   const { documentId } = await saveDocument(document)
-
   return {
     address,
     businessName: organisation.name,

@@ -3,7 +3,10 @@ const db = require('../../../data')
 const getDelinkedByCalculationId = async (calculationId) => {
   return db.delinkedCalculation.findOne({
     attributes: [
+      'calculationId',
       'applicationId',
+      'sbi',
+      'frn',
       'paymentBand1',
       'paymentBand2',
       'paymentBand3',
