@@ -15,26 +15,20 @@ const createNumberSchemaWithMessages = (name, min, max) => Joi.number().integer(
   'any.required': `The field ${name} is not present but it is required`
 })
 
-const paymentBands = {
-  paymentBand1: createStringSchema('paymentBand1'),
-  paymentBand2: createStringSchema('paymentBand2'),
-  paymentBand3: createStringSchema('paymentBand3'),
-  paymentBand4: createStringSchema('paymentBand4')
+const createSchemaObject = (names, schemaCreator) => {
+  return names.reduce((acc, name) => {
+    acc[name] = schemaCreator(name)
+    return acc
+  }, {})
 }
 
-const percentageReductions = {
-  percentageReduction1: createStringSchema('percentageReduction1'),
-  percentageReduction2: createStringSchema('percentageReduction2'),
-  percentageReduction3: createStringSchema('percentageReduction3'),
-  percentageReduction4: createStringSchema('percentageReduction4')
-}
+const paymentBandNames = ['paymentBand1', 'paymentBand2', 'paymentBand3', 'paymentBand4']
+const percentageReductionNames = ['percentageReduction1', 'percentageReduction2', 'percentageReduction3', 'percentageReduction4']
+const progressiveReductionNames = ['progressiveReductions1', 'progressiveReductions2', 'progressiveReductions3', 'progressiveReductions4']
 
-const progressiveReductions = {
-  progressiveReductions1: createProgressiveReductionSchema('progressiveReductions1'),
-  progressiveReductions2: createProgressiveReductionSchema('progressiveReductions2'),
-  progressiveReductions3: createProgressiveReductionSchema('progressiveReductions3'),
-  progressiveReductions4: createProgressiveReductionSchema('progressiveReductions4')
-}
+const paymentBands = createSchemaObject(paymentBandNames, createStringSchema)
+const percentageReductions = createSchemaObject(percentageReductionNames, createStringSchema)
+const progressiveReductions = createSchemaObject(progressiveReductionNames, createProgressiveReductionSchema)
 
 module.exports = Joi.object({
   calculationId: numberSchema('calculationId'),

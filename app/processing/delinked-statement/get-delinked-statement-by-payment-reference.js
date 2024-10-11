@@ -39,7 +39,7 @@ const getDelinkedStatementByPaymentReference = async (paymentReference, excluded
     documentSourceReference: paymentReference
   }
   const savedDocument = await saveDocument(document)
-  if (!savedDocument || !savedDocument.documentId) throw new Error('Invalid saved document data')
+  if (!savedDocument?.documentId) throw new Error('Invalid saved document data')
 
   return {
     address,
