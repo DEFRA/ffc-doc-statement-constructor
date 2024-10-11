@@ -15,51 +15,7 @@ jest.mock('../../../../app/processing/delinked-statement/get-previous-payment-co
 jest.mock('../../../../app/processing/delinked-statement/get-document-type-by-code')
 jest.mock('../../../../app/processing/delinked-statement/get-address-from-organisation')
 
-const getDelinkedStatementByPaymentReference = async (paymentReference, excluded) => {
-  const delinkedMarketingYear = '2024'
-  const delinkedFullName = 'Delinked Payment Statement'
-  const delinkedShortName = 'DP'
-  const d365 = await getD365(paymentReference)
-  if (!d365) throw new Error('D365 data not found')
-
-  const delinkedCalculation = await getDelinkedCalculation(d365.calculationId)
-  if (!delinkedCalculation) throw new Error('Delinked calculation data not found')
-
-  const organisation = await getOrganisation(delinkedCalculation.sbi)
-  if (!organisation) throw new Error('Organisation data not found')
-
-  const address = getAddressFromOrganisation(organisation)
-  const documentType = await getDocumentTypeByCode(DELINKED)
-  if (!documentType) throw new Error('Document type data not found')
-
-  const previousPaymentCount = await getPreviousPaymentCountByCalculationId(d365.calculationId)
-  if (previousPaymentCount === null) throw new Error('Previous payment count data not found')
-
-  const scheme = {
-    name: delinkedFullName,
-    shortName: delinkedShortName,
-    year: delinkedMarketingYear
-  }
-  const document = {
-    documentTypeId: documentType.documentTypeId,
-    documentSourceReference: paymentReference
-  }
-  const savedDocument = await saveDocument(document)
-  if (!savedDocument) throw new Error('Saved document data not found')
-
-  return {
-    address,
-    businessName: organisation.name,
-    email: organisation.emailAddress,
-    frn: organisation.frn,
-    sbi: organisation.sbi,
-    ...d365,
-    ...delinkedCalculation,
-    scheme,
-    previousPaymentCount,
-    documentReference: savedDocument.documentId
-  }
-}
+const getDelinkedStatementByPaymentReference = require('../../../../app/processing/delinked-statement/get-delinked-statement-by-payment-reference')
 
 test('should handle missing D365 data', async () => {
   const paymentReference = 'paymentRef123'
@@ -91,18 +47,46 @@ test('should handle missing organisation data', async () => {
   await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Organisation data not found')
 })
 
+test('should handle missing address data', async () => {
+  const paymentReference = 'paymentRef123'
+  const excluded = false
+  const d365Mock = { calculationId: 'calc123', otherData: 'data' }
+  const delinkedCalculationMock = { sbi: 'sbi123', calculationData: 'data' }
+  const organisationMock = { name: 'OrgName', emailAddress: 'email@example.com', frn: 'frn123', sbi: 'sbi123' }
+  const documentTypeMock = { documentTypeId: 'docType123' }
+  const previousPaymentCountMock = 2
+  const savedDocumentMock = { documentId: 'docId123' }
+
+  getD365.mockResolvedValue(d365Mock)
+  getDelinkedCalculation.mockResolvedValue(delinkedCalculationMock)
+  getOrganisation.mockResolvedValue(organisationMock)
+  getAddressFromOrganisation.mockReturnValue(null)
+  getDocumentTypeByCode.mockResolvedValue(documentTypeMock)
+  getPreviousPaymentCountByCalculationId.mockResolvedValue(previousPaymentCountMock)
+  saveDocument.mockResolvedValue(savedDocumentMock)
+
+  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Address data not found')
+})
+
 test('should handle missing document type data', async () => {
   const paymentReference = 'paymentRef123'
   const excluded = false
   const d365Mock = { calculationId: 'calc123', otherData: 'data' }
   const delinkedCalculationMock = { sbi: 'sbi123', calculationData: 'data' }
   const organisationMock = { name: 'OrgName', emailAddress: 'email@example.com', frn: 'frn123', sbi: 'sbi123' }
+  const addressMock = { addressLine1: 'line1', addressLine2: 'line2' }
+  const previousPaymentCountMock = 2
+  const savedDocumentMock = { documentId: 'docId123' }
+
   getD365.mockResolvedValue(d365Mock)
   getDelinkedCalculation.mockResolvedValue(delinkedCalculationMock)
   getOrganisation.mockResolvedValue(organisationMock)
+  getAddressFromOrganisation.mockReturnValue(addressMock)
   getDocumentTypeByCode.mockResolvedValue(null)
+  getPreviousPaymentCountByCalculationId.mockResolvedValue(previousPaymentCountMock)
+  saveDocument.mockResolvedValue(savedDocumentMock)
 
-  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Document type data not found')
+  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Invalid document type code')
 })
 
 test('should handle missing previous payment count data', async () => {
@@ -113,14 +97,17 @@ test('should handle missing previous payment count data', async () => {
   const organisationMock = { name: 'OrgName', emailAddress: 'email@example.com', frn: 'frn123', sbi: 'sbi123' }
   const addressMock = { addressLine1: 'line1', addressLine2: 'line2' }
   const documentTypeMock = { documentTypeId: 'docType123' }
+  const savedDocumentMock = { documentId: 'docId123' }
+
   getD365.mockResolvedValue(d365Mock)
   getDelinkedCalculation.mockResolvedValue(delinkedCalculationMock)
   getOrganisation.mockResolvedValue(organisationMock)
   getAddressFromOrganisation.mockReturnValue(addressMock)
   getDocumentTypeByCode.mockResolvedValue(documentTypeMock)
   getPreviousPaymentCountByCalculationId.mockResolvedValue(null)
+  saveDocument.mockResolvedValue(savedDocumentMock)
 
-  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Previous payment count data not found')
+  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Invalid previous payment count')
 })
 
 test('should handle missing saved document data', async () => {
@@ -132,6 +119,7 @@ test('should handle missing saved document data', async () => {
   const addressMock = { addressLine1: 'line1', addressLine2: 'line2' }
   const documentTypeMock = { documentTypeId: 'docType123' }
   const previousPaymentCountMock = 2
+
   getD365.mockResolvedValue(d365Mock)
   getDelinkedCalculation.mockResolvedValue(delinkedCalculationMock)
   getOrganisation.mockResolvedValue(organisationMock)
@@ -140,8 +128,9 @@ test('should handle missing saved document data', async () => {
   getPreviousPaymentCountByCalculationId.mockResolvedValue(previousPaymentCountMock)
   saveDocument.mockResolvedValue(null)
 
-  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Saved document data not found')
+  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Invalid saved document data')
 })
+
 test('should return delinked statement data successfully', async () => {
   const paymentReference = 'paymentRef123'
   const excluded = false
@@ -181,9 +170,9 @@ test('should return delinked statement data successfully', async () => {
   })
 })
 
-test('should handle excluded parameter', async () => {
+test('should use DELINKED document type code', async () => {
   const paymentReference = 'paymentRef123'
-  const excluded = true
+  const excluded = false
   const d365Mock = { calculationId: 'calc123', otherData: 'data' }
   const delinkedCalculationMock = { sbi: 'sbi123', calculationData: 'data' }
   const organisationMock = { name: 'OrgName', emailAddress: 'email@example.com', frn: 'frn123', sbi: 'sbi123' }
@@ -200,22 +189,7 @@ test('should handle excluded parameter', async () => {
   getPreviousPaymentCountByCalculationId.mockResolvedValue(previousPaymentCountMock)
   saveDocument.mockResolvedValue(savedDocumentMock)
 
-  const result = await getDelinkedStatementByPaymentReference(paymentReference, excluded)
+  await getDelinkedStatementByPaymentReference(paymentReference, excluded)
 
-  expect(result).toEqual({
-    address: addressMock,
-    businessName: organisationMock.name,
-    email: organisationMock.emailAddress,
-    frn: organisationMock.frn,
-    sbi: organisationMock.sbi,
-    ...d365Mock,
-    ...delinkedCalculationMock,
-    scheme: {
-      name: 'Delinked Payment Statement',
-      shortName: 'DP',
-      year: '2024'
-    },
-    previousPaymentCount: previousPaymentCountMock,
-    documentReference: savedDocumentMock.documentId
-  })
+  expect(getDocumentTypeByCode).toHaveBeenCalledWith(DELINKED)
 })
