@@ -7,14 +7,6 @@ const createProgressiveReductionSchema = (name) => Joi.string().allow(null).mess
   'string.base': `${name} should be a type of string`
 })
 
-const createNumberSchemaWithMessages = (name, min, max) => Joi.number().integer().min(min).max(max).required().messages({
-  'number.base': `${name} should be a type of number`,
-  'number.integer': `${name} should be an integer`,
-  'number.min': `${name} should have a minimum value of ${min}`,
-  'number.max': `${name} should have a maximum value of ${max}`,
-  'any.required': `The field ${name} is not present but it is required`
-})
-
 const createSchemaObject = (names, schemaCreator) => {
   return names.reduce((acc, name) => {
     acc[name] = schemaCreator(name)
@@ -35,8 +27,8 @@ module.exports = Joi.object({
   applicationId: numberSchema('applicationId'),
   calculationReference: numberSchema('calculationReference').optional(),
   applicationReference: numberSchema('applicationReference').optional(),
-  sbi: createNumberSchemaWithMessages('sbi', constants.minSbi, constants.maxSbi),
-  frn: createNumberSchemaWithMessages('frn', constants.minFrn, constants.maxFrn),
+  sbi: numberSchema('sbi', constants.minSbi, constants.maxSbi),
+  frn: numberSchema('frn', constants.minFrn, constants.maxFrn),
   ...paymentBands,
   ...percentageReductions,
   ...progressiveReductions,
@@ -48,4 +40,7 @@ module.exports = Joi.object({
     'date.base': 'datePublished should be a type of date',
     'date.strict': 'datePublished should be a type of date or null'
   })
+}).required().messages({
+  'object.base': 'The input should be an object',
+  'any.required': 'The input is not present but it is required'
 })

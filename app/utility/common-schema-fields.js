@@ -8,10 +8,12 @@ const constants = {
   number5: 5,
   number10: 10,
   number15: 15,
+  number30: 30,
   number18: 18,
   number20: 20,
   number50: 50,
   number100: 100,
+  number200: 200,
   TOTAL: 'total',
   DELINKED: 'delinkedCalculation'
 }
