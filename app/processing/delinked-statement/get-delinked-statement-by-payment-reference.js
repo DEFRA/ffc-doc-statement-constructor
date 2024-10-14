@@ -7,27 +7,40 @@ const getDocumentTypeByCode = require('./get-document-type-by-code')
 const getAddressFromOrganisation = require('./get-address-from-organisation')
 const { DELINKED } = require('../../constants/document-types')
 
-const getDelinkedStatementByPaymentReference = async (paymentReference, excluded) => {
+const getDelinkedStatementByPaymentReference = async (paymentReference, _excluded) => {
   const delinkedMarketingYear = '2024'
   const delinkedFullName = 'Delinked Payment Statement'
   const delinkedShortName = 'DP'
+
   const d365 = await getD365(paymentReference)
-  if (!d365) throw new Error('D365 data not found')
+  if (!d365) {
+    throw new Error('D365 data not found')
+  }
 
   const delinkedCalculation = await getDelinkedCalculation(d365.calculationId)
-  if (!delinkedCalculation) throw new Error('Delinked calculation data not found')
+  if (!delinkedCalculation) {
+    throw new Error('Delinked calculation data not found')
+  }
 
   const organisation = await getOrganisation(delinkedCalculation.sbi)
-  if (!organisation) throw new Error('Organisation data not found')
+  if (!organisation) {
+    throw new Error('Organisation data not found')
+  }
 
   const address = getAddressFromOrganisation(organisation)
-  if (!address) throw new Error('Address data not found')
+  if (!address) {
+    throw new Error('Address data not found')
+  }
 
   const documentType = await getDocumentTypeByCode(DELINKED)
-  if (!documentType?.documentTypeId) throw new Error('Invalid document type code')
+  if (!documentType?.documentTypeId) {
+    throw new Error('Invalid document type code')
+  }
 
   const previousPaymentCount = await getPreviousPaymentCountByCalculationId(d365.calculationId)
-  if (previousPaymentCount === null || typeof previousPaymentCount !== 'number') throw new Error('Invalid previous payment count')
+  if (previousPaymentCount === null || typeof previousPaymentCount !== 'number') {
+    throw new Error('Invalid previous payment count')
+  }
 
   const scheme = {
     name: delinkedFullName,
@@ -39,7 +52,9 @@ const getDelinkedStatementByPaymentReference = async (paymentReference, excluded
     documentSourceReference: paymentReference
   }
   const savedDocument = await saveDocument(document)
-  if (!savedDocument?.documentId) throw new Error('Invalid saved document data')
+  if (!savedDocument?.documentId) {
+    throw new Error('Invalid saved document data')
+  }
 
   return {
     address,
