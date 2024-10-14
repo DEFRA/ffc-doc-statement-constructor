@@ -24,7 +24,7 @@ const config = {
   sfi23AdvancedStatementConstructionActive: process.env.SFI_23_ADVANCED_STATEMENT_CONSTRUCTION_ACTIVE,
   sfi23QuarterlyStatementConstructionActive: process.env.SFI_23_QUARTERLY_STATEMENT_CONSTRUCTION_ACTIVE,
   settlementWaitTime: process.env.SETTLEMENT_WAIT_TIME,
-  delinkedPaymentStatementActive: process.env.DELINKED_PAYMENT_STATEMENT_ACTIVE
+  delinkedPaymentStatementActive: true
 }
 
 const result = schema.validate(config, {
