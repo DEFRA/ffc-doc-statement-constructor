@@ -12,7 +12,7 @@ const schema = Joi.object({
   sfi23AdvancedStatementConstructionActive: Joi.boolean().default(true),
   sfi23QuarterlyStatementConstructionActive: Joi.boolean().default(true),
   settlementWaitTime: Joi.number().default(number10000), // 10 seconds
-  delinkedPaymentStatementActive: Joi.boolean().default(false)
+  delinkedPaymentStatementActive: Joi.boolean().default(true)
 })
 
 const config = {
