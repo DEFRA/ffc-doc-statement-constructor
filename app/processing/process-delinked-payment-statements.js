@@ -6,6 +6,15 @@ const {
   getDelinkedStatementByPaymentReference
 } = require('./delinked-statement')
 
+const handleProcessingError = async (item, err) => {
+  console.error(`Error processing delinked statement for payment reference ${item.paymentReference}: ${err.message}`)
+  try {
+    await resetD365UnCompletePublishByD365Id(item.d365Id)
+  } catch (resetErr) {
+    console.error(`Error resetting incomplete publish for D365 ID ${item.d365Id}: ${resetErr.message}`)
+  }
+}
+
 const processDelinkedStatement = async () => {
   const d365 = await getVerifiedD365DelinkedStatements()
 
@@ -15,15 +24,7 @@ const processDelinkedStatement = async () => {
       await sendDelinkedStatement(delinkedStatement)
       await updateD365CompletePublishByD365Id(item.d365Id)
     } catch (err) {
-      console.error(`Error processing delinked statement for payment reference ${item.paymentReference}: ${err.message}`)
-    }
-  }
-
-  for (const item of d365) {
-    try {
-      await resetD365UnCompletePublishByD365Id(item.d365Id)
-    } catch (err) {
-      console.error(`Error resetting incomplete publish for D365 ID ${item.d365Id}: ${err.message}`)
+      await handleProcessingError(item, err)
     }
   }
 }

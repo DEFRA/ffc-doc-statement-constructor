@@ -22,7 +22,7 @@ test('should handle missing D365 data', async () => {
   const excluded = false
   getD365.mockResolvedValue(null)
 
-  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('D365 data not found')
+  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('D365 data not found for payment reference: paymentRef123')
 })
 
 test('should handle missing delinked calculation data', async () => {
@@ -32,7 +32,7 @@ test('should handle missing delinked calculation data', async () => {
   getD365.mockResolvedValue(d365Mock)
   getDelinkedCalculation.mockResolvedValue(null)
 
-  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Delinked calculation data not found')
+  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Delinked calculation data not found for calculation ID: calc123')
 })
 
 test('should handle missing organisation data', async () => {
@@ -44,7 +44,7 @@ test('should handle missing organisation data', async () => {
   getDelinkedCalculation.mockResolvedValue(delinkedCalculationMock)
   getOrganisation.mockResolvedValue(null)
 
-  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Organisation data not found')
+  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Organisation data not found for SBI: sbi123')
 })
 
 test('should handle missing address data', async () => {
@@ -65,7 +65,7 @@ test('should handle missing address data', async () => {
   getPreviousPaymentCountByCalculationId.mockResolvedValue(previousPaymentCountMock)
   saveDocument.mockResolvedValue(savedDocumentMock)
 
-  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Address data not found')
+  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Address data not found for organisation: OrgName')
 })
 
 test('should handle missing document type data', async () => {
@@ -86,7 +86,7 @@ test('should handle missing document type data', async () => {
   getPreviousPaymentCountByCalculationId.mockResolvedValue(previousPaymentCountMock)
   saveDocument.mockResolvedValue(savedDocumentMock)
 
-  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Invalid document type code')
+  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Invalid document type code: DELINKED')
 })
 
 test('should handle missing previous payment count data', async () => {
@@ -107,7 +107,7 @@ test('should handle missing previous payment count data', async () => {
   getPreviousPaymentCountByCalculationId.mockResolvedValue(null)
   saveDocument.mockResolvedValue(savedDocumentMock)
 
-  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Invalid previous payment count')
+  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Invalid previous payment count for calculation ID: calc123')
 })
 
 test('should handle missing saved document data', async () => {
@@ -128,7 +128,7 @@ test('should handle missing saved document data', async () => {
   getPreviousPaymentCountByCalculationId.mockResolvedValue(previousPaymentCountMock)
   saveDocument.mockResolvedValue(null)
 
-  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Invalid saved document data')
+  await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Invalid saved document data for payment reference: paymentRef123')
 })
 
 test('should return delinked statement data successfully', async () => {
