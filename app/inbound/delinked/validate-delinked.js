@@ -8,7 +8,6 @@ const validateDelinked = (transformedDelinked, calculationId) => {
   if (result.error) {
     throw new Error(`Total with calculationId: ${calculationId} does not have the required DELINKED data: ${result.error.message}`)
   }
-  console.log('Validated delinkedCalculation:', result.value)
   return result.value
 }
 
