@@ -30,5 +30,4 @@ const getDelinkedByCalculationId = async (calculationId) => {
     raw: true
   })
 }
-console.log('get-delinked-by-calculation-id', getDelinkedByCalculationId)
 module.exports = getDelinkedByCalculationId

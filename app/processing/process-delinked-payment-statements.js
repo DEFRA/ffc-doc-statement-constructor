@@ -15,7 +15,7 @@ const processDelinkedStatement = async () => {
       await sendDelinkedStatement(delinkedStatement)
       await updateD365CompletePublishByD365Id(item.d365Id)
     } catch (err) {
-      console.error(err.message)
+      console.error(`Error processing delinked statement for payment reference ${item.paymentReference}: ${err.message}`)
     }
   }
 
@@ -23,7 +23,7 @@ const processDelinkedStatement = async () => {
     try {
       await resetD365UnCompletePublishByD365Id(item.d365Id)
     } catch (err) {
-      console.error(err.message)
+      console.error(`Error resetting incomplete publish for D365 ID ${item.d365Id}: ${err.message}`)
     }
   }
 }

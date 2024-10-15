@@ -14,32 +14,32 @@ const getDelinkedStatementByPaymentReference = async (paymentReference, _exclude
 
   const d365 = await getD365(paymentReference)
   if (!d365) {
-    throw new Error('D365 data not found')
+    throw new Error(`D365 data not found for payment reference: ${paymentReference}`)
   }
 
   const delinkedCalculation = await getDelinkedCalculation(d365.calculationId)
   if (!delinkedCalculation) {
-    throw new Error('Delinked calculation data not found')
+    throw new Error(`Delinked calculation data not found for calculation ID: ${d365.calculationId}`)
   }
 
   const organisation = await getOrganisation(delinkedCalculation.sbi)
   if (!organisation) {
-    throw new Error('Organisation data not found')
+    throw new Error(`Organisation data not found for SBI: ${delinkedCalculation.sbi}`)
   }
 
   const address = getAddressFromOrganisation(organisation)
   if (!address) {
-    throw new Error('Address data not found')
+    throw new Error(`Address data not found for organisation: ${organisation.name}`)
   }
 
   const documentType = await getDocumentTypeByCode(DELINKED)
   if (!documentType?.documentTypeId) {
-    throw new Error('Invalid document type code')
+    throw new Error(`Invalid document type code: ${DELINKED}`)
   }
 
   const previousPaymentCount = await getPreviousPaymentCountByCalculationId(d365.calculationId)
   if (previousPaymentCount === null || typeof previousPaymentCount !== 'number') {
-    throw new Error('Invalid previous payment count')
+    throw new Error(`Invalid previous payment count for calculation ID: ${d365.calculationId}`)
   }
 
   const scheme = {
@@ -53,7 +53,7 @@ const getDelinkedStatementByPaymentReference = async (paymentReference, _exclude
   }
   const savedDocument = await saveDocument(document)
   if (!savedDocument?.documentId) {
-    throw new Error('Invalid saved document data')
+    throw new Error(`Invalid saved document data for payment reference: ${paymentReference}`)
   }
 
   return {
