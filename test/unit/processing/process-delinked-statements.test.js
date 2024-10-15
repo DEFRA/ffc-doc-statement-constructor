@@ -88,7 +88,6 @@ describe('process statements', () => {
   })
 
   test('should handle error in resetD365UnCompletePublishByD365Id', async () => {
-    // Simulate an error in updateD365CompletePublishByD365Id to trigger the error handling block
     updateD365CompletePublishByD365Id.mockRejectedValue(new Error('Failed to update D365 complete publish'))
     resetD365UnCompletePublishByD365Id.mockRejectedValue(new Error('Failed to reset D365 uncomplete publish'))
 
