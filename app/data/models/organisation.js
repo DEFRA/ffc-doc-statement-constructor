@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'sbi',
       as: 'calculations'
     })
+    organisation.hasMany(models.delinkedCalculation, {
+      foreignKey: 'sbi',
+      as: 'delinkedCalculations'
+    })
   }
   return organisation
 }

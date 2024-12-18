@@ -1,8 +1,8 @@
 const db = require('../../data')
-const savePlaceholderOrganisation = require('./save-placeholder-organisation')
+const { messageQueue, MessageTypes } = require('../../message-queue/delinked-message-queue')
 const getDelinkedByCalculationId = require('./get-delinked-by-calculation-id')
-const saveDelinked = require('./save-delinked')
 const validateDelinked = require('./validate-delinked')
+const savePlaceholderOrganisation = require('./save-placeholder-organisation')
 
 const processDelinked = async (delinked) => {
   const transaction = await db.sequelize.transaction()
@@ -12,26 +12,40 @@ const processDelinked = async (delinked) => {
     if (existingDelinked) {
       console.info(`Duplicate delinked received, skipping ${existingDelinked.calculationId}`)
       await transaction.rollback()
-    } else {
-      await savePlaceholderOrganisation({ sbi: delinked.sbi }, delinked.sbi)
-
-      // De-aliasing calculationReference and applicationReference
-      const transformedDelinked = {
-        ...delinked,
-        calculationId: delinked.calculationReference,
-        applicationId: delinked.applicationReference
-      }
-
-      delete transformedDelinked.calculationReference
-      delete transformedDelinked.applicationReference
-      await validateDelinked(transformedDelinked, transformedDelinked.calculationId)
-      await saveDelinked(transformedDelinked, transaction)
-      await transaction.commit()
+      return
     }
+
+    await savePlaceholderOrganisation({ sbi: delinked.sbi }, delinked.sbi)
+
+    const transformedDelinked = {
+      ...delinked,
+      calculationId: delinked.calculationReference,
+      applicationId: delinked.applicationReference
+    }
+    delete transformedDelinked.calculationReference
+    delete transformedDelinked.applicationReference
+
+    await validateDelinked(transformedDelinked)
+
+    await messageQueue.add(MessageTypes.ORGANISATION, {
+      sbi: transformedDelinked.sbi,
+      name: transformedDelinked.businessName,
+      frn: transformedDelinked.frn
+    })
+
+    await messageQueue.add(MessageTypes.DELINKED_CALCULATION, transformedDelinked)
+
+    await messageQueue.add(MessageTypes.D365, {
+      paymentReference: transformedDelinked.paymentReference,
+      calculationId: transformedDelinked.calculationId,
+      paymentAmount: transformedDelinked.paymentAmount
+    })
+
+    await messageQueue.process()
+    await transaction.commit()
   } catch (error) {
     await transaction.rollback()
-    throw (error)
+    throw error
   }
 }
-
 module.exports = processDelinked
