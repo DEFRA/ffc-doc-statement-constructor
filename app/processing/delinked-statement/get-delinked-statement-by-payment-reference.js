@@ -62,8 +62,8 @@ const getDelinkedStatementByPaymentReference = async (paymentReference, _exclude
     email: organisation.emailAddress,
     frn: organisation.frn,
     sbi: organisation.sbi,
-    ...d365,
     ...delinkedCalculation,
+    ...d365,
     scheme,
     previousPaymentCount,
     documentReference: savedDocument.documentId
