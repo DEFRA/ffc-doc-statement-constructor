@@ -56,8 +56,8 @@ module.exports = Joi.object({
     'date.strict': 'datePublished should be a type of date or null'
   }),
   updated: Joi.date().allow(null).messages({
-    'date.base': 'datePublished should be a type of date',
-    'date.strict': 'datePublished should be a type of date or null'
+    'date.base': 'updated should be a type of date',
+    'date.strict': 'updated should be a type of date or null'
   }),
   type: Joi.string().required().valid(DELINKED).messages({
     'string.base': 'type should be a type of string',
