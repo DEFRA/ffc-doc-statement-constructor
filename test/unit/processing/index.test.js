@@ -123,7 +123,7 @@ describe('start processing', () => {
       await processing.start()
       expect(waitForIdleMessaging).toHaveBeenCalledTimes(1)
     })
-    
+
     test('should not call processDelinkedStatement', async () => {
       await processing.start()
       expect(processDelinkedStatement).not.toHaveBeenCalled()
