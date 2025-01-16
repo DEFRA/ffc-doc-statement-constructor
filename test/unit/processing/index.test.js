@@ -21,12 +21,6 @@ jest.mock('../../../app/data', () => {
   }
 })
 
-// jest.mock('../../../app/processing/process-statements')
-// const processStatements = require('../../../app/processing/process-statements')
-
-// jest.mock('../../../app/processing/process-payment-schedules')
-// const processPaymentSchedules = require('../../../app/processing/process-payment-schedules')
-
 jest.mock('../../../app/processing/process-sfi-23-quarterly-statements')
 const processSfi23QuarterlyStatement = require('../../../app/processing/process-sfi-23-quarterly-statements')
 
@@ -129,17 +123,7 @@ describe('start processing', () => {
       await processing.start()
       expect(waitForIdleMessaging).toHaveBeenCalledTimes(1)
     })
-
-    // test('should not call processStatements', async () => {
-    //   await processing.start()
-    //   expect(processStatements).not.toHaveBeenCalled()
-    // })
-
-    // test('should not call processPaymentSchedules', async () => {
-    //   await processing.start()
-    //   expect(processPaymentSchedules).not.toHaveBeenCalled()
-    // })
-
+    
     test('should not call processDelinkedStatement', async () => {
       await processing.start()
       expect(processDelinkedStatement).not.toHaveBeenCalled()
