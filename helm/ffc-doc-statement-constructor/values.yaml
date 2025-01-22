@@ -50,6 +50,7 @@ container:
   idleCheckMaxDeliveryCount: 1
   idleCheckInterval: 60000
   settlementWaitTime: 600000
+  paymentLinkActive: true
 
 postgresService:
   postgresDb: ffc_doc_statement_constructor

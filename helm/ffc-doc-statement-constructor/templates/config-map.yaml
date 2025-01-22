@@ -35,4 +35,5 @@ data:
   IDLE_CHECK_MAX_DELIVERY_COUNT: {{ quote .Values.container.idleCheckMaxDeliveryCount }}
   IDLE_CHECK_INTERVAL: {{ quote .Values.container.idleCheckInterval }}
   SETTLEMENT_WAIT_TIME: {{ quote .Values.container.settlementWaitTime }}
+  PAYMENT_LINK_ACTIVE: {{ quote .Values.container.paymentLinkActive }}
 {{- end -}}

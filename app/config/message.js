@@ -37,7 +37,8 @@ const mqSchema = Joi.object({
   },
   idleCheckBatchSize: Joi.number().default(number250),
   idleCheckMaxDeliveryCount: Joi.number().default(number1),
-  idleCheckInterval: Joi.number().default(number10000)
+  idleCheckInterval: Joi.number().default(number10000),
+  paymentLinkActive: Joi.bool().default(true)
 })
 
 const mqConfig = {
@@ -74,7 +75,8 @@ const mqConfig = {
   },
   idleCheckBatchSize: process.env.IDLE_CHECK_BATCH_SIZE,
   idleCheckMaxDeliveryCount: process.env.IDLE_CHECK_MAX_DELIVERY_COUNT,
-  idleCheckInterval: process.env.IDLE_CHECK_INTERVAL
+  idleCheckInterval: process.env.IDLE_CHECK_INTERVAL,
+  paymentLinkActive: process.env.PAYMENT_LINK_ACTIVE
 }
 
 const mqResult = mqSchema.validate(mqConfig, {
