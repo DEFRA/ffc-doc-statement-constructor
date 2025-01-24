@@ -35,6 +35,18 @@ const mqSchema = Joi.object({
     address: Joi.string(),
     source: Joi.string()
   },
+  processingSubscriptionFailed: {
+    address: Joi.string(),
+    source: Joi.string()
+  },
+  submitSubscriptionFailed: {
+    address: Joi.string(),
+    source: Joi.string()
+  },
+  returnSubscriptionFailed: {
+    address: Joi.string(),
+    source: Joi.string()
+  },
   idleCheckBatchSize: Joi.number().default(number250),
   idleCheckMaxDeliveryCount: Joi.number().default(number1),
   idleCheckInterval: Joi.number().default(number10000),
@@ -71,6 +83,18 @@ const mqConfig = {
   },
   statementTopic: {
     address: process.env.STATEMENT_TOPIC_ADDRESS,
+    source: 'ffc-doc-statement-constructor'
+  },
+  processingSubscriptionFailed: {
+    address: process.PROCESSING_SUBSCRIPTION_ERROR_ADDRESS,
+    source: 'ffc-doc-statement-constructor'
+  },
+  submitSubscriptionFailed: {
+    address: process.env.SUBMIT_SUBSCRIPTION_ERROR_ADDRESS,
+    source: 'ffc-doc-statement-constructor'
+  },
+  returnSubscriptionFailed: {
+    address: process.RETURN_SUBSCRIPTION_ERROR_ADDRESS,
     source: 'ffc-doc-statement-constructor'
   },
   idleCheckBatchSize: process.env.IDLE_CHECK_BATCH_SIZE,

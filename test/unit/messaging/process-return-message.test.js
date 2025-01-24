@@ -1,8 +1,10 @@
 jest.mock('ffc-messaging')
 
 jest.mock('../../../app/inbound/return/process-return-settlement')
-const processReturnSettlement = require('../../../app/inbound/return/process-return-settlement')
+jest.mock('../../../app/messaging/publish-return-subscription-failed')
 
+const processReturnSettlement = require('../../../app/inbound/return/process-return-settlement')
+const publishReturnSubscriptionFailed = require('../../../app/messaging/publish-return-subscription-failed')
 const processReturnMessage = require('../../../app/messaging/process-return-message')
 
 let receiver
@@ -12,6 +14,7 @@ let message
 describe('process return message', () => {
   beforeEach(() => {
     processReturnSettlement.mockReturnValue(undefined)
+    publishReturnSubscriptionFailed.mockReturnValue(undefined)
     settlement = JSON.parse(JSON.stringify(require('../../mock-objects/mock-settlement')))
     receiver = {
       completeMessage: jest.fn()
@@ -87,5 +90,14 @@ describe('process return message', () => {
     }
 
     expect(wrapper).not.toThrow()
+  })
+
+  test('should call publishReturnSubscriptionFailed and deadLetterMessage on error', async () => {
+    const error = new Error('Test error')
+    processReturnSettlement.mockRejectedValue(error)
+
+    await processReturnMessage(message, receiver)
+    expect(processReturnSettlement).toHaveBeenCalledWith(settlement)
+    expect(publishReturnSubscriptionFailed).toHaveBeenCalledWith(settlement, error)
   })
 })

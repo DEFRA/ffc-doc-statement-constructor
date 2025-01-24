@@ -10,16 +10,15 @@ let returnReceiver
 let statementDataReceiver
 
 const start = async () => {
-
-  if(config.paymentLinkActive) {
+  if (config.paymentLinkActive) {
     const processingAction = message => processProcessingMessage(message, processingReceiver)
     processingReceiver = new MessageReceiver(config.processingSubscription, processingAction)
     await processingReceiver.subscribe()
-  
+
     const submitAction = message => processSubmitMessage(message, submitReceiver)
     submitReceiver = new MessageReceiver(config.submitSubscription, submitAction)
     await submitReceiver.subscribe()
-  
+
     const returnAction = message => processReturnMessage(message, returnReceiver)
     returnReceiver = new MessageReceiver(config.returnSubscription, returnAction)
     await returnReceiver.subscribe()
