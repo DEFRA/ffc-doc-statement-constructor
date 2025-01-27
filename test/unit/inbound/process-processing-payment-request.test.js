@@ -370,9 +370,9 @@ describe('process processing payment request', () => {
     const paymentRequest = { invoiceNumber: 'INV123', invoiceLines: [] }
     const receivedDate = new Date(2022, 0, 14, 17) // 2022-01-14T17:00:00.000Z (7 hours ago from mocked date)
     const existingPaymentRequest = { invoiceNumber: 'INV123', received: receivedDate.toISOString() }
-  
+
     getInProgressPaymentRequestByInvoiceNumber.mockResolvedValue(existingPaymentRequest)
-  
+
     await expect(processProcessingPaymentRequest(paymentRequest)).rejects.toThrow(`Payment request ${existingPaymentRequest.invoiceNumber} was received more than 6 hours ago.`)
     expect(mockRollback).toHaveBeenCalled()
     expect(mockCommit).not.toHaveBeenCalled()
@@ -382,12 +382,11 @@ describe('process processing payment request', () => {
     const paymentRequest = { invoiceNumber: 'INV123', invoiceLines: [] }
     const receivedDate = new Date(2022, 0, 14, 19) // 2022-01-14T19:00:00.000Z (5 hours ago from mocked date)
     const existingPaymentRequest = { invoiceNumber: 'INV123', received: receivedDate.toISOString() }
-  
+
     getInProgressPaymentRequestByInvoiceNumber.mockResolvedValue(existingPaymentRequest)
-  
+
     await expect(processProcessingPaymentRequest(paymentRequest)).resolves.not.toThrow(`Payment request ${existingPaymentRequest.invoiceNumber} was received more than 6 hours ago.`)
     expect(mockRollback).toHaveBeenCalled()
     expect(mockCommit).not.toHaveBeenCalled()
   })
-  
 })
