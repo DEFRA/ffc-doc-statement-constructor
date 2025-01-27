@@ -36,6 +36,9 @@ describe('process return settlement request', () => {
     getSettlementByInvoiceNumberAndValue.mockResolvedValue(undefined)
     saveSettlement.mockResolvedValue({ ...settlement, settlementId: 1 })
     saveSchedule.mockResolvedValue(undefined)
+
+    jest.useFakeTimers('modern')
+    jest.setSystemTime(new Date(2022, 0, 15))
   })
 
   afterEach(() => {
@@ -179,5 +182,29 @@ describe('process return settlement request', () => {
       await processReturnSettlement(settlement)
     }
     expect(wrapper).rejects.toThrow(Error('Database save down issue'))
+  })
+
+  test('should throw an error if existing settlement was received more than 6 hours ago', async () => {
+    const settlementRequest = { invoiceNumber: 'INV123', invoiceLines: [] }
+    const receivedDate = new Date(2022, 0, 14, 17) // 2022-01-14T17:00:00.000Z (7 hours ago from mocked date)
+    const existingSettlementRequest = { invoiceNumber: 'INV123', received: receivedDate.toISOString() }
+
+    getSettlementByInvoiceNumberAndValue.mockResolvedValue(existingSettlementRequest)
+
+    await expect(processReturnSettlement(settlementRequest)).rejects.toThrow(`Settlement ${existingSettlementRequest.invoiceNumber} was received more than 6 hours ago.`)
+    expect(mockRollback).toHaveBeenCalled()
+    expect(mockCommit).not.toHaveBeenCalled()
+  })
+
+  test('should not throw an error if existing settlement was received less than 6 hours ago', async () => {
+    const settlementRequest = { invoiceNumber: 'INV123', invoiceLines: [] }
+    const receivedDate = new Date(2022, 0, 14, 19) // 2022-01-14T19:00:00.000Z (5 hours ago from mocked date)
+    const existingSettlementRequest = { invoiceNumber: 'INV123', received: receivedDate.toISOString() }
+
+    getSettlementByInvoiceNumberAndValue.mockResolvedValue(existingSettlementRequest)
+
+    await expect(processReturnSettlement(settlementRequest)).resolves.not.toThrow(`Settlement ${existingSettlementRequest.invoiceNumber} was received more than 6 hours ago.`)
+    expect(mockRollback).toHaveBeenCalled()
+    expect(mockCommit).not.toHaveBeenCalled()
   })
 })
