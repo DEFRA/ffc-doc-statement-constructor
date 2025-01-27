@@ -2,6 +2,7 @@ const Joi = require('joi')
 const number100 = 100
 const number10000 = 10000
 const number300000 = 300000
+const number6 = 6
 
 const schema = Joi.object({
   settlementProcessingInterval: Joi.number().default(number10000), // 10 seconds
@@ -12,7 +13,8 @@ const schema = Joi.object({
   sfi23AdvancedStatementConstructionActive: Joi.boolean().default(true),
   sfi23QuarterlyStatementConstructionActive: Joi.boolean().default(true),
   settlementWaitTime: Joi.number().default(number10000), // 10 seconds
-  delinkedPaymentStatementActive: Joi.boolean().default(true)
+  delinkedPaymentStatementActive: Joi.boolean().default(true),
+  hoursLimit: Joi.number().default(number6) // 6 hours
 })
 
 const config = {
@@ -24,7 +26,8 @@ const config = {
   sfi23AdvancedStatementConstructionActive: process.env.SFI_23_ADVANCED_STATEMENT_CONSTRUCTION_ACTIVE,
   sfi23QuarterlyStatementConstructionActive: process.env.SFI_23_QUARTERLY_STATEMENT_CONSTRUCTION_ACTIVE,
   settlementWaitTime: process.env.SETTLEMENT_WAIT_TIME,
-  delinkedPaymentStatementActive: process.env.DELINKED_PAYMENT_STATEMENT_ACTIVE
+  delinkedPaymentStatementActive: process.env.DELINKED_PAYMENT_STATEMENT_ACTIVE,
+  hoursLimit: process.env.HOURS_LIMIT
 }
 
 const result = schema.validate(config, {

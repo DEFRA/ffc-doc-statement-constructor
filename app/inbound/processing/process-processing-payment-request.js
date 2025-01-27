@@ -1,11 +1,10 @@
 const db = require('../../data')
-
 const { IN_PROGRESS } = require('../../constants/statuses')
-
 const getInProgressPaymentRequestByInvoiceNumber = require('./get-in-progress-payment-request-by-invoice-number')
 const saveInvoiceNumber = require('../save-invoice-number')
 const savePaymentRequest = require('../save-payment-request')
 const saveInvoiceLines = require('../save-invoice-lines')
+const config = require('../../config').processingConfig
 
 const processProcessingPaymentRequest = async (paymentRequest) => {
   const transaction = await db.sequelize.transaction()
@@ -14,6 +13,17 @@ const processProcessingPaymentRequest = async (paymentRequest) => {
     const existingPaymentRequest = await getInProgressPaymentRequestByInvoiceNumber(paymentRequest.invoiceNumber, transaction)
     if (existingPaymentRequest) {
       console.info(`Duplicate processing payment request received, skipping ${existingPaymentRequest.invoiceNumber}`)
+
+      const hoursLimit = config.hoursLimit
+      const receivedDate = new Date(existingPaymentRequest.received)
+      const currentDate = new Date()
+      const hoursDifference = Math.abs(currentDate - receivedDate) / 36e5
+
+      if (hoursDifference > hoursLimit) {
+        console.error(`Payment request ${existingPaymentRequest.invoiceNumber} was received more than ${hoursLimit} hours ago.`)
+        throw new Error(`Payment request ${existingPaymentRequest.invoiceNumber} was received more than ${hoursLimit} hours ago.`)
+      }
+
       await transaction.rollback()
     } else {
       await saveInvoiceNumber(paymentRequest.invoiceNumber, transaction)
