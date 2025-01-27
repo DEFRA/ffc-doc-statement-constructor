@@ -3,6 +3,7 @@ const saveSettlement = require('./save-settlement')
 const saveSchedule = require('./save-schedule')
 const getSettlementByInvoiceNumberAndValue = require('./get-settlement-by-invoice-number-and-value')
 const config = require('../../config').processingConfig
+const hourInMs = 36e5
 
 const processReturnSettlement = async (settlement) => {
   const transaction = await db.sequelize.transaction()
@@ -15,7 +16,7 @@ const processReturnSettlement = async (settlement) => {
       const hoursLimit = config.hoursLimit
       const receivedDate = new Date(existingSettlement.received)
       const currentDate = new Date()
-      const hoursDifference = Math.abs(currentDate - receivedDate) / 36e5
+      const hoursDifference = Math.abs(currentDate - receivedDate) / hourInMs
 
       if (hoursDifference > hoursLimit) {
         console.error(`Settlement ${existingSettlement.invoiceNumber} was received more than ${hoursLimit} hours ago.`)

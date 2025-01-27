@@ -9,6 +9,7 @@ const saveInvoiceLines = require('../save-invoice-lines')
 const saveSchedule = require('./save-schedule')
 const shouldTriggerPaymentSchedule = require('./should-trigger-payment-schedule')
 const config = require('../../config').processingConfig
+const hourInMs = 36e5
 
 const processSubmitPaymentRequest = async (paymentRequest) => {
   const transaction = await db.sequelize.transaction()
@@ -21,7 +22,7 @@ const processSubmitPaymentRequest = async (paymentRequest) => {
       const hoursLimit = config.hoursLimit
       const receivedDate = new Date(existingPaymentRequest.received)
       const currentDate = new Date()
-      const hoursDifference = Math.abs(currentDate - receivedDate) / 36e5
+      const hoursDifference = Math.abs(currentDate - receivedDate) / hourInMs
 
       if (hoursDifference > hoursLimit) {
         console.error(`Payment request ${existingPaymentRequest.invoiceNumber} was received more than ${hoursLimit} hours ago.`)

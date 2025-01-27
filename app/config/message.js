@@ -2,6 +2,7 @@ const Joi = require('joi')
 const number1 = 1
 const number250 = 250
 const number10000 = 10000
+const docStatementConstructor = 'ffc-doc-statement-constructor'
 
 const mqSchema = Joi.object({
   messageQueue: {
@@ -83,19 +84,19 @@ const mqConfig = {
   },
   statementTopic: {
     address: process.env.STATEMENT_TOPIC_ADDRESS,
-    source: 'ffc-doc-statement-constructor'
+    source: docStatementConstructor
   },
   processingSubscriptionFailed: {
     address: process.PROCESSING_SUBSCRIPTION_ERROR_ADDRESS,
-    source: 'ffc-doc-statement-constructor'
+    source: docStatementConstructor
   },
   submitSubscriptionFailed: {
     address: process.env.SUBMIT_SUBSCRIPTION_ERROR_ADDRESS,
-    source: 'ffc-doc-statement-constructor'
+    source: docStatementConstructor
   },
   returnSubscriptionFailed: {
     address: process.RETURN_SUBSCRIPTION_ERROR_ADDRESS,
-    source: 'ffc-doc-statement-constructor'
+    source: docStatementConstructor
   },
   idleCheckBatchSize: process.env.IDLE_CHECK_BATCH_SIZE,
   idleCheckMaxDeliveryCount: process.env.IDLE_CHECK_MAX_DELIVERY_COUNT,
