@@ -2,16 +2,27 @@ const util = require('util')
 const { RETURN_SUBCRIPTION_FAILED } = require('../constants/message-types')
 const sendMessage = require('../messaging/send-message')
 const config = require('../config')
+const { v4: uuidv4 } = require('uuid')
 
 const publishReturnSubscriptionFailed = async (paymentRequest, error) => {
+  const options = {
+    time: new Date(),
+    id: uuidv4()
+  }
+
   const body = {
     data: {
       message: error.message,
       ...paymentRequest
+    },
+    ...options,
+    ...{
+      type: RETURN_SUBCRIPTION_FAILED,
+      source: config.returnSubscriptionFailed.source
     }
   }
 
-  await sendMessage(body, RETURN_SUBCRIPTION_FAILED, config.returnSubscriptionFailed)
+  await sendMessage(body, RETURN_SUBCRIPTION_FAILED, config.returnSubscriptionFailed, options)
   console.log('Message sent:', util.inspect(body, false, null, true))
 }
 

@@ -40,9 +40,10 @@ container:
   dataTopicAddress: ffc-doc-statement-data
   dataSubscriptionAddress: ffc-doc-statement-constructor
   statementTopicAddress: ffc-doc-statements
-  processingSubscriptionAddressError: ffc-doc-statement-constructor
-  submitSubscriptionAddressError: ffc-doc-statement-constructor
-  returnSubscriptionAddressError: ffc-doc-statement-constructor  
+  alertingTopicAddress: ffc-doc-alert
+  processingTopicFailedAddress: ffc-doc-alerting
+  submitTopicFailedAddress: ffc-doc-alerting
+  returnTopicFailedAddress: ffc-doc-alerting  
   settlementProcessingInterval: 60000
   statementConstructionActive: false
   scheduleConstructionActive: false

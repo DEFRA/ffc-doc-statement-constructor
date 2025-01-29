@@ -38,14 +38,17 @@ const mqSchema = Joi.object({
   },
   processingSubscriptionFailed: {
     address: Joi.string(),
+    topic: Joi.string(),
     source: Joi.string()
   },
   submitSubscriptionFailed: {
     address: Joi.string(),
+    topic: Joi.string(),
     source: Joi.string()
   },
   returnSubscriptionFailed: {
     address: Joi.string(),
+    topic: Joi.string(),
     source: Joi.string()
   },
   idleCheckBatchSize: Joi.number().default(number250),
@@ -87,15 +90,18 @@ const mqConfig = {
     source: docStatementConstructor
   },
   processingSubscriptionFailed: {
-    address: process.PROCESSING_SUBSCRIPTION_ERROR_ADDRESS,
+    address: process.env.ALERTING_TOPIC_ADDRESS,
+    topic: process.env.PROCESSING_TOPIC_FAILED_ADDRESS,
     source: docStatementConstructor
   },
   submitSubscriptionFailed: {
-    address: process.env.SUBMIT_SUBSCRIPTION_ERROR_ADDRESS,
+    address: process.env.ALERTING_TOPIC_ADDRESS,
+    topic: process.env.SUBMIT_TOPIC_FAILED_ADDRESS,
     source: docStatementConstructor
   },
   returnSubscriptionFailed: {
-    address: process.RETURN_SUBSCRIPTION_ERROR_ADDRESS,
+    address: process.env.ALERTING_TOPIC_ADDRESS,
+    topic: process.env.RETURN_TOPIC_FAILED_ADDRESS,
     source: docStatementConstructor
   },
   idleCheckBatchSize: process.env.IDLE_CHECK_BATCH_SIZE,
@@ -120,6 +126,9 @@ const statementTopic = { ...mqResult.value.messageQueue, ...mqResult.value.state
 const idleCheckBatchSize = mqResult.value.idleCheckBatchSize
 const idleCheckMaxDeliveryCount = mqResult.value.idleCheckMaxDeliveryCount
 const idleCheckInterval = mqResult.value.idleCheckInterval
+const processingSubscriptionFailed = { ...mqResult.value.messageQueue, ...mqResult.value.processingSubscriptionFailed }
+const submitSubscriptionFailed = { ...mqResult.value.messageQueue, ...mqResult.value.submitSubscriptionFailed }
+const returnSubscriptionFailed = { ...mqResult.value.messageQueue, ...mqResult.value.returnSubscriptionFailed }
 
 module.exports = {
   processingSubscription,
@@ -129,5 +138,8 @@ module.exports = {
   statementTopic,
   idleCheckBatchSize,
   idleCheckMaxDeliveryCount,
-  idleCheckInterval
+  idleCheckInterval,
+  processingSubscriptionFailed,
+  submitSubscriptionFailed,
+  returnSubscriptionFailed
 }
