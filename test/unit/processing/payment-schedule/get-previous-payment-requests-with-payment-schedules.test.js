@@ -1,9 +1,6 @@
 jest.mock('../../../../app/processing/payment-request/get-completed-payment-request-by-correlation-id')
 const getCompletedPaymentRequestByCorrelationId = require('../../../../app/processing/payment-request/get-completed-payment-request-by-correlation-id')
 
-jest.mock('../../../../app/processing/schedule')
-const { getCompletedSchedule } = require('../../../../app/processing/schedule')
-
 const { getPreviousPaymentRequestsWithPaymentSchedules } = require('../../../../app/processing/payment-request')
 
 let paymentRequest
@@ -15,7 +12,6 @@ describe('get previous payment requests with payment schedules', () => {
     previousPaymentRequests = []
     paymentRequest = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-payment-request').submitPaymentRequest))
     getCompletedPaymentRequestByCorrelationId.mockResolvedValue(undefined)
-    getCompletedSchedule.mockResolvedValue(undefined)
   })
 
   test('should return empty array when no previousPaymentRequests', async () => {
@@ -56,10 +52,10 @@ describe('get previous payment requests with payment schedules', () => {
     secondPaymentRequest.paymentRequestNumber = 2
     previousPaymentRequests.push(secondPaymentRequest)
     getCompletedPaymentRequestByCorrelationId.mockResolvedValue(secondPaymentRequest)
-    getCompletedSchedule.mockResolvedValue({ paymentScheduleId: 1 })
+
     const result = await getPreviousPaymentRequestsWithPaymentSchedules(previousPaymentRequests)
     expect(result).toContain(previousPaymentRequests[0])
-    expect(result).toContain(previousPaymentRequests[1])
-    expect(result).toHaveLength(2)
+
+    expect(result).toHaveLength(1)
   })
 })
