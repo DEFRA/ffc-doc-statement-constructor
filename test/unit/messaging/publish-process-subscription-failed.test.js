@@ -2,7 +2,7 @@ const util = require('util')
 const sendMessage = require('../../../app/messaging/send-message')
 const config = require('../../../app/config')
 const publishProcessingSubscriptionFailed = require('../../../app/messaging/publish-process-subscription-failed')
-const { PROCESSING_SUBCRIPTION_FAILED } = require('../../../app/constants/message-types')
+const { PROCESSING_SUBSCRIPTION_FAILED } = require('../../../app/constants/message-types')
 
 jest.mock('../../../app/messaging/send-message')
 jest.mock('../../../app/config')
@@ -54,7 +54,7 @@ describe('publishProcessingSubscriptionFailed', () => {
       }
     }
 
-    expect(sendMessage).toHaveBeenCalledWith(expectedBody, PROCESSING_SUBCRIPTION_FAILED, 'test-queue')
+    expect(sendMessage).toHaveBeenCalledWith(expectedBody, PROCESSING_SUBSCRIPTION_FAILED, 'test-queue')
     expect(console.log).toHaveBeenCalledWith('Message sent:', util.inspect(expectedBody, false, null, true))
   })
 

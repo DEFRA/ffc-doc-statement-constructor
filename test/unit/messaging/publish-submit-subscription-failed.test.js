@@ -2,7 +2,7 @@ const util = require('util')
 const sendMessage = require('../../../app/messaging/send-message')
 const config = require('../../../app/config')
 const publishSubmitSubscriptionFailed = require('../../../app/messaging/publish-submit-subscription-failed')
-const { SUBMIT_SUBCRIPTION_FAILED } = require('../../../app/constants/message-types')
+const { SUBMIT_SUBSCRIPTION_FAILED } = require('../../../app/constants/message-types')
 
 jest.mock('../../../app/messaging/send-message')
 jest.mock('../../../app/config')
@@ -58,7 +58,7 @@ describe('publishSubmitSubscriptionFailed', () => {
       }
     }
 
-    expect(sendMessage).toHaveBeenCalledWith(expectedBody, SUBMIT_SUBCRIPTION_FAILED, 'test-queue')
+    expect(sendMessage).toHaveBeenCalledWith(expectedBody, SUBMIT_SUBSCRIPTION_FAILED, 'test-queue')
     expect(console.log).toHaveBeenCalledWith('Message sent:', util.inspect(expectedBody, false, null, true))
   })
 

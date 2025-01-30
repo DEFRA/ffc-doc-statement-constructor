@@ -2,7 +2,7 @@ const util = require('util')
 const sendMessage = require('../../../app/messaging/send-message')
 const config = require('../../../app/config')
 const publishReturnSubscriptionFailed = require('../../../app/messaging/publish-return-subscription-failed')
-const { RETURN_SUBCRIPTION_FAILED } = require('../../../app/constants/message-types')
+const { RETURN_SUBSCRIPTION_FAILED } = require('../../../app/constants/message-types')
 
 jest.mock('../../../app/messaging/send-message')
 jest.mock('../../../app/config')
@@ -51,15 +51,21 @@ describe('publishReturnSubscriptionFailed', () => {
   test('should send message with correct body and type', async () => {
     await publishReturnSubscriptionFailed(paymentRequest, error)
 
+    const time = {
+      id: expect.any(String),
+      time: expect.any(Date)
+    }
+
     const expectedBody = {
       data: {
         message: error.message,
         ...paymentRequest
-      }
+      },
+      ...time,
+      type: RETURN_SUBSCRIPTION_FAILED
     }
 
-    expect(sendMessage).toHaveBeenCalledWith(expectedBody, RETURN_SUBCRIPTION_FAILED, 'test-queue')
-    expect(console.log).toHaveBeenCalledWith('Message sent:', util.inspect(expectedBody, false, null, true))
+    expect(sendMessage).toHaveBeenCalledWith(expectedBody, RETURN_SUBSCRIPTION_FAILED, 'test-queue', time)
   })
 
   test('should handle sendMessage error', async () => {
