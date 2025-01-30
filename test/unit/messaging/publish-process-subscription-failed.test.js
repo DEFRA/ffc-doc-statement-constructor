@@ -1,4 +1,3 @@
-const util = require('util')
 const sendMessage = require('../../../app/messaging/send-message')
 const config = require('../../../app/config')
 const publishProcessingSubscriptionFailed = require('../../../app/messaging/publish-process-subscription-failed')
@@ -47,15 +46,21 @@ describe('publishProcessingSubscriptionFailed', () => {
   test('should send message with correct body and type', async () => {
     await publishProcessingSubscriptionFailed(paymentRequest, error)
 
+    const time = {
+      id: expect.any(String),
+      time: expect.any(Date)
+    }
+
     const expectedBody = {
       data: {
         message: error.message,
         ...paymentRequest
-      }
+      },
+      ...time,
+      type: PROCESSING_SUBSCRIPTION_FAILED
     }
 
-    expect(sendMessage).toHaveBeenCalledWith(expectedBody, PROCESSING_SUBSCRIPTION_FAILED, 'test-queue')
-    expect(console.log).toHaveBeenCalledWith('Message sent:', util.inspect(expectedBody, false, null, true))
+    expect(sendMessage).toHaveBeenCalledWith(expectedBody, PROCESSING_SUBSCRIPTION_FAILED, 'test-queue', time)
   })
 
   test('should handle sendMessage error', async () => {

@@ -1,4 +1,3 @@
-const util = require('util')
 const sendMessage = require('../../../app/messaging/send-message')
 const config = require('../../../app/config')
 const publishReturnSubscriptionFailed = require('../../../app/messaging/publish-return-subscription-failed')
