@@ -9,6 +9,7 @@ const processStatementDataMessage = async (message, receiver) => {
     await receiver.completeMessage(message)
   } catch (err) {
     console.error('Unable to process statement message:', err)
+    await receiver.deadLetterMessage(message)
   }
 }
 
