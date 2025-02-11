@@ -9,9 +9,9 @@ data:
   PROCESSING_TOPIC_ADDRESS: {{ .Values.container.processingTopicAddress }}-{{ .Values.environmentCode }}
   SUBMIT_TOPIC_ADDRESS: {{ .Values.container.submitTopicAddress }}-{{ .Values.environmentCode }}
   RETURN_TOPIC_ADDRESS: {{ .Values.container.returnTopicAddress }}-{{ .Values.environmentCode }}
-  PROCESSING_TOPIC_FAILED_ADDRESS: {{ .Values.container.processingTopicFailedAddress }}
-  SUBMIT_TOPIC_FAILED_ADDRESS: {{ .Values.container.submitTopicFailedAddress }}
-  RETURN_TOPIC_FAILED_ADDRESS: {{ .Values.container.returnTopicFailedAddress }}
+  PROCESSING_TOPIC_FAILED_ADDRESS: {{ .Values.container.processingTopicFailedAddress }}-{{ .Values.environmentCode }}
+  SUBMIT_TOPIC_FAILED_ADDRESS: {{ .Values.container.submitTopicFailedAddress }}-{{ .Values.environmentCode }}
+  RETURN_TOPIC_FAILED_ADDRESS: {{ .Values.container.returnTopicFailedAddress }}-{{ .Values.environmentCode }}
   DATA_TOPIC_ADDRESS: {{ .Values.container.dataTopicAddress }}-{{ .Values.environmentCode }}
   STATEMENT_TOPIC_ADDRESS: {{ .Values.container.statementTopicAddress }}-{{ .Values.environmentCode }}
   {{ else }}
