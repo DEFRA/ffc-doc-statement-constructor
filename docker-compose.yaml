@@ -33,6 +33,7 @@ services:
       POSTGRES_SCHEMA_NAME: ${POSTGRES_SCHEMA_NAME:-public}
       POSTGRES_USERNAME: ${POSTGRES_SCHEMA_USERNAME:-postgres}
       PAYMENT_LINK_ACTIVE: ${PAYMENT_LINK_ACTIVE}
+      HOURS_LIMIT: ${HOURS_LIMIT}
 
   ffc-doc-statement-constructor-postgres:
     image: postgres:11.4-alpine
