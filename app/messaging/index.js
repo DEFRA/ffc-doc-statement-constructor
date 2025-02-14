@@ -11,6 +11,7 @@ let statementDataReceiver
 
 const start = async () => {
   if (config.paymentLinkActive) {
+    console.info('Payment messages active')
     const processingAction = message => processProcessingMessage(message, processingReceiver)
     processingReceiver = new MessageReceiver(config.processingSubscription, processingAction)
     await processingReceiver.subscribe()

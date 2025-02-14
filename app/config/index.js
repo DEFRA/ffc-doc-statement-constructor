@@ -33,6 +33,7 @@ value.statementDataSubscription = mqConfig.statementDataSubscription
 value.processingSubscriptionFailed = mqConfig.processingSubscriptionFailed
 value.submitSubscriptionFailed = mqConfig.submitSubscriptionFailed
 value.returnSubscriptionFailed = mqConfig.returnSubscriptionFailed
+value.paymentLinkActive = mqConfig.paymentLinkActive
 
 value.dbConfig = dbConfig
 value.processingConfig = processingConfig

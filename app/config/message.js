@@ -129,6 +129,7 @@ const idleCheckInterval = mqResult.value.idleCheckInterval
 const processingSubscriptionFailed = { ...mqResult.value.messageQueue, ...mqResult.value.processingSubscriptionFailed }
 const submitSubscriptionFailed = { ...mqResult.value.messageQueue, ...mqResult.value.submitSubscriptionFailed }
 const returnSubscriptionFailed = { ...mqResult.value.messageQueue, ...mqResult.value.returnSubscriptionFailed }
+const paymentLinkActive = mqResult.value.paymentLinkActive
 
 module.exports = {
   processingSubscription,
@@ -141,5 +142,6 @@ module.exports = {
   idleCheckInterval,
   processingSubscriptionFailed,
   submitSubscriptionFailed,
-  returnSubscriptionFailed
+  returnSubscriptionFailed,
+  paymentLinkActive
 }
