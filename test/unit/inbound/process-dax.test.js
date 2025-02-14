@@ -2,7 +2,7 @@ const db = require('../../../app/data')
 const processDax = require('../../../app/inbound/dax/process-dax')
 const saveDax = require('../../../app/inbound/dax/save-dax')
 const validateDax = require('../../../app/inbound/dax/validate-dax')
-const getDaxByPaymentReference = require('../../../app/inbound/dax/get-dax-by-payment-reference')
+const getDaxByPaymentReference = require('../../../app/inbound/dax/get-dax-by-calculation-id')
 
 jest.mock('../../../app/data')
 jest.mock('../../../app/inbound/dax/save-dax')
