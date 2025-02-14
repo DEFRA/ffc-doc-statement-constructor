@@ -1,4 +1,4 @@
-const { processingConfig } = require('../config')
+const { processingConfig, paymentLinkActive } = require('../config')
 const messageConfig = require('../config/message')
 const waitForIdleMessaging = require('../messaging/wait-for-idle-messaging')
 const processSfi23QuarterlyStatement = require('./process-sfi-23-quarterly-statements')
@@ -19,7 +19,12 @@ const start = async () => {
   }
 
   if (processingConfig.sfi23AdvancedStatementConstructionActive) {
-    const relatedSubscriptions = [messageConfig.processingSubscription, messageConfig.submitSubscription, messageConfig.returnSubscription, messageConfig.statementDataSubscription]
+    const relatedSubscriptions = [messageConfig.statementDataSubscription]
+    if (paymentLinkActive) {
+      relatedSubscriptions.push(messageConfig.processingSubscription)
+      relatedSubscriptions.push(messageConfig.submitSubscription)
+      relatedSubscriptions.push(messageConfig.returnSubscription)
+    }
     tasks.push(() => processTask(relatedSubscriptions, processSfi23AdvancedStatement, 'SFI23 Advance Statement'))
   }
 
