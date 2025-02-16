@@ -9,4 +9,7 @@
     <changeSet id="3" author="Sam Plackett">
       <addPrimaryKey columnNames="daxId" constraintName="daxId_pkey" tableName="dax"/>
     </changeSet>
+    <changeSet id="4" author="Sam Plackett">
+      <dropUniqueConstraint columnNames="paymentReference" constraintName="uniq_paymentReference" tableName="dax" />
+    </changeSet>
 </databaseChangeLog>
