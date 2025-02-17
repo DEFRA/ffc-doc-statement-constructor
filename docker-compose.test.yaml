@@ -14,6 +14,8 @@ services:
       - ./test-output:/home/node/test-output
       - ./jest.config.js:/home/node/jest.config.js
       - ./package.json:/home/node/package.json
+    environment:
+      HOURS_LIMIT: 6
 
   ffc-doc-statement-constructor-postgres:
     volumes:

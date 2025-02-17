@@ -43,4 +43,5 @@ data:
   IDLE_CHECK_INTERVAL: {{ quote .Values.container.idleCheckInterval }}
   SETTLEMENT_WAIT_TIME: {{ quote .Values.container.settlementWaitTime }}
   PAYMENT_LINK_ACTIVE: {{ quote .Values.container.paymentLinkActive }}
+  HOURS_LIMIT: {{ quote .Values.container.hoursLimit }}
 {{- end -}}
