@@ -16,7 +16,8 @@ describe('process statement data message', () => {
     organisation = JSON.parse(JSON.stringify(require('../../mock-objects/mock-organisation')))
 
     receiver = {
-      completeMessage: jest.fn()
+      completeMessage: jest.fn(),
+      deadLetterMessage: jest.fn()
     }
 
     message = { body: organisation }
