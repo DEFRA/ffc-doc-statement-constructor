@@ -46,6 +46,9 @@ describe('process submit payment request', () => {
     savePaymentRequest.mockResolvedValue(paymentRequest)
     saveInvoiceLines.mockResolvedValue(undefined)
     saveSchedule.mockResolvedValue(undefined)
+
+    jest.useFakeTimers('modern')
+    jest.setSystemTime(new Date(2022, 0, 16))
   })
 
   afterEach(() => {
@@ -481,5 +484,29 @@ describe('process submit payment request', () => {
     mockTransaction.commit.mockRejectedValue(new Error('Sequelize transaction commit issue'))
     try { await processSubmitPaymentRequest(paymentRequest) } catch { }
     expect(mockTransaction.rollback).toHaveBeenCalledTimes(1)
+  })
+
+  test('should throw an error if existing payment request was received more than 6 hours ago', async () => {
+    const paymentRequest = { invoiceNumber: 'INV123', invoiceLines: [] }
+    const receivedDate = new Date(2022, 0, 15, 17) // 2022-01-15T17:00:00.000Z (7 hours ago from mocked date)
+    const existingPaymentRequest = { invoiceNumber: 'INV123', received: receivedDate.toISOString() }
+
+    getCompletedPaymentRequestByReferenceId.mockResolvedValue(existingPaymentRequest)
+
+    await expect(processSubmitPaymentRequest(paymentRequest)).rejects.toThrow(`Payment request ${existingPaymentRequest.invoiceNumber} was received more than 6 hours ago.`)
+    expect(mockRollback).toHaveBeenCalled()
+    expect(mockCommit).not.toHaveBeenCalled()
+  })
+
+  test('should not throw an error if existing payment request was received less than 6 hours ago', async () => {
+    const paymentRequest = { invoiceNumber: 'INV123', invoiceLines: [] }
+    const receivedDate = new Date(2022, 0, 15, 19) // 2022-01-15T19:00:00.000Z (5 hours ago from mocked date)
+    const existingPaymentRequest = { invoiceNumber: 'INV123', received: receivedDate.toISOString() }
+
+    getCompletedPaymentRequestByReferenceId.mockResolvedValue(existingPaymentRequest)
+
+    await expect(processSubmitPaymentRequest(paymentRequest)).resolves.not.toThrow(`Payment request ${existingPaymentRequest.invoiceNumber} was received more than 6 hours ago.`)
+    expect(mockRollback).toHaveBeenCalled()
+    expect(mockCommit).not.toHaveBeenCalled()
   })
 })

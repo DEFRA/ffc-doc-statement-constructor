@@ -1,8 +1,9 @@
 jest.mock('ffc-messaging')
-
 jest.mock('../../../app/inbound')
-const { processProcessingPaymentRequest } = require('../../../app/inbound')
+jest.mock('../../../app/messaging/publish-process-subscription-failed')
 
+const { processProcessingPaymentRequest } = require('../../../app/inbound')
+const publishProcessSubscriptionFailed = require('../../../app/messaging/publish-process-subscription-failed')
 const processProcessingMessage = require('../../../app/messaging/process-processing-message')
 
 let receiver
@@ -12,6 +13,7 @@ let message
 describe('process processing message', () => {
   beforeEach(() => {
     processProcessingPaymentRequest.mockReturnValue(undefined)
+    publishProcessSubscriptionFailed.mockReturnValue(undefined)
 
     paymentRequest = JSON.parse(JSON.stringify(require('../../mock-objects/mock-payment-request').processingPaymentRequest))
 
@@ -29,7 +31,8 @@ describe('process processing message', () => {
 
   test('should call processProcessingPaymentRequest when nothing throws', async () => {
     await processProcessingMessage(message, receiver)
-    expect(processProcessingPaymentRequest).toHaveBeenCalled()
+    expect(processProcessingPaymentRequest).toHaveBeenCalledWith(paymentRequest)
+    expect(receiver.completeMessage).toHaveBeenCalledWith(message)
   })
 
   test('should call processProcessingPaymentRequest once when nothing throws', async () => {
@@ -102,5 +105,15 @@ describe('process processing message', () => {
     }
 
     expect(wrapper).not.toThrow()
+  })
+
+  test('should call publishProcessSubscriptionFailed and deadLetterMessage on error', async () => {
+    const error = new Error('Test error')
+    processProcessingPaymentRequest.mockRejectedValue(error)
+
+    await processProcessingMessage(message, receiver)
+    expect(processProcessingPaymentRequest).toHaveBeenCalledWith(paymentRequest)
+    expect(publishProcessSubscriptionFailed).toHaveBeenCalledWith(paymentRequest, error)
+    expect(receiver.deadLetterMessage).toHaveBeenCalledWith(message)
   })
 })

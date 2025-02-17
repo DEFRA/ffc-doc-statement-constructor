@@ -1,5 +1,6 @@
 const util = require('util')
 const { processSubmitPaymentRequest } = require('../inbound')
+const publishSubmitSubscriptionFailed = require('./publish-submit-subscription-failed')
 
 const processSubmitMessage = async (message, receiver) => {
   try {
@@ -9,6 +10,7 @@ const processSubmitMessage = async (message, receiver) => {
     await receiver.completeMessage(message)
   } catch (err) {
     console.error('Unable to process submit message:', err)
+    await publishSubmitSubscriptionFailed(message.body, err)
     await receiver.deadLetterMessage(message)
   }
 }

@@ -40,6 +40,10 @@ container:
   dataTopicAddress: ffc-doc-statement-data
   dataSubscriptionAddress: ffc-doc-statement-constructor
   statementTopicAddress: ffc-doc-statements
+  alertingTopicAddress: ffc-doc-alert
+  processingTopicFailedAddress: ffc-doc-alerting
+  submitTopicFailedAddress: ffc-doc-alerting
+  returnTopicFailedAddress: ffc-doc-alerting  
   settlementProcessingInterval: 60000
   statementConstructionActive: false
   scheduleConstructionActive: false
@@ -50,6 +54,8 @@ container:
   idleCheckMaxDeliveryCount: 1
   idleCheckInterval: 60000
   settlementWaitTime: 600000
+  paymentLinkActive: true,
+  hoursLimit: 6
 
 postgresService:
   postgresDb: ffc_doc_statement_constructor

@@ -4,16 +4,23 @@ data:
   NODE_ENV: {{ quote .Values.environment }}
   APPINSIGHTS_CLOUDROLE: {{ quote .Values.name }}
   MESSAGE_QUEUE_HOST: {{ quote .Values.container.messageQueueHost }}
+  ALERTING_TOPIC_ADDRESS: {{ quote .Values.container.alertingTopicAddress }}
   {{- if and (.Values.environmentCode) (not .Values.pr) }}
   PROCESSING_TOPIC_ADDRESS: {{ .Values.container.processingTopicAddress }}-{{ .Values.environmentCode }}
   SUBMIT_TOPIC_ADDRESS: {{ .Values.container.submitTopicAddress }}-{{ .Values.environmentCode }}
   RETURN_TOPIC_ADDRESS: {{ .Values.container.returnTopicAddress }}-{{ .Values.environmentCode }}
+  PROCESSING_TOPIC_FAILED_ADDRESS: {{ .Values.container.processingTopicFailedAddress }}-{{ .Values.environmentCode }}
+  SUBMIT_TOPIC_FAILED_ADDRESS: {{ .Values.container.submitTopicFailedAddress }}-{{ .Values.environmentCode }}
+  RETURN_TOPIC_FAILED_ADDRESS: {{ .Values.container.returnTopicFailedAddress }}-{{ .Values.environmentCode }}
   DATA_TOPIC_ADDRESS: {{ .Values.container.dataTopicAddress }}-{{ .Values.environmentCode }}
   STATEMENT_TOPIC_ADDRESS: {{ .Values.container.statementTopicAddress }}-{{ .Values.environmentCode }}
   {{ else }}
   PROCESSING_TOPIC_ADDRESS: {{ .Values.container.processingTopicAddress }}
   SUBMIT_TOPIC_ADDRESS: {{ .Values.container.submitTopicAddress }}
   RETURN_TOPIC_ADDRESS: {{ .Values.container.returnTopicAddress }}
+  PROCESSING_TOPIC_FAILED_ADDRESS: {{ .Values.container.processingTopicFailedAddress }}
+  SUBMIT_TOPIC_FAILED_ADDRESS: {{ .Values.container.submitTopicFailedAddress }}
+  RETURN_TOPIC_FAILED_ADDRESS: {{ .Values.container.returnTopicFailedAddress }}
   DATA_TOPIC_ADDRESS: {{ .Values.container.dataTopicAddress }}
   STATEMENT_TOPIC_ADDRESS: {{ .Values.container.statementTopicAddress }}
   {{- end }}
@@ -35,4 +42,6 @@ data:
   IDLE_CHECK_MAX_DELIVERY_COUNT: {{ quote .Values.container.idleCheckMaxDeliveryCount }}
   IDLE_CHECK_INTERVAL: {{ quote .Values.container.idleCheckInterval }}
   SETTLEMENT_WAIT_TIME: {{ quote .Values.container.settlementWaitTime }}
+  PAYMENT_LINK_ACTIVE: {{ quote .Values.container.paymentLinkActive }}
+  HOURS_LIMIT: {{ quote .Values.container.hoursLimit }}
 {{- end -}}

@@ -1,8 +1,10 @@
 jest.mock('ffc-messaging')
 
 jest.mock('../../../app/inbound')
-const { processSubmitPaymentRequest } = require('../../../app/inbound')
+jest.mock('../../../app/messaging/publish-submit-subscription-failed')
 
+const { processSubmitPaymentRequest } = require('../../../app/inbound')
+const publishSubmitSubscriptionFailed = require('../../../app/messaging/publish-submit-subscription-failed')
 const processSubmitMessage = require('../../../app/messaging/process-submit-message')
 
 let receiver
@@ -12,6 +14,7 @@ let message
 describe('process submit message', () => {
   beforeEach(() => {
     processSubmitPaymentRequest.mockReturnValue(undefined)
+    publishSubmitSubscriptionFailed.mockReturnValue(undefined)
 
     paymentRequest = JSON.parse(JSON.stringify(require('../../mock-objects/mock-payment-request').submitPaymentRequest))
 
@@ -29,7 +32,8 @@ describe('process submit message', () => {
 
   test('should call processSubmitPaymentRequest when nothing throws', async () => {
     await processSubmitMessage(message, receiver)
-    expect(processSubmitPaymentRequest).toHaveBeenCalled()
+    expect(processSubmitPaymentRequest).toHaveBeenCalledWith(paymentRequest)
+    expect(receiver.completeMessage).toHaveBeenCalledWith(message)
   })
 
   test('should call processSubmitPaymentRequest once when nothing throws', async () => {
@@ -102,5 +106,15 @@ describe('process submit message', () => {
     }
 
     expect(wrapper).not.toThrow()
+  })
+
+  test('should call publishSubmitSubscriptionFailed and deadLetterMessage on error', async () => {
+    const error = new Error('Test error')
+    processSubmitPaymentRequest.mockRejectedValue(error)
+
+    await processSubmitMessage(message, receiver)
+    expect(processSubmitPaymentRequest).toHaveBeenCalledWith(paymentRequest)
+    expect(publishSubmitSubscriptionFailed).toHaveBeenCalledWith(paymentRequest, error)
+    expect(receiver.deadLetterMessage).toHaveBeenCalledWith(message)
   })
 })

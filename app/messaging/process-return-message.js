@@ -1,6 +1,7 @@
 const util = require('util')
-
 const { processReturnSettlement } = require('../inbound')
+const publishReturnSubscriptionFailed = require('./publish-return-subscription-failed')
+
 const processReturnMessage = async (message, receiver) => {
   try {
     const settlement = message.body
@@ -8,6 +9,7 @@ const processReturnMessage = async (message, receiver) => {
     await processReturnSettlement(settlement)
     await receiver.completeMessage(message)
   } catch (err) {
+    await publishReturnSubscriptionFailed(message.body, err)
     console.error('Unable to process return settlement:', err)
   }
 }
