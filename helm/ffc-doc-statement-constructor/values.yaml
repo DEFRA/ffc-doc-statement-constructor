@@ -54,7 +54,7 @@ container:
   idleCheckMaxDeliveryCount: 1
   idleCheckInterval: 60000
   settlementWaitTime: 600000
-  paymentLinkActive: true,
+  paymentLinkActive: true
   hoursLimit: 6
 
 postgresService:
