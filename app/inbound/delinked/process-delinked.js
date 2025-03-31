@@ -5,32 +5,36 @@ const saveDelinked = require('./save-delinked')
 const validateDelinked = require('./validate-delinked')
 
 const processDelinked = async (delinked) => {
-  const transaction = await db.sequelize.transaction()
+  const transformedDelinked = {
+    ...delinked,
+    calculationId: delinked.calculationReference,
+    applicationId: delinked.applicationReference
+  }
+  delete transformedDelinked.calculationReference
+  delete transformedDelinked.applicationReference
+
+  await validateDelinked(transformedDelinked, transformedDelinked.calculationId)
+
+  const existingDelinked = await getDelinkedByCalculationId(transformedDelinked.calculationId)
+  if (existingDelinked) {
+    console.info(`Duplicate delinked received, skipping ${existingDelinked.calculationId}`)
+    return
+  }
 
   try {
-    const existingDelinked = await getDelinkedByCalculationId(delinked.calculationReference, transaction)
-    if (existingDelinked) {
-      console.info(`Duplicate delinked received, skipping ${existingDelinked.calculationId}`)
-      await transaction.rollback()
-    } else {
-      await savePlaceholderOrganisation({ sbi: delinked.sbi }, delinked.sbi)
+    await savePlaceholderOrganisation({ sbi: transformedDelinked.sbi }, transformedDelinked.sbi)
+  } catch (error) {
+    console.error(`Failed to save placeholder organisation for SBI ${transformedDelinked.sbi}:`, error)
+    throw error
+  }
 
-      // De-aliasing calculationReference and applicationReference
-      const transformedDelinked = {
-        ...delinked,
-        calculationId: delinked.calculationReference,
-        applicationId: delinked.applicationReference
-      }
-
-      delete transformedDelinked.calculationReference
-      delete transformedDelinked.applicationReference
-      await validateDelinked(transformedDelinked, transformedDelinked.calculationId)
-      await saveDelinked(transformedDelinked, transaction)
-      await transaction.commit()
-    }
+  const transaction = await db.sequelize.transaction()
+  try {
+    await saveDelinked(transformedDelinked, transaction)
+    await transaction.commit()
   } catch (error) {
     await transaction.rollback()
-    throw (error)
+    throw error
   }
 }
 

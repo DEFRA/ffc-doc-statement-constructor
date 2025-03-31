@@ -18,6 +18,8 @@ jest.mock('../../../app/data', () => {
   }
 })
 
+const db = require('../../../app/data')
+
 jest.mock('../../../app/inbound/delinked/get-delinked-by-calculation-id')
 const getDelinkedByCalculationId = require('../../../app/inbound/delinked/get-delinked-by-calculation-id')
 
@@ -27,121 +29,127 @@ const savePlaceholderOrganisation = require('../../../app/inbound/delinked/save-
 jest.mock('../../../app/inbound/delinked/save-delinked')
 const saveDelinked = require('../../../app/inbound/delinked/save-delinked')
 
+jest.mock('../../../app/inbound/delinked/validate-delinked')
+const validateDelinked = require('../../../app/inbound/delinked/validate-delinked')
+
 describe('processDelinked', () => {
   beforeEach(() => {
     getDelinkedByCalculationId.mockResolvedValue(null)
     savePlaceholderOrganisation.mockResolvedValue(undefined)
     saveDelinked.mockResolvedValue(undefined)
-  })
-
-  afterEach(() => {
+    validateDelinked.mockResolvedValue(undefined)
     jest.clearAllMocks()
   })
 
-  test('should call getDelinkedByCalculationId when a valid delinked is given and a previous delinked does not exist', async () => {
-    await processDelinked(mockDelinked1)
-    expect(getDelinkedByCalculationId).toHaveBeenCalled()
+  test('should transform delinked data correctly', async () => {
+    const delinked = {
+      calculationReference: 'calc123',
+      applicationReference: 'app123',
+      sbi: '123456789'
+    }
+
+    await processDelinked(delinked)
+
+    expect(validateDelinked).toHaveBeenCalledWith(
+      expect.objectContaining({
+        calculationId: 'calc123',
+        applicationId: 'app123',
+        sbi: '123456789'
+      }),
+      'calc123'
+    )
   })
 
-  test('should call getDelinkedByCalculationId once when a valid delinked is given and a previous delinked does not exist', async () => {
+  test('should validate transformed delinked data', async () => {
     await processDelinked(mockDelinked1)
-    expect(getDelinkedByCalculationId).toHaveBeenCalledTimes(1)
+    expect(validateDelinked).toHaveBeenCalledWith(
+      expect.objectContaining({ calculationId: mockDelinked1.calculationReference }),
+      mockDelinked1.calculationReference
+    )
   })
 
-  test('should call getDelinkedByCalculationId with mockTransaction', async () => {
+  test('should check for existing delinked record without a transaction', async () => {
     await processDelinked(mockDelinked1)
-    expect(getDelinkedByCalculationId).toHaveBeenCalledWith(mockDelinked1.calculationId, mockTransaction)
+    expect(getDelinkedByCalculationId).toHaveBeenCalledWith(mockDelinked1.calculationReference)
+    expect(getDelinkedByCalculationId).not.toHaveBeenCalledWith(
+      mockDelinked1.calculationReference,
+      expect.anything()
+    )
   })
 
-  test('should call savePlaceholderOrganisation when no previous delinked exists', async () => {
+  test('should log info and not proceed when delinked already exists', async () => {
+    getDelinkedByCalculationId.mockResolvedValue(mockDelinked1)
+    console.info = jest.fn()
+
     await processDelinked(mockDelinked1)
-    expect(savePlaceholderOrganisation).toHaveBeenCalled()
+
+    expect(console.info).toHaveBeenCalledWith(
+      `Duplicate delinked received, skipping ${mockDelinked1.calculationReference}`
+    )
+    expect(savePlaceholderOrganisation).not.toHaveBeenCalled()
+    expect(db.sequelize.transaction).not.toHaveBeenCalled()
   })
 
-  test('should call savePlaceholderOrganisation once when no previous delinked exists', async () => {
+  test('should save placeholder organisation before creating transaction', async () => {
+    // Create spy to track call order
+    const callOrder = []
+    savePlaceholderOrganisation.mockImplementation(() => {
+      callOrder.push('savePlaceholderOrganisation')
+      return Promise.resolve()
+    })
+
+    db.sequelize.transaction.mockImplementation(() => {
+      callOrder.push('transaction')
+      return mockTransaction
+    })
+
     await processDelinked(mockDelinked1)
-    expect(savePlaceholderOrganisation).toHaveBeenCalledTimes(1)
+
+    expect(savePlaceholderOrganisation).toHaveBeenCalledWith(
+      { sbi: mockDelinked1.sbi },
+      mockDelinked1.sbi
+    )
+    expect(callOrder[0]).toBe('savePlaceholderOrganisation')
+    expect(callOrder[1]).toBe('transaction')
   })
 
-  test('should call savePlaceholderOrganisation with { sbi: delinked.sbi } and delinked.sbi', async () => {
-    await processDelinked(mockDelinked1)
-    expect(savePlaceholderOrganisation).toHaveBeenCalledWith({ sbi: mockDelinked1.sbi }, mockDelinked1.sbi)
+  test('should handle error when saving placeholder organisation fails', async () => {
+    const error = new Error('Placeholder org save error')
+    savePlaceholderOrganisation.mockRejectedValue(error)
+    console.error = jest.fn()
+
+    await expect(processDelinked(mockDelinked1)).rejects.toThrow(error)
+    expect(console.error).toHaveBeenCalled()
+    expect(db.sequelize.transaction).not.toHaveBeenCalled()
   })
 
-  test('should call saveDelinked when no previous delinked exists', async () => {
+  test('should save delinked data and commit transaction when successful', async () => {
     await processDelinked(mockDelinked1)
-    expect(saveDelinked).toHaveBeenCalled()
-  })
 
-  test('should call saveDelinked once when no previous delinked exists', async () => {
-    await processDelinked(mockDelinked1)
-    expect(saveDelinked).toHaveBeenCalledTimes(1)
-  })
-
-  test('should call mockTransaction.commit when no previous delinked exists', async () => {
-    await processDelinked(mockDelinked1)
+    expect(saveDelinked).toHaveBeenCalledWith(
+      expect.objectContaining({ calculationId: mockDelinked1.calculationReference }),
+      mockTransaction
+    )
     expect(mockTransaction.commit).toHaveBeenCalled()
-  })
-
-  test('should call mockTransaction.commit once when no previous delinked exists', async () => {
-    await processDelinked(mockDelinked1)
-    expect(mockTransaction.commit).toHaveBeenCalledTimes(1)
-  })
-
-  test('should not call mockTransaction.rollback when no previous delinked exists and nothing throws', async () => {
-    await processDelinked(mockDelinked1)
     expect(mockTransaction.rollback).not.toHaveBeenCalled()
   })
 
-  test('should call getDelinkedByCalculationId when a previous delinked exists', async () => {
-    getDelinkedByCalculationId.mockResolvedValue(mockDelinked1)
-    await processDelinked(mockDelinked1)
-    expect(getDelinkedByCalculationId).toHaveBeenCalled()
-  })
+  test('should rollback transaction when saving delinked data fails', async () => {
+    const error = new Error('Save delinked error')
+    saveDelinked.mockRejectedValue(error)
 
-  test('should call getDelinkedByCalculationId once when a previous delinked exists', async () => {
-    getDelinkedByCalculationId.mockResolvedValue(mockDelinked1)
-    await processDelinked(mockDelinked1)
-    expect(getDelinkedByCalculationId).toHaveBeenCalledTimes(1)
-  })
-
-  test('should call getDelinkedByCalculationId with mockDelinked.calculationReference and mockTransaction when a previous delinked exists', async () => {
-    getDelinkedByCalculationId.mockResolvedValue(mockDelinked1)
-    await processDelinked(mockDelinked1)
-    expect(getDelinkedByCalculationId).toHaveBeenCalledWith(mockDelinked1.calculationReference, mockTransaction)
-  })
-
-  test('should call mockTransaction.rollback when a previous delinked exists', async () => {
-    getDelinkedByCalculationId.mockResolvedValue(mockDelinked1)
-    await processDelinked(mockDelinked1)
+    await expect(processDelinked(mockDelinked1)).rejects.toThrow(error)
     expect(mockTransaction.rollback).toHaveBeenCalled()
+    expect(mockTransaction.commit).not.toHaveBeenCalled()
   })
 
-  test('should call mockTransaction.rollback once when a previous delinked exists', async () => {
-    getDelinkedByCalculationId.mockResolvedValue(mockDelinked1)
-    await processDelinked(mockDelinked1)
-    expect(mockTransaction.rollback).toHaveBeenCalledTimes(1)
-  })
+  test('should throw when validation fails', async () => {
+    const error = new Error('Validation error')
+    validateDelinked.mockRejectedValue(error)
 
-  test('should not call savePlaceholderOrganisation when a previous delinked exists', async () => {
-    getDelinkedByCalculationId.mockResolvedValue(mockDelinked1)
-    await processDelinked(mockDelinked1)
+    await expect(processDelinked(mockDelinked1)).rejects.toThrow(error)
+    expect(getDelinkedByCalculationId).not.toHaveBeenCalled()
     expect(savePlaceholderOrganisation).not.toHaveBeenCalled()
-  })
-
-  test('should not call saveDelinked when a previous delinked exists', async () => {
-    getDelinkedByCalculationId.mockResolvedValue(mockDelinked1)
-    await processDelinked(mockDelinked1)
-    expect(saveDelinked).not.toHaveBeenCalled()
-  })
-
-  test('should throw when getDelinkedByCalculationId throws', async () => {
-    getDelinkedByCalculationId.mockRejectedValue(new Error('Database retrieval issue'))
-
-    const wrapper = async () => {
-      await processDelinked(mockDelinked1)
-    }
-
-    expect(wrapper).rejects.toThrow()
+    expect(db.sequelize.transaction).not.toHaveBeenCalled()
   })
 })

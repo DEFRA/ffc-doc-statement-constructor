@@ -4,21 +4,21 @@ const validateDax = require('./validate-dax')
 const getDaxByPaymentReference = require('./get-dax-by-payment-reference')
 
 const processDax = async (dax) => {
-  const transaction = await db.sequelize.transaction()
+  validateDax(dax, dax.paymentReference)
 
+  const existingDax = await getDaxByPaymentReference(dax.paymentReference)
+  if (existingDax) {
+    console.info(`Duplicate Dax paymentReference received, skipping ${existingDax.paymentReference}`)
+    return
+  }
+
+  const transaction = await db.sequelize.transaction()
   try {
-    const existingDax = await getDaxByPaymentReference(dax.paymentReference, transaction)
-    if (existingDax) {
-      console.info(`Duplicate Dax paymentReference received, skipping ${existingDax.paymentReference}`)
-      await transaction.rollback()
-    } else {
-      validateDax(dax, dax.paymentReference)
-      await saveDax(dax, transaction)
-      await transaction.commit()
-    }
+    await saveDax(dax, transaction)
+    await transaction.commit()
   } catch (error) {
     await transaction.rollback()
-    throw (error)
+    throw error
   }
 }
 

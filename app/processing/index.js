@@ -6,42 +6,59 @@ const processSfi23AdvancedStatement = require('./process-sfi-23-advanced-stateme
 const processDelinkedStatement = require('./process-delinked-payment-statements')
 
 const processTask = async (subscriptions, processFunction, processName) => {
-  await waitForIdleMessaging(subscriptions, processName)
+  const isIdle = await waitForIdleMessaging(subscriptions, processName, { timeout: 30000, blockProcessing: false })
+  if (!isIdle) {
+    console.log(`${processName} no active messages in queue`)
+  }
   await processFunction()
 }
 
 const start = async () => {
-  const tasks = []
-
   if (processingConfig.sfi23QuarterlyStatementConstructionActive) {
-    const relatedSubscriptions = [messageConfig.statementDataSubscription]
-    tasks.push(() => processTask(relatedSubscriptions, processSfi23QuarterlyStatement, 'SFI23 Quarterly Statement'))
+    startProcessor('SFI23 Quarterly', async () => {
+      const relatedSubscriptions = [messageConfig.statementDataSubscription]
+      await processTask(relatedSubscriptions, processSfi23QuarterlyStatement, 'SFI23 Quarterly Statement')
+    })
   }
 
   if (processingConfig.sfi23AdvancedStatementConstructionActive) {
-    const relatedSubscriptions = [messageConfig.statementDataSubscription]
-    if (paymentLinkActive) {
-      relatedSubscriptions.push(messageConfig.processingSubscription)
-      relatedSubscriptions.push(messageConfig.submitSubscription)
-      relatedSubscriptions.push(messageConfig.returnSubscription)
+    startProcessor('SFI23 Advanced', async () => {
+      const relatedSubscriptions = [messageConfig.statementDataSubscription]
+      if (paymentLinkActive) {
+        relatedSubscriptions.push(messageConfig.processingSubscription)
+        relatedSubscriptions.push(messageConfig.submitSubscription)
+        relatedSubscriptions.push(messageConfig.returnSubscription)
+      }
+      await processTask(relatedSubscriptions, processSfi23AdvancedStatement, 'SFI23 Advance Statement')
+    })
+  }
+
+  if (processingConfig.delinkedPaymentStatementActive) {
+    startProcessor('Delinked Payment', async () => {
+      const relatedSubscriptions = [messageConfig.statementDataSubscription]
+      await processTask(relatedSubscriptions, processDelinkedStatement, 'Delinked Payment Statement')
+    })
+  }
+}
+
+const startProcessor = (name, processorFn) => {
+  let running = false
+
+  const runProcessor = async () => {
+    if (running) return
+    running = true
+
+    try {
+      await processorFn()
+    } catch (err) {
+      console.error(`Error in ${name} processor:`, err)
+    } finally {
+      running = false
+      setTimeout(runProcessor, processingConfig.settlementProcessingInterval)
     }
-    tasks.push(() => processTask(relatedSubscriptions, processSfi23AdvancedStatement, 'SFI23 Advance Statement'))
   }
 
-  if (!processingConfig.delinkedPaymentStatementActive) {
-    console.log('Delinked Payment Statement processing is disabled')
-  } else {
-    const relatedSubscriptions = [messageConfig.statementDataSubscription]
-    tasks.push(() => processTask(relatedSubscriptions, processDelinkedStatement, 'Delinked Payment Statement'))
-  }
-
-  try {
-    await Promise.all(tasks.map(task => task()))
-  } catch (err) {
-    console.error(err)
-  } finally {
-    setTimeout(start, processingConfig.settlementProcessingInterval)
-  }
+  runProcessor()
 }
 
 module.exports = { start }

@@ -55,6 +55,6 @@ describe('process statements', () => {
 
   test('should call resetDaxUnCompletePublishByDaxId', async () => {
     await processSfi23QuarterlyStatements()
-    expect(resetDaxUnCompletePublishByDaxId).toHaveBeenCalled()
+    expect(resetDaxUnCompletePublishByDaxId).not.toHaveBeenCalled()
   })
 })

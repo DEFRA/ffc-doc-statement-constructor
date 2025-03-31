@@ -25,13 +25,13 @@ describe('processDax', () => {
     await processDax(dax)
 
     expect(console.info).toHaveBeenCalledWith(`Duplicate Dax paymentReference received, skipping ${dax.paymentReference}`)
-    expect(transaction.rollback).toHaveBeenCalled()
+    expect(db.sequelize.transaction).not.toHaveBeenCalled()
   })
 
   test('should validate, save and commit transaction when dax with same paymentReference does not exist', async () => {
     const dax = { paymentReference: '123' }
     getDaxByPaymentReference.mockResolvedValue(null)
-    validateDax.mockImplementation(() => {})
+    validateDax.mockImplementation(() => { })
     saveDax.mockResolvedValue()
 
     await processDax(dax)
@@ -41,15 +41,21 @@ describe('processDax', () => {
     expect(transaction.commit).toHaveBeenCalled()
   })
 
-  test('should rollback transaction when an error occurs', async () => {
+  test('should handle error when looking up payment reference', async () => {
     const dax = { paymentReference: '123' }
-    getDaxByPaymentReference.mockRejectedValue(new Error('Test error'))
+    const testError = new Error('Test error')
+    getDaxByPaymentReference.mockRejectedValue(testError)
 
-    try {
-      await processDax(dax)
-    } catch (error) {
-      expect(transaction.rollback).toHaveBeenCalled()
-      expect(error).toEqual(new Error('Test error'))
-    }
+    await expect(processDax(dax)).rejects.toEqual(testError)
+    expect(db.sequelize.transaction).toHaveBeenCalled()
+  })
+
+  test('should rollback transaction when an error occurs during save', async () => {
+    const dax = { paymentReference: '123' }
+    getDaxByPaymentReference.mockResolvedValue(null)
+    saveDax.mockRejectedValue(new Error('Save error'))
+
+    await expect(processDax(dax)).rejects.toThrow('Save error')
+    expect(transaction.rollback).toHaveBeenCalled()
   })
 })
