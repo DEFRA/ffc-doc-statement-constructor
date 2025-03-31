@@ -6,11 +6,24 @@ const processSfi23AdvancedStatement = require('./process-sfi-23-advanced-stateme
 const processDelinkedStatement = require('./process-delinked-payment-statements')
 
 const processTask = async (subscriptions, processFunction, processName) => {
-  const isIdle = await waitForIdleMessaging(subscriptions, processName, { timeout: 30000, blockProcessing: false })
-  if (!isIdle) {
-    console.log(`${processName} no active messages in queue`)
+  try {
+    const isIdle = await waitForIdleMessaging(subscriptions, processName, {
+      timeout: 30000,
+      blockProcessing: false,
+      bypass: true // Force bypass
+    })
+
+    if (!isIdle) {
+      console.log(`[PROCESSING] ${processName} no active messages in queue`)
+      return
+    }
+
+    const startTime = Date.now()
+    await processFunction()
+    console.log(`[PROCESSING] ${processName} completed in ${(Date.now() - startTime) / 1000}s`)
+  } catch (err) {
+    console.error(`[PROCESSING] Error in ${processName}:`, err)
   }
-  await processFunction()
 }
 
 const start = async () => {
