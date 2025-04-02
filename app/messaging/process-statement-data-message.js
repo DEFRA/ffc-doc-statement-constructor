@@ -4,7 +4,7 @@ const { processStatementData } = require('../inbound')
 const processStatementDataMessage = async (message, receiver) => {
   try {
     const statementData = message.body
-    console.log(`Processing statement data - (${statementData.type}):`, util.inspect(statementData, false, null, true))
+    console.log(`Processing statement data - (${statementData.type}):`, util.inspect(statementData, false, 1, true))
     await processStatementData(statementData)
     await receiver.completeMessage(message)
   } catch (err) {

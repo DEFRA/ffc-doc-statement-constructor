@@ -4,44 +4,94 @@ const waitForIdleMessaging = require('../messaging/wait-for-idle-messaging')
 const processSfi23QuarterlyStatement = require('./process-sfi-23-quarterly-statements')
 const processSfi23AdvancedStatement = require('./process-sfi-23-advanced-statements')
 const processDelinkedStatement = require('./process-delinked-payment-statements')
+const MAX_CONCURRENT_TASKS = 2
+const taskConfigurations = []
 
-const processTask = async (subscriptions, processFunction, processName) => {
-  await waitForIdleMessaging(subscriptions, processName)
-  await processFunction()
+if (processingConfig.sfi23QuarterlyStatementConstructionActive) {
+  taskConfigurations.push({
+    subscriptions: [messageConfig.statementDataSubscription],
+    processFunction: processSfi23QuarterlyStatement,
+    name: 'SFI23 Quarterly Statement'
+  })
 }
 
-const start = async () => {
-  const tasks = []
+if (processingConfig.sfi23AdvancedStatementConstructionActive) {
+  const subscriptions = [messageConfig.statementDataSubscription]
+  if (paymentLinkActive) {
+    subscriptions.push(
+      messageConfig.processingSubscription,
+      messageConfig.submitSubscription,
+      messageConfig.returnSubscription
+    )
+  }
+  taskConfigurations.push({
+    subscriptions,
+    processFunction: processSfi23AdvancedStatement,
+    name: 'SFI23 Advance Statement'
+  })
+}
 
-  if (processingConfig.sfi23QuarterlyStatementConstructionActive) {
-    const relatedSubscriptions = [messageConfig.statementDataSubscription]
-    tasks.push(() => processTask(relatedSubscriptions, processSfi23QuarterlyStatement, 'SFI23 Quarterly Statement'))
+if (processingConfig.delinkedPaymentStatementActive) {
+  taskConfigurations.push({
+    subscriptions: [messageConfig.statementDataSubscription],
+    processFunction: processDelinkedStatement,
+    name: 'Delinked Payment Statement'
+  })
+} else {
+  console.log('Delinked Payment Statement processing is disabled')
+}
+
+const processTask = async (subscriptions, processFunction, processName) => {
+  try {
+    await waitForIdleMessaging(subscriptions, processName)
+    await processFunction()
+    return { success: true, name: processName }
+  } catch (error) {
+    console.error(`Error processing ${processName}:`, error)
+    return { success: false, name: processName, error }
+  }
+}
+
+const processBatch = async (tasks) => {
+  const results = []
+
+  for (let i = 0; i < tasks.length; i += MAX_CONCURRENT_TASKS) {
+    const batch = tasks.slice(i, i + MAX_CONCURRENT_TASKS)
+    const batchResults = await Promise.allSettled(batch.map(task => task()))
+    results.push(...batchResults)
   }
 
-  if (processingConfig.sfi23AdvancedStatementConstructionActive) {
-    const relatedSubscriptions = [messageConfig.statementDataSubscription]
-    if (paymentLinkActive) {
-      relatedSubscriptions.push(messageConfig.processingSubscription)
-      relatedSubscriptions.push(messageConfig.submitSubscription)
-      relatedSubscriptions.push(messageConfig.returnSubscription)
-    }
-    tasks.push(() => processTask(relatedSubscriptions, processSfi23AdvancedStatement, 'SFI23 Advance Statement'))
-  }
+  return results
+}
 
-  if (!processingConfig.delinkedPaymentStatementActive) {
-    console.log('Delinked Payment Statement processing is disabled')
-  } else {
-    const relatedSubscriptions = [messageConfig.statementDataSubscription]
-    tasks.push(() => processTask(relatedSubscriptions, processDelinkedStatement, 'Delinked Payment Statement'))
-  }
+const processWithInterval = async () => {
+  const startTime = Date.now()
+  const nextRunTime = startTime + processingConfig.settlementProcessingInterval
+
+  const tasks = taskConfigurations.map(config =>
+    () => processTask(config.subscriptions, config.processFunction, config.name)
+  )
 
   try {
-    await Promise.all(tasks.map(task => task()))
-  } catch (err) {
-    console.error(err)
+    const results = await processBatch(tasks)
+    const failures = results.filter(r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success))
+
+    if (failures.length > 0) {
+      console.warn(`${failures.length} out of ${results.length} tasks failed`)
+    }
+  } catch (error) {
+    console.error('Critical error in processing:', error)
   } finally {
-    setTimeout(start, processingConfig.settlementProcessingInterval)
+    const currentTime = Date.now()
+    const delay = Math.max(0, nextRunTime - currentTime)
+
+    setTimeout(processWithInterval, delay)
   }
+}
+
+const start = () => {
+  console.log('Starting statement processing service')
+  processWithInterval()
 }
 
 module.exports = { start }

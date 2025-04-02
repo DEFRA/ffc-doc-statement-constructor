@@ -4,6 +4,12 @@ const processSubmitMessage = require('./process-submit-message')
 const processReturnMessage = require('./process-return-message')
 const processStatementDataMessage = require('./process-statement-data-message')
 const { MessageReceiver } = require('ffc-messaging')
+const throughputOptions = {
+  preFetchMessages: 500,
+  maxConcurrentMessages: 100,
+  receiveBatchSize: 50,
+  processingTimeoutInMs: 30000
+}
 let processingReceiver
 let submitReceiver
 let returnReceiver
@@ -26,7 +32,7 @@ const start = async () => {
   }
 
   const dataAction = message => processStatementDataMessage(message, statementDataReceiver)
-  statementDataReceiver = new MessageReceiver(config.statementDataSubscription, dataAction)
+  statementDataReceiver = new MessageReceiver(config.statementDataSubscription, dataAction, throughputOptions)
   await statementDataReceiver.subscribe()
 
   console.info('Ready to receive payment updates')

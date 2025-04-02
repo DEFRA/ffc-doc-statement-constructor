@@ -1,13 +1,12 @@
 const db = require('../../data')
 
 const getD365ByPaymentReference = async (paymentReference, transaction) => {
-  return db.d365.findOne({
+  const result = await db.d365.count({
     transaction,
-    lock: true,
-    where: {
-      paymentReference
-    }
+    where: { paymentReference },
+    limit: 1
   })
+  return result > 0 ? { paymentReference } : null
 }
 
 module.exports = getD365ByPaymentReference

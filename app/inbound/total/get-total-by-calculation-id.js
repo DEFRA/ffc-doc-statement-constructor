@@ -1,12 +1,11 @@
 const db = require('../../data')
 const getTotalByCalculationId = async (calculationId, transaction) => {
-  return db.total.findOne({
+  const result = db.total.count({
     transaction,
-    lock: true,
-    where: {
-      calculationId
-    }
+    where: { calculationId },
+    limit: 1
   })
+  return result > 0 ? { calculationId } : null
 }
 
 module.exports = getTotalByCalculationId

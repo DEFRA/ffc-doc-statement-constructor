@@ -1,5 +1,5 @@
 const Joi = require('joi')
-const number100 = 100
+const number250 = 250
 const number10000 = 10000
 const number300000 = 300000
 const number6 = 6
@@ -7,7 +7,7 @@ const number6 = 6
 const schema = Joi.object({
   settlementProcessingInterval: Joi.number().default(number10000), // 10 seconds
   scheduleProcessingMaxElapsedTime: Joi.number().default(number300000), // 5 minutes
-  scheduleProcessingMaxBatchSize: Joi.number().default(number100),
+  scheduleProcessingMaxBatchSize: Joi.number().default(number250),
   sfi23AdvancedStatementConstructionActive: Joi.boolean().default(true),
   sfi23QuarterlyStatementConstructionActive: Joi.boolean().default(true),
   settlementWaitTime: Joi.number().default(number10000), // 10 seconds
