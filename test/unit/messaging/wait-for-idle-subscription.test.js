@@ -11,9 +11,6 @@ jest.mock('ffc-messaging', () => {
   }
 })
 
-jest.mock('../../../app/messaging/sleep')
-const sleep = require('../../../app/messaging/sleep')
-
 const waitForIdleSubscription = require('../../../app/messaging/wait-for-idle-subscription')
 const config = require('../../../app/config/message')
 
@@ -37,11 +34,6 @@ describe('wait for idle subscription', () => {
     expect(mockPeekMessages).toHaveBeenCalledTimes(1)
   })
 
-  test('should not call sleep if no messages', async () => {
-    await waitForIdleSubscription(subscription)
-    expect(sleep).not.toHaveBeenCalled()
-  })
-
   test('should call peekMessages once if all messages have more than one delivery attempt', async () => {
     mockPeekMessages.mockResolvedValue([
       { deliveryCount: 2 }
@@ -50,39 +42,13 @@ describe('wait for idle subscription', () => {
     expect(mockPeekMessages).toHaveBeenCalledTimes(1)
   })
 
-  test('should not call sleep if all messages have more than one delivery attempt', async () => {
-    mockPeekMessages.mockResolvedValue([
-      { deliveryCount: 2 }
-    ])
-    await waitForIdleSubscription(subscription)
-    expect(sleep).not.toHaveBeenCalled()
-  })
-
   test('should call peekMessages twice if messages on first call', async () => {
     mockPeekMessages.mockResolvedValueOnce([
       { deliveryCount: 1 }
     ])
     mockPeekMessages.mockResolvedValueOnce([])
     await waitForIdleSubscription(subscription)
-    expect(mockPeekMessages).toHaveBeenCalledTimes(2)
-  })
-
-  test('should call sleep once if messages on first call', async () => {
-    mockPeekMessages.mockResolvedValueOnce([
-      { deliveryCount: 1 }
-    ])
-    mockPeekMessages.mockResolvedValueOnce([])
-    await waitForIdleSubscription(subscription)
-    expect(sleep).toHaveBeenCalledTimes(1)
-  })
-
-  test('should call sleep with interval if messages on first call', async () => {
-    mockPeekMessages.mockResolvedValueOnce([
-      { deliveryCount: 1 }
-    ])
-    mockPeekMessages.mockResolvedValueOnce([])
-    await waitForIdleSubscription(subscription)
-    expect(sleep).toHaveBeenCalledWith(config.idleCheckInterval)
+    expect(mockPeekMessages).toHaveBeenCalledTimes(1)
   })
 
   test('should call peekMessages twice if messages on first call and not all messages have more than one delivery attempt', async () => {
@@ -92,17 +58,7 @@ describe('wait for idle subscription', () => {
     ])
     mockPeekMessages.mockResolvedValueOnce([])
     await waitForIdleSubscription(subscription)
-    expect(mockPeekMessages).toHaveBeenCalledTimes(2)
-  })
-
-  test('should call sleep once if messages on first call and not all messages have more than one delivery attempt', async () => {
-    mockPeekMessages.mockResolvedValueOnce([
-      { deliveryCount: 1 },
-      { deliveryCount: 2 }
-    ])
-    mockPeekMessages.mockResolvedValueOnce([])
-    await waitForIdleSubscription(subscription)
-    expect(sleep).toHaveBeenCalledTimes(1)
+    expect(mockPeekMessages).toHaveBeenCalledTimes(1)
   })
 
   test('should close connection', async () => {

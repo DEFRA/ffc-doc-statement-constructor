@@ -5,6 +5,11 @@ const waitForIdleMessaging = require('../../../app/messaging/wait-for-idle-messa
 
 const config = require('../../../app/config/message')
 
+const options = {
+  timeout: 30000,
+  blockProcessing: false
+}
+
 describe('wait for idle messaging', () => {
   beforeEach(async () => {
     jest.clearAllMocks()
@@ -12,7 +17,7 @@ describe('wait for idle messaging', () => {
 
   test('should call waitForIdleSubscription for each subscription in the list of subscriptions provided', async () => {
     const relatedSubscriptions = [config.processingSubscription, config.submitSubscription, config.returnSubscription, config.statementDataSubscription]
-    await waitForIdleMessaging(relatedSubscriptions, 'Statement Name')
+    await waitForIdleMessaging(relatedSubscriptions, 'Statement Name', options)
     expect(waitForIdleSubscription).toHaveBeenCalledTimes(4)
     expect(waitForIdleSubscription).toHaveBeenCalledWith(config.processingSubscription, 'Statement Name')
     expect(waitForIdleSubscription).toHaveBeenCalledWith(config.submitSubscription, 'Statement Name')
@@ -22,7 +27,7 @@ describe('wait for idle messaging', () => {
 
   test('should call waitForIdleSubscription for only the subscriptions in the list of subscriptions provided', async () => {
     const relatedSubscriptions = [config.returnSubscription, config.statementDataSubscription]
-    await waitForIdleMessaging(relatedSubscriptions, 'Statement Name')
+    await waitForIdleMessaging(relatedSubscriptions, 'Statement Name', options)
     expect(waitForIdleSubscription).toHaveBeenCalledTimes(2)
     expect(waitForIdleSubscription).not.toHaveBeenCalledWith(config.processingSubscription, 'Statement Name')
     expect(waitForIdleSubscription).not.toHaveBeenCalledWith(config.submitSubscription, 'Statement Name')

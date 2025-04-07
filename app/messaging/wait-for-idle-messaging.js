@@ -11,6 +11,7 @@ const waitForIdleMessaging = async (subscriptions, processName, options = {}) =>
   for (const subscription of subscriptions) {
     try {
       const isIdle = await waitForIdleSubscription(subscription, processName)
+
       if (!isIdle && !skipTimeoutCheck) {
         return false
       }
