@@ -48,16 +48,16 @@ describe('start processing', () => {
     })
 
     test('processSfi23QuarterlyStatement to be called', async () => {
-      await start() 
+      await start()
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
     })
 
     test('processSfi23AdvancedStatement to be called', async () => {
-      await start() 
+      await start()
       expect(processSfi23AdvancedStatement).toHaveBeenCalled()
     })
     test('processDelinkedStatement to be called', async () => {
-      await start() 
+      await start()
       expect(processDelinkedStatement).toHaveBeenCalled()
     })
   })
@@ -81,17 +81,17 @@ describe('start processing', () => {
     })
 
     test('processSfi23QuarterlyStatement to not be called', async () => {
-      await start() 
+      await start()
       expect(processSfi23QuarterlyStatement).not.toHaveBeenCalled()
     })
 
     test('processSfi23AdvancedStatement to not be called', async () => {
-      await start() 
+      await start()
       expect(processSfi23AdvancedStatement).not.toHaveBeenCalled()
     })
 
     test('processDelinkedStatement to not be called', async () => {
-      await start() 
+      await start()
       expect(processDelinkedStatement).not.toHaveBeenCalled()
     })
   })
@@ -101,7 +101,7 @@ describe('start processing', () => {
       jest.clearAllMocks()
       jest.spyOn(global, 'setTimeout')
       jest.resetModules()
-    
+
       processingConfig.sfi23QuarterlyStatementConstructionActive = true
       processingConfig.sfi23AdvancedStatementConstructionActive = false
       processingConfig.delinkedPaymentStatementActive = false
@@ -115,17 +115,17 @@ describe('start processing', () => {
     })
 
     test('processSfi23QuarterlyStatement to be called', async () => {
-      await start() 
+      await start()
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
     })
 
     test('processSfi23AdvancedStatement to not be called', async () => {
-      await start() 
+      await start()
       expect(processSfi23AdvancedStatement).not.toHaveBeenCalled()
     })
 
     test('processDelinkedStatement to not be called', async () => {
-      await start() 
+      await start()
       expect(processDelinkedStatement).not.toHaveBeenCalled()
     })
   })
@@ -149,17 +149,17 @@ describe('start processing', () => {
     })
 
     test('processSfi23QuarterlyStatement to not be called', async () => {
-      await start() 
+      await start()
       expect(processSfi23QuarterlyStatement).not.toHaveBeenCalled()
     })
 
     test('processSfi23AdvancedStatement to be called one time', async () => {
-      await start() 
+      await start()
       expect(processSfi23AdvancedStatement).toHaveBeenCalled()
     })
 
     test('processDelinkedStatement to not be called', async () => {
-      await start() 
+      await start()
       expect(processDelinkedStatement).not.toHaveBeenCalled()
     })
   })
@@ -183,17 +183,17 @@ describe('start processing', () => {
     })
 
     test('processSfi23QuarterlyStatement to not be called', async () => {
-      await start() 
+      await start()
       expect(processSfi23QuarterlyStatement).not.toHaveBeenCalled()
     })
 
     test('processSfi23AdvancedStatement to not be called', async () => {
-      await start() 
+      await start()
       expect(processSfi23AdvancedStatement).not.toHaveBeenCalled()
     })
 
     test('processDelinkedStatement to be called one time', async () => {
-      await start() 
+      await start()
       expect(processDelinkedStatement).toHaveBeenCalled()
     })
   })
