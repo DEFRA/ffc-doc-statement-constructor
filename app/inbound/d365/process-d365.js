@@ -27,6 +27,7 @@ const processD365 = async (d365) => {
     try {
       await saveD365(transformedD365, transaction)
       await transaction.commit()
+
       console.log(`Successfully committed D365: ${transformedD365.paymentReference}`)
     } catch (error) {
       console.error(`Transaction error for D365 ${transformedD365.paymentReference}:`, error)

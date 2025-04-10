@@ -3,6 +3,7 @@ const processD365 = require('../../../app/inbound/d365/process-d365')
 const saveD365 = require('../../../app/inbound/d365/save-d365')
 const validateD365 = require('../../../app/inbound/d365/validate-d365')
 const getD365ByPaymentReference = require('../../../app/inbound/d365/get-d365-by-payment-reference')
+const { D365 } = require('../../../app/constants/types')
 
 jest.mock('../../../app/data')
 jest.mock('../../../app/inbound/d365/save-d365')
@@ -12,56 +13,89 @@ jest.mock('../../../app/inbound/d365/get-d365-by-payment-reference')
 
 describe('processD365', () => {
   let transaction
+
   beforeEach(() => {
-    transaction = { commit: jest.fn(), rollback: jest.fn() }
+    transaction = {
+      commit: jest.fn(),
+      rollback: jest.fn()
+    }
     db.sequelize.transaction.mockResolvedValue(transaction)
+    jest.clearAllMocks()
   })
 
-  test('should rollback transaction and log info when d365 with same paymentReference exists', async () => {
+  test('should skip processing and log info when duplicate paymentReference exists', async () => {
     const d365 = { paymentReference: '123' }
     getD365ByPaymentReference.mockResolvedValue(d365)
     console.info = jest.fn()
 
     await processD365(d365)
 
-    expect(console.info).toHaveBeenCalledWith(`Duplicate D365 paymentReference received, skipping ${d365.paymentReference}`)
-    expect(transaction.rollback).toHaveBeenCalled()
+    expect(console.info).toHaveBeenCalledWith('Duplicate D365 paymentReference received, skipping 123')
+    expect(db.sequelize.transaction).not.toHaveBeenCalled()
   })
 
-  test('should validate, save and commit transaction when d365 with same paymentReference does not exist', async () => {
-    const d365 = { paymentReference: '123' }
+  test('should validate, save and commit transaction when new paymentReference is received', async () => {
+    const d365 = {
+      paymentReference: '123',
+      calculationReference: 'abc',
+      paymentPeriod: '2024-Q1',
+      paymentAmount: 1000,
+      transactionDate: '2024-04-01'
+    }
     getD365ByPaymentReference.mockResolvedValue(null)
     validateD365.mockImplementation(() => {})
     saveD365.mockResolvedValue()
 
     await processD365(d365)
 
-    expect(validateD365).toHaveBeenCalledWith(d365, d365.paymentReference)
-    expect(saveD365).toHaveBeenCalledWith(d365, transaction)
+    const expectedTransformed = {
+      paymentReference: '123',
+      calculationId: 'abc',
+      paymentPeriod: '2024-Q1',
+      paymentAmount: 1000,
+      transactionDate: '2024-04-01',
+      type: D365
+    }
+
+    expect(validateD365).toHaveBeenCalledWith(expectedTransformed, '123')
+    expect(saveD365).toHaveBeenCalledWith(expectedTransformed, transaction)
     expect(transaction.commit).toHaveBeenCalled()
   })
 
-  test('should rollback transaction when an error occurs', async () => {
-    const d365 = { paymentReference: '123' }
-    getD365ByPaymentReference.mockRejectedValue(new Error('Test error'))
-
-    try {
-      await processD365(d365)
-    } catch (error) {
-      expect(transaction.rollback).toHaveBeenCalled()
-      expect(error).toEqual(new Error('Test error'))
+  test('should rollback transaction and rethrow on internal error', async () => {
+    const d365 = {
+      paymentReference: '123',
+      calculationReference: 'abc',
+      paymentPeriod: '2024-Q1',
+      paymentAmount: 1000
     }
+    getD365ByPaymentReference.mockResolvedValue(null)
+    validateD365.mockImplementation(() => {})
+    saveD365.mockRejectedValue(new Error('Test save error'))
+
+    await expect(processD365(d365)).rejects.toThrow('Test save error')
+    expect(transaction.rollback).toHaveBeenCalled()
   })
-  test('should throw validation error when validateD365 fails', async () => {
-    const d365 = { paymentReference: '123' }
-    const validationError = new Error('Test error')
+
+  test('should rollback and throw validation error when validateD365 fails', async () => {
+    const d365 = {
+      paymentReference: '123',
+      calculationReference: 'abc'
+    }
+    const validationError = new Error('Validation failed')
+    getD365ByPaymentReference.mockResolvedValue(null)
     validateD365.mockImplementation(() => { throw validationError })
 
-    try {
-      await processD365(d365)
-    } catch (error) {
-      expect(transaction.rollback).toHaveBeenCalled()
-      expect(error).toEqual(validationError)
-    }
+    await expect(processD365(d365)).rejects.toThrow('Validation failed')
+    expect(db.sequelize.transaction).not.toHaveBeenCalled()
+  })
+
+  test('should throw and log when getD365ByPaymentReference fails', async () => {
+    const d365 = { paymentReference: '123' }
+    const error = new Error()
+    getD365ByPaymentReference.mockRejectedValue(error)
+
+    await expect(processD365(d365)).rejects.toThrow('Validation failed')
+    expect(transaction.rollback).not.toHaveBeenCalled()
   })
 })

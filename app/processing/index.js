@@ -5,41 +5,47 @@ const processSfi23QuarterlyStatement = require('./process-sfi-23-quarterly-state
 const processSfi23AdvancedStatement = require('./process-sfi-23-advanced-statements')
 const processDelinkedStatement = require('./process-delinked-payment-statements')
 const MAX_CONCURRENT_TASKS = 2
-const taskConfigurations = []
 
-if (processingConfig.sfi23QuarterlyStatementConstructionActive) {
-  taskConfigurations.push({
-    subscriptions: [messageConfig.statementDataSubscription],
-    processFunction: processSfi23QuarterlyStatement,
-    name: 'SFI23 Quarterly Statement'
-  })
-}
+const buildTaskConfigurations = () => {
+  const tasks = [];
 
-if (processingConfig.sfi23AdvancedStatementConstructionActive) {
-  const subscriptions = [messageConfig.statementDataSubscription]
-  if (paymentLinkActive) {
-    subscriptions.push(
-      messageConfig.processingSubscription,
-      messageConfig.submitSubscription,
-      messageConfig.returnSubscription
-    )
+  if (processingConfig.sfi23QuarterlyStatementConstructionActive) {
+    tasks.push({
+      subscriptions: [messageConfig.statementDataSubscription],
+      processFunction: processSfi23QuarterlyStatement,
+      name: 'SFI23 Quarterly Statement'
+    });
   }
-  taskConfigurations.push({
-    subscriptions,
-    processFunction: processSfi23AdvancedStatement,
-    name: 'SFI23 Advance Statement'
-  })
-}
 
-if (processingConfig.delinkedPaymentStatementActive) {
-  taskConfigurations.push({
-    subscriptions: [messageConfig.statementDataSubscription],
-    processFunction: processDelinkedStatement,
-    name: 'Delinked Payment Statement'
-  })
-} else {
-  console.log('Delinked Payment Statement processing is disabled')
-}
+  if (processingConfig.sfi23AdvancedStatementConstructionActive) {
+    const subscriptions = [messageConfig.statementDataSubscription];
+    if (paymentLinkActive) {
+      subscriptions.push(
+        messageConfig.processingSubscription,
+        messageConfig.submitSubscription,
+        messageConfig.returnSubscription
+      );
+    }
+    tasks.push({
+      subscriptions,
+      processFunction: processSfi23AdvancedStatement,
+      name: 'SFI23 Advance Statement'
+    });
+  }
+
+  if (processingConfig.delinkedPaymentStatementActive) {
+    tasks.push({
+      subscriptions: [messageConfig.statementDataSubscription],
+      processFunction: processDelinkedStatement,
+      name: 'Delinked Payment Statement'
+    });
+  } else {
+    console.log('Delinked Payment Statement processing is disabled');
+  }
+
+  return tasks;
+};
+
 
 const processTask = async (subscriptions, processFunction, processName) => {
   try {
@@ -65,33 +71,36 @@ const processBatch = async (tasks) => {
 }
 
 const processWithInterval = async () => {
-  const startTime = Date.now()
-  const nextRunTime = startTime + processingConfig.settlementProcessingInterval
+  const startTime = Date.now();
+  const nextRunTime = startTime + processingConfig.settlementProcessingInterval;
 
+  // Build the tasks based on the current config values.
+  const taskConfigurations = buildTaskConfigurations();
   const tasks = taskConfigurations.map(config =>
     () => processTask(config.subscriptions, config.processFunction, config.name)
-  )
+  );
 
   try {
-    const results = await processBatch(tasks)
-    const failures = results.filter(r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success))
+    const results = await processBatch(tasks);
+    const failures = results.filter(
+      r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success)
+    );
 
     if (failures.length > 0) {
-      console.warn(`${failures.length} out of ${results.length} tasks failed`)
+      console.warn(`${failures.length} out of ${results.length} tasks failed`);
     }
   } catch (error) {
-    console.error('Critical error in processing:', error)
+    console.error('Critical error in processing:', error);
   } finally {
-    const currentTime = Date.now()
-    const delay = Math.max(0, nextRunTime - currentTime)
-
-    setTimeout(processWithInterval, delay)
+    const currentTime = Date.now();
+    const delay = Math.max(0, nextRunTime - currentTime);
+    setTimeout(processWithInterval, delay);
   }
 }
 
-const start = () => {
+const start = async () => {
   console.log('Starting statement processing service')
-  processWithInterval()
+  await processWithInterval() // added the return to that the calling function awaits the async processing.
 }
 
 module.exports = { start }

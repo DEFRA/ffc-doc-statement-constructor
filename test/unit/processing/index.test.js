@@ -1,243 +1,200 @@
 jest.useFakeTimers()
 jest.spyOn(global, 'setTimeout')
 
-jest.mock('../../../app/config')
-const { processingConfig } = require('../../../app/config')
-
-const mockCommit = jest.fn()
-const mockRollback = jest.fn()
-const mockTransaction = {
-  commit: mockCommit,
-  rollback: mockRollback
-}
-jest.mock('../../../app/data', () => {
-  return {
-    sequelize:
-       {
-         transaction: jest.fn().mockImplementation(() => {
-           return { ...mockTransaction }
-         })
-       }
-  }
-})
-
-jest.mock('../../../app/processing/process-sfi-23-quarterly-statements')
 const processSfi23QuarterlyStatement = require('../../../app/processing/process-sfi-23-quarterly-statements')
-
-jest.mock('../../../app/processing/process-delinked-payment-statements')
+const processSfi23AdvancedStatement = require('../../../app/processing/process-sfi-23-advanced-statements')
 const processDelinkedStatement = require('../../../app/processing/process-delinked-payment-statements')
-
-jest.mock('../../../app/processing/process-sfi-23-advanced-statements')
-const processSfi23AdvancedStatements = require('../../../app/processing/process-sfi-23-advanced-statements')
-
-jest.mock('../../../app/messaging/wait-for-idle-messaging')
 const waitForIdleMessaging = require('../../../app/messaging/wait-for-idle-messaging')
 
-const processing = require('../../../app/processing')
+const { processingConfig } = require('../../../app/config')
+
+jest.mock('../../../app/processing/process-sfi-23-quarterly-statements')
+jest.mock('../../../app/processing/process-sfi-23-advanced-statements')
+jest.mock('../../../app/processing/process-delinked-payment-statements')
+jest.mock('../../../app/messaging/wait-for-idle-messaging')
+
+const { start } = require('../../../app/processing')
 
 describe('start processing', () => {
   beforeEach(() => {
-    processingConfig.settlementProcessingInterval = 10000
+    jest.resetModules()
   })
 
   afterEach(() => {
     jest.clearAllMocks()
   })
 
-  describe('when sfi-23-quarterly-statement-constructor, sfi-23-advanced-statement-constructor and delinkedPaymentStatements are active', () => {
+  test('should call setTimeout once when running start', async () => {
+    await start()
+    jest.advanceTimersByTime(processingConfig.settlementProcessingInterval)
+    expect(setTimeout).toHaveBeenCalledTimes(1)
+  })
+
+  describe('when sfi-23-advanced-statement-constructor, sfi-23-quarterly-statement-constructor and delinkedStatement are active', () => {
     beforeEach(() => {
+      jest.clearAllMocks()
+      jest.spyOn(global, 'setTimeout')
+
       processingConfig.sfi23QuarterlyStatementConstructionActive = true
       processingConfig.sfi23AdvancedStatementConstructionActive = true
       processingConfig.delinkedPaymentStatementActive = true
+      processingConfig.settlementProcessingInterval = 10000 // 10 seconds
     })
 
-    test('should call waitForIdleMessaging', async () => {
-      await processing.start()
-      expect(waitForIdleMessaging).toHaveBeenCalled()
-    })
-
-    test('should call waitForIdleMessaging five times', async () => {
-      await processing.start()
+    test('starts the processing service and schedules the next interval', async () => {
+      await start()
       expect(waitForIdleMessaging).toHaveBeenCalledTimes(3)
+      expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), processingConfig.settlementProcessingInterval)
     })
 
-    test('should call processSfi23QuarterlyStatement', async () => {
-      await processing.start()
+    test('processSfi23QuarterlyStatement to be called', async () => {
+      await start() 
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
     })
 
-    test('should call processSfi23QuarterlyStatement once', async () => {
-      await processing.start()
-      expect(processSfi23QuarterlyStatement).toHaveBeenCalledTimes(1)
+    test('processSfi23AdvancedStatement to be called', async () => {
+      await start() 
+      expect(processSfi23AdvancedStatement).toHaveBeenCalled()
     })
-
-    test('should call processSfi23AdvancedStatements', async () => {
-      await processing.start()
-      expect(processSfi23AdvancedStatements).toHaveBeenCalled()
-    })
-
-    test('should call processSfi23AdvancedStatements once', async () => {
-      await processing.start()
-      expect(processSfi23AdvancedStatements).toHaveBeenCalledTimes(1)
-    })
-
-    test('should call processDelinkedStatement', async () => {
-      await processing.start()
+    test('processDelinkedStatement to be called', async () => {
+      await start() 
       expect(processDelinkedStatement).toHaveBeenCalled()
-    })
-
-    test('should call processDelinkedStatement once', async () => {
-      await processing.start()
-      expect(processDelinkedStatement).toHaveBeenCalledTimes(1)
-    })
-
-    test('should call setTimeout', async () => {
-      await processing.start()
-      expect(setTimeout).toHaveBeenCalled()
-    })
-
-    test('should call setTimeout once', async () => {
-      await processing.start()
-      expect(setTimeout).toHaveBeenCalledTimes(1)
-    })
-
-    test('should call setTimeout with processing.start and processingConfig.settlementProcessingInterval', async () => {
-      await processing.start()
-      expect(setTimeout).toHaveBeenCalledWith(processing.start, processingConfig.settlementProcessingInterval)
     })
   })
 
-  describe('when sfi-23-quarterly-statement-constructor is active with sfi-23-advanced-statement-constructor and delinkedStatement not active', () => {
+  describe('when sfi-23-advanced-statement-constructor, sfi-23-quarterly-statement-constructor and delinkedStatement not active', () => {
     beforeEach(() => {
+      jest.clearAllMocks()
+      jest.spyOn(global, 'setTimeout')
+
+      // Enable all processing types
+      processingConfig.sfi23QuarterlyStatementConstructionActive = false
+      processingConfig.sfi23AdvancedStatementConstructionActive = false
+      processingConfig.delinkedPaymentStatementActive = false
+      processingConfig.settlementProcessingInterval = 10000 // 10 seconds
+    })
+
+    test('starts the processing service and schedules the next interval', async () => {
+      await start()
+      expect(waitForIdleMessaging).toHaveBeenCalledTimes(0)
+      expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), processingConfig.settlementProcessingInterval)
+    })
+
+    test('processSfi23QuarterlyStatement to not be called', async () => {
+      await start() 
+      expect(processSfi23QuarterlyStatement).not.toHaveBeenCalled()
+    })
+
+    test('processSfi23AdvancedStatement to not be called', async () => {
+      await start() 
+      expect(processSfi23AdvancedStatement).not.toHaveBeenCalled()
+    })
+
+    test('processDelinkedStatement to not be called', async () => {
+      await start() 
+      expect(processDelinkedStatement).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('when sfi-23-quarterly-statement-constructor is active, sfi-23-advanced-statement-constructor and delinkedStatement not active', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+      jest.spyOn(global, 'setTimeout')
+      jest.resetModules()
+    
       processingConfig.sfi23QuarterlyStatementConstructionActive = true
       processingConfig.sfi23AdvancedStatementConstructionActive = false
       processingConfig.delinkedPaymentStatementActive = false
+      processingConfig.settlementProcessingInterval = 10000
     })
 
-    test('should call waitForIdleMessaging', async () => {
-      await processing.start()
-      expect(waitForIdleMessaging).toHaveBeenCalled()
-    })
-
-    test('should call waitForIdleMessaging once', async () => {
-      await processing.start()
+    test('starts the processing service and schedules the next interval', async () => {
+      await start()
       expect(waitForIdleMessaging).toHaveBeenCalledTimes(1)
+      expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), processingConfig.settlementProcessingInterval)
     })
 
-    test('should not call processDelinkedStatement', async () => {
-      await processing.start()
-      expect(processDelinkedStatement).not.toHaveBeenCalled()
-    })
-
-    test('should call processSfi23QuarterlyStatement', async () => {
-      await processing.start()
+    test('processSfi23QuarterlyStatement to be called', async () => {
+      await start() 
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
     })
 
-    test('should call processSfi23QuarterlyStatement once', async () => {
-      await processing.start()
-      expect(processSfi23QuarterlyStatement).toHaveBeenCalledTimes(1)
+    test('processSfi23AdvancedStatement to not be called', async () => {
+      await start() 
+      expect(processSfi23AdvancedStatement).not.toHaveBeenCalled()
     })
 
-    test('should call setTimeout', async () => {
-      await processing.start()
-      expect(setTimeout).toHaveBeenCalled()
-    })
-
-    test('should call setTimeout once', async () => {
-      await processing.start()
-      expect(setTimeout).toHaveBeenCalledTimes(1)
-    })
-
-    test('should call setTimeout with processing.start and processingConfig.settlementProcessingInterval', async () => {
-      await processing.start()
-      expect(setTimeout).toHaveBeenCalledWith(processing.start, processingConfig.settlementProcessingInterval)
+    test('processDelinkedStatement to not be called', async () => {
+      await start() 
+      expect(processDelinkedStatement).not.toHaveBeenCalled()
     })
   })
 
-  describe('when sfi-23-advanced-statement-constructor is active with sfi-23-quarterly-statement-constructor and delinkedStatement not active', () => {
+  describe('when sfi-23-advanced-statement-constructor is active, sfi-23-quarterly-statement-constructor and delinkedStatement not active', () => {
     beforeEach(() => {
+      jest.clearAllMocks()
+      jest.spyOn(global, 'setTimeout')
+
+      // Enable all processing types
       processingConfig.sfi23QuarterlyStatementConstructionActive = false
       processingConfig.sfi23AdvancedStatementConstructionActive = true
       processingConfig.delinkedPaymentStatementActive = false
+      processingConfig.settlementProcessingInterval = 10000 // 10 seconds
     })
 
-    test('should call waitForIdleMessaging', async () => {
-      await processing.start()
-      expect(waitForIdleMessaging).toHaveBeenCalled()
-    })
-
-    test('should call waitForIdleMessaging once', async () => {
-      await processing.start()
+    test('starts the processing service and schedules the next interval', async () => {
+      await start()
       expect(waitForIdleMessaging).toHaveBeenCalledTimes(1)
+      expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), processingConfig.settlementProcessingInterval)
     })
 
-    test('should not call processDelinkedStatement', async () => {
-      await processing.start()
-      expect(processDelinkedStatement).not.toHaveBeenCalled()
-    })
-
-    test('should call processSfi23QuarterlyStatement', async () => {
-      await processing.start()
+    test('processSfi23QuarterlyStatement to not be called', async () => {
+      await start() 
       expect(processSfi23QuarterlyStatement).not.toHaveBeenCalled()
     })
 
-    test('should call processSfi23QuarterlyStatement once', async () => {
-      await processing.start()
-      expect(processSfi23AdvancedStatements).toHaveBeenCalled()
+    test('processSfi23AdvancedStatement to be called one time', async () => {
+      await start() 
+      expect(processSfi23AdvancedStatement).toHaveBeenCalled()
     })
 
-    test('should call setTimeout', async () => {
-      await processing.start()
-      expect(setTimeout).toHaveBeenCalled()
-    })
-
-    test('should call setTimeout once', async () => {
-      await processing.start()
-      expect(setTimeout).toHaveBeenCalledTimes(1)
-    })
-
-    test('should call setTimeout with processing.start and processingConfig.settlementProcessingInterval', async () => {
-      await processing.start()
-      expect(setTimeout).toHaveBeenCalledWith(processing.start, processingConfig.settlementProcessingInterval)
+    test('processDelinkedStatement to not be called', async () => {
+      await start() 
+      expect(processDelinkedStatement).not.toHaveBeenCalled()
     })
   })
 
-  describe('when sfi-23-quarterly-statement-constructor, sfi-23-advanced-statement-constructor and delinkedStatement not active', () => {
+  describe('when delinkedStatement is active, sfi-23-quarterly-statement-constructor and sfi-23-advanced-statement-constructor not active', () => {
     beforeEach(() => {
+      jest.clearAllMocks()
+      jest.spyOn(global, 'setTimeout')
+
+      // Enable all processing types
       processingConfig.sfi23QuarterlyStatementConstructionActive = false
       processingConfig.sfi23AdvancedStatementConstructionActive = false
-      processingConfig.delinkedPaymentStatementActive = false
+      processingConfig.delinkedPaymentStatementActive = true
+      processingConfig.settlementProcessingInterval = 10000 // 10 seconds
     })
 
-    test('should not call waitForIdleMessaging', async () => {
-      await processing.start()
-      expect(waitForIdleMessaging).not.toHaveBeenCalled()
+    test('starts the processing service and schedules the next interval', async () => {
+      await start()
+      expect(waitForIdleMessaging).toHaveBeenCalledTimes(1)
+      expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), processingConfig.settlementProcessingInterval)
     })
 
-    test('should not call processSfi23QuarterlyStatement', async () => {
-      await processing.start()
+    test('processSfi23QuarterlyStatement to not be called', async () => {
+      await start() 
       expect(processSfi23QuarterlyStatement).not.toHaveBeenCalled()
     })
 
-    test('should not call processDelinkedStatement', async () => {
-      await processing.start()
-      expect(processDelinkedStatement).not.toHaveBeenCalled()
+    test('processSfi23AdvancedStatement to not be called', async () => {
+      await start() 
+      expect(processSfi23AdvancedStatement).not.toHaveBeenCalled()
     })
 
-    test('should call setTimeout', async () => {
-      await processing.start()
-      expect(setTimeout).toHaveBeenCalled()
-    })
-
-    test('should call setTimeout once', async () => {
-      await processing.start()
-      expect(setTimeout).toHaveBeenCalledTimes(1)
-    })
-
-    test('should call setTimeout with processing.start and processingConfig.settlementProcessingInterval', async () => {
-      await processing.start()
-      expect(setTimeout).toHaveBeenCalledWith(processing.start, processingConfig.settlementProcessingInterval)
+    test('processDelinkedStatement to be called one time', async () => {
+      await start() 
+      expect(processDelinkedStatement).toHaveBeenCalled()
     })
   })
 })

@@ -4,12 +4,14 @@ const processSubmitMessage = require('./process-submit-message')
 const processReturnMessage = require('./process-return-message')
 const processStatementDataMessage = require('./process-statement-data-message')
 const { MessageReceiver } = require('ffc-messaging')
+
 const throughputOptions = {
   preFetchMessages: 500,
   maxConcurrentMessages: 100,
   receiveBatchSize: 50,
   processingTimeoutInMs: 30000
 }
+
 let processingReceiver
 let submitReceiver
 let returnReceiver
