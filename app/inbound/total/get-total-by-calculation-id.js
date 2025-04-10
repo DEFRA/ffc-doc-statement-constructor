@@ -1,6 +1,6 @@
 const db = require('../../data')
 const getTotalByCalculationId = async (calculationId, transaction) => {
-  const result = db.total.count({
+  const result = await db.total.count({
     transaction,
     where: { calculationId },
     limit: 1

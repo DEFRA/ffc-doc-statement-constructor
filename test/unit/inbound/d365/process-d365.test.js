@@ -1,15 +1,15 @@
-const db = require('../../../app/data')
-const processD365 = require('../../../app/inbound/d365/process-d365')
-const saveD365 = require('../../../app/inbound/d365/save-d365')
-const validateD365 = require('../../../app/inbound/d365/validate-d365')
-const getD365ByPaymentReference = require('../../../app/inbound/d365/get-d365-by-payment-reference')
-const { D365 } = require('../../../app/constants/types')
+const db = require('../../../../app/data')
+const processD365 = require('../../../../app/inbound/d365/process-d365')
+const saveD365 = require('../../../../app/inbound/d365/save-d365')
+const validateD365 = require('../../../../app/inbound/d365/validate-d365')
+const getD365ByPaymentReference = require('../../../../app/inbound/d365/get-d365-by-payment-reference')
+const { D365 } = require('../../../../app/constants/types')
 
-jest.mock('../../../app/data')
-jest.mock('../../../app/inbound/d365/save-d365')
-jest.mock('../../../app/inbound/d365/schema')
-jest.mock('../../../app/inbound/d365/validate-d365')
-jest.mock('../../../app/inbound/d365/get-d365-by-payment-reference')
+jest.mock('../../../../app/data')
+jest.mock('../../../../app/inbound/d365/save-d365')
+jest.mock('../../../../app/inbound/d365/schema')
+jest.mock('../../../../app/inbound/d365/validate-d365')
+jest.mock('../../../../app/inbound/d365/get-d365-by-payment-reference')
 
 describe('processD365', () => {
   let transaction

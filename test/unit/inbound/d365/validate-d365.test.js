@@ -1,7 +1,7 @@
-const schema = require('../../../app/inbound/d365/schema')
-const validateD365 = require('../../../app/inbound/d365/validate-d365')
+const schema = require('../../../../app/inbound/d365/schema')
+const validateD365 = require('../../../../app/inbound/d365/validate-d365')
 
-jest.mock('../../../app/inbound/d365/schema')
+jest.mock('../../../../app/inbound/d365/schema')
 
 describe('validateD365', () => {
   test('should return validated data when validation succeeds', () => {

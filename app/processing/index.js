@@ -5,6 +5,7 @@ const processSfi23QuarterlyStatement = require('./process-sfi-23-quarterly-state
 const processSfi23AdvancedStatement = require('./process-sfi-23-advanced-statements')
 const processDelinkedStatement = require('./process-delinked-payment-statements')
 const MAX_CONCURRENT_TASKS = 2
+let taskConfigurations = []
 
 const buildTaskConfigurations = () => {
   const tasks = []
@@ -74,7 +75,6 @@ const processWithInterval = async () => {
   const nextRunTime = startTime + processingConfig.settlementProcessingInterval
 
   // Build the tasks based on the current config values.
-  const taskConfigurations = buildTaskConfigurations()
   const tasks = taskConfigurations.map(config =>
     () => processTask(config.subscriptions, config.processFunction, config.name)
   )
@@ -99,6 +99,7 @@ const processWithInterval = async () => {
 
 const start = async () => {
   console.log('Starting statement processing service')
+  taskConfigurations = buildTaskConfigurations()
   await processWithInterval() // added the return to that the calling function awaits the async processing.
 }
 
