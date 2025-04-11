@@ -1,16 +1,16 @@
-const db = require('../../../app/data')
-const schema = require('../../../app/inbound/dax/schema')
-const validateDax = require('../../../app/inbound/dax/validate-dax')
+const db = require('../../../../app/data')
+const schema = require('../../../../app/inbound/dax/schema')
+const validateDax = require('../../../../app/inbound/dax/validate-dax')
 
-jest.mock('../../../app/data', () => ({
+jest.mock('../../../../app/data', () => ({
   dax: {
     create: jest.fn()
   }
 }))
 
-const saveDax = require('../../../app/inbound/dax/save-dax')
+const saveDax = require('../../../../app/inbound/dax/save-dax')
 
-jest.mock('../../../app/inbound/dax/schema', () => ({
+jest.mock('../../../../app/inbound/dax/schema', () => ({
   validate: jest.fn()
 }))
 

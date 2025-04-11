@@ -3,9 +3,10 @@ const saveOrganisation = require('./save-organisation')
 const validateOrganisation = require('./validate-organisation')
 
 const processOrganisation = async (organisation) => {
+  validateOrganisation(organisation, organisation.sbi)
+
   const transaction = await db.sequelize.transaction()
   try {
-    validateOrganisation(organisation, organisation.sbi)
     await saveOrganisation(organisation, transaction)
     await transaction.commit()
   } catch (error) {

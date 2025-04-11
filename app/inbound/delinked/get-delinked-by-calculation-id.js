@@ -1,13 +1,12 @@
 const db = require('../../data')
 
 const getDelinkedByCalculationId = async (calculationId, transaction) => {
-  return db.delinkedCalculation.findOne({
+  const result = await db.delinkedCalculation.count({
     transaction,
-    lock: true,
-    where: {
-      calculationId
-    }
+    where: { calculationId },
+    limit: 1
   })
+  return result > 0 ? { calculationId } : null
 }
 
 module.exports = getDelinkedByCalculationId

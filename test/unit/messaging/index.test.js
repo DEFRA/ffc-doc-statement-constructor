@@ -4,6 +4,13 @@ const { MessageReceiver } = require('ffc-messaging')
 const messageService = require('../../../app/messaging')
 const config = require('../../../app/config')
 
+const throughputOptions = {
+  preFetchMessages: 500,
+  maxConcurrentMessages: 100,
+  receiveBatchSize: 50,
+  processingTimeoutInMs: 30000
+}
+
 describe('messaging', () => {
   afterAll(async () => {
     await messageService.stop()
@@ -22,7 +29,8 @@ describe('messaging', () => {
     expect(MessageReceiver).toHaveBeenCalledWith(config.processingSubscription, expect.any(Function))
     expect(MessageReceiver).toHaveBeenCalledWith(config.submitSubscription, expect.any(Function))
     expect(MessageReceiver).toHaveBeenCalledWith(config.returnSubscription, expect.any(Function))
-    expect(MessageReceiver).toHaveBeenCalledWith(config.statementDataSubscription, expect.any(Function))
+
+    expect(MessageReceiver).toHaveBeenCalledWith(config.statementDataSubscription, expect.any(Function), throughputOptions)
   })
 
   test('starts only statement data receiver when paymentLinkActive is false', async () => {
@@ -31,6 +39,6 @@ describe('messaging', () => {
     await messageService.start()
 
     expect(MessageReceiver).toHaveBeenCalledTimes(1)
-    expect(MessageReceiver).toHaveBeenCalledWith(config.statementDataSubscription, expect.any(Function))
+    expect(MessageReceiver).toHaveBeenCalledWith(config.statementDataSubscription, expect.any(Function), throughputOptions)
   })
 })

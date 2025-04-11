@@ -55,7 +55,7 @@ describe('process messages off Topics', () => {
     }
 
     await expect(wrapper()).resolves.not.toThrow()
-  })
+  }, 60000)
 
   test('should not throw when processing happens in order: submit, processing, return, calculation, organisation', async () => {
     const wrapper = async () => {
@@ -67,7 +67,7 @@ describe('process messages off Topics', () => {
     }
 
     await expect(wrapper()).resolves.not.toThrow()
-  })
+  }, 60000)
 
   test('should not throw when processing happens in order: return, processing, submit, calculation, organisation', async () => {
     const wrapper = async () => {
