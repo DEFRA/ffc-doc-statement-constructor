@@ -1,12 +1,12 @@
-const { CALCULATION, ORGANISATION, TOTAL, DELINKED, DAX, D365 } = require('../../constants/types')
+const { CALCULATION: calculation, ORGANISATION: organisation, TOTAL: total, DELINKED: delinked, DAX: dax, D365: d365 } = require('../../constants/types')
 
 const processMapping = {
-  [CALCULATION]: () => require('../calculation/process-calculation'),
-  [ORGANISATION]: () => require('../organisation/process-organisation'),
-  [DELINKED]: () => require('../delinked/process-delinked'),
-  [TOTAL]: () => require('../total/process-total'),
-  [DAX]: () => require('../dax/process-dax'),
-  [D365]: () => require('../d365/process-d365')
+  [calculation]: () => require('../calculation/process-calculation'),
+  [organisation]: () => require('../organisation/process-organisation'),
+  [delinked]: () => require('../delinked/process-delinked'),
+  [total]: () => require('../total/process-total'),
+  [dax]: () => require('../dax/process-dax'),
+  [d365]: () => require('../d365/process-d365')
 }
 
 const processStatementData = (statementData) => {
