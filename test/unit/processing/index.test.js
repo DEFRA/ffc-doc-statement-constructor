@@ -27,9 +27,6 @@ const processSfi23QuarterlyStatement = require('../../../app/processing/process-
 jest.mock('../../../app/processing/process-delinked-payment-statements')
 const processDelinkedStatement = require('../../../app/processing/process-delinked-payment-statements')
 
-jest.mock('../../../app/processing/process-sfi-23-advanced-statements')
-const processSfi23AdvancedStatements = require('../../../app/processing/process-sfi-23-advanced-statements')
-
 jest.mock('../../../app/messaging/wait-for-idle-messaging')
 const waitForIdleMessaging = require('../../../app/messaging/wait-for-idle-messaging')
 
@@ -44,10 +41,9 @@ describe('start processing', () => {
     jest.clearAllMocks()
   })
 
-  describe('when sfi-23-quarterly-statement-constructor, sfi-23-advanced-statement-constructor and delinkedPaymentStatements are active', () => {
+  describe('when sfi-23-quarterly-statement-constructor, delinkedPaymentStatements are active', () => {
     beforeEach(() => {
       processingConfig.sfi23QuarterlyStatementConstructionActive = true
-      processingConfig.sfi23AdvancedStatementConstructionActive = true
       processingConfig.delinkedPaymentStatementActive = true
     })
 
@@ -58,7 +54,7 @@ describe('start processing', () => {
 
     test('should call waitForIdleMessaging five times', async () => {
       await processing.start()
-      expect(waitForIdleMessaging).toHaveBeenCalledTimes(3)
+      expect(waitForIdleMessaging).toHaveBeenCalledTimes(2)
     })
 
     test('should call processSfi23QuarterlyStatement', async () => {
@@ -69,16 +65,6 @@ describe('start processing', () => {
     test('should call processSfi23QuarterlyStatement once', async () => {
       await processing.start()
       expect(processSfi23QuarterlyStatement).toHaveBeenCalledTimes(1)
-    })
-
-    test('should call processSfi23AdvancedStatements', async () => {
-      await processing.start()
-      expect(processSfi23AdvancedStatements).toHaveBeenCalled()
-    })
-
-    test('should call processSfi23AdvancedStatements once', async () => {
-      await processing.start()
-      expect(processSfi23AdvancedStatements).toHaveBeenCalledTimes(1)
     })
 
     test('should call processDelinkedStatement', async () => {
@@ -107,10 +93,9 @@ describe('start processing', () => {
     })
   })
 
-  describe('when sfi-23-quarterly-statement-constructor is active with sfi-23-advanced-statement-constructor and delinkedStatement not active', () => {
+  describe('when sfi-23-quarterly-statement-constructor is active with delinkedStatement not active', () => {
     beforeEach(() => {
       processingConfig.sfi23QuarterlyStatementConstructionActive = true
-      processingConfig.sfi23AdvancedStatementConstructionActive = false
       processingConfig.delinkedPaymentStatementActive = false
     })
 
@@ -155,58 +140,9 @@ describe('start processing', () => {
     })
   })
 
-  describe('when sfi-23-advanced-statement-constructor is active with sfi-23-quarterly-statement-constructor and delinkedStatement not active', () => {
+  describe('when sfi-23-quarterly-statement-constructor and delinkedStatement not active', () => {
     beforeEach(() => {
       processingConfig.sfi23QuarterlyStatementConstructionActive = false
-      processingConfig.sfi23AdvancedStatementConstructionActive = true
-      processingConfig.delinkedPaymentStatementActive = false
-    })
-
-    test('should call waitForIdleMessaging', async () => {
-      await processing.start()
-      expect(waitForIdleMessaging).toHaveBeenCalled()
-    })
-
-    test('should call waitForIdleMessaging once', async () => {
-      await processing.start()
-      expect(waitForIdleMessaging).toHaveBeenCalledTimes(1)
-    })
-
-    test('should not call processDelinkedStatement', async () => {
-      await processing.start()
-      expect(processDelinkedStatement).not.toHaveBeenCalled()
-    })
-
-    test('should call processSfi23QuarterlyStatement', async () => {
-      await processing.start()
-      expect(processSfi23QuarterlyStatement).not.toHaveBeenCalled()
-    })
-
-    test('should call processSfi23QuarterlyStatement once', async () => {
-      await processing.start()
-      expect(processSfi23AdvancedStatements).toHaveBeenCalled()
-    })
-
-    test('should call setTimeout', async () => {
-      await processing.start()
-      expect(setTimeout).toHaveBeenCalled()
-    })
-
-    test('should call setTimeout once', async () => {
-      await processing.start()
-      expect(setTimeout).toHaveBeenCalledTimes(1)
-    })
-
-    test('should call setTimeout with processing.start and processingConfig.settlementProcessingInterval', async () => {
-      await processing.start()
-      expect(setTimeout).toHaveBeenCalledWith(processing.start, processingConfig.settlementProcessingInterval)
-    })
-  })
-
-  describe('when sfi-23-quarterly-statement-constructor, sfi-23-advanced-statement-constructor and delinkedStatement not active', () => {
-    beforeEach(() => {
-      processingConfig.sfi23QuarterlyStatementConstructionActive = false
-      processingConfig.sfi23AdvancedStatementConstructionActive = false
       processingConfig.delinkedPaymentStatementActive = false
     })
 
