@@ -1,5 +1,2 @@
-container.processingTopicAddress: queue:ffc-pay-processing
-container.submitTopicAddress: queue:ffc-pay-submit
-container.returnTopicAddress: queue:ffc-pay-return
 container.dataTopicAddress: queue:ffc-doc-statement-data
 container.statementTopicAddress: queue:ffc-doc-statements

@@ -16,7 +16,6 @@ services:
       - ./package.json:/home/node/package.json
     environment:
       MAX_PROCESSING_REQUEST_AGE_HOURS: 6
-      PAYMENT_LINK_ACTIVE: true
 
   ffc-doc-statement-constructor-postgres:
     volumes:
