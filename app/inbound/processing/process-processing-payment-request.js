@@ -15,14 +15,14 @@ const processProcessingPaymentRequest = async (paymentRequest) => {
     if (existingPaymentRequest) {
       console.info(`Duplicate processing payment request received, skipping ${existingPaymentRequest.invoiceNumber}`)
 
-      const hoursLimit = config.hoursLimit
+      const maxProcessingRequestAgeHours = config.maxProcessingRequestAgeHours
       const receivedDate = new Date(existingPaymentRequest.received)
       const currentDate = new Date()
       const hoursDifference = Math.abs(currentDate - receivedDate) / hourInMs
 
-      if (hoursDifference > hoursLimit) {
-        console.error(`Payment request ${existingPaymentRequest.invoiceNumber} was received more than ${hoursLimit} hours ago.`)
-        throw new Error(`Payment request ${existingPaymentRequest.invoiceNumber} was received more than ${hoursLimit} hours ago.`)
+      if (hoursDifference > maxProcessingRequestAgeHours) {
+        console.error(`Payment request ${existingPaymentRequest.invoiceNumber} was received more than ${maxProcessingRequestAgeHours} hours ago.`)
+        throw new Error(`Payment request ${existingPaymentRequest.invoiceNumber} was received more than ${maxProcessingRequestAgeHours} hours ago.`)
       }
 
       await transaction.rollback()

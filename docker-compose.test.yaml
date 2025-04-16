@@ -15,7 +15,7 @@ services:
       - ./jest.config.js:/home/node/jest.config.js
       - ./package.json:/home/node/package.json
     environment:
-      HOURS_LIMIT: 6
+      MAX_PROCESSING_REQUEST_AGE_HOURS: 6
       PAYMENT_LINK_ACTIVE: true
 
   ffc-doc-statement-constructor-postgres:

@@ -44,17 +44,16 @@ container:
   processingTopicFailedAddress: ffc-doc-alerting
   submitTopicFailedAddress: ffc-doc-alerting
   returnTopicFailedAddress: ffc-doc-alerting  
-  settlementProcessingInterval: 60000
+  statementProcessingInterval: 60000
   statementConstructionActive: false
   scheduleConstructionActive: false
-  sfi23QuarterlyStatementConstructionActive: true
-  delinkedPaymentStatementActive: true
+  sfi23QuarterlyStatementProcessingActive: true
+  delinkedStatementProcessingActive: true
   idleCheckBatchSize: 250
   idleCheckMaxDeliveryCount: 1
   idleCheckInterval: 60000
-  settlementWaitTime: 600000
   paymentLinkActive: true
-  hoursLimit: 6
+  maxProcessingRequestAgeHours: 6
 
 postgresService:
   postgresDb: ffc_doc_statement_constructor

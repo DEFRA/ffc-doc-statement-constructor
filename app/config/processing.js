@@ -1,24 +1,22 @@
 const Joi = require('joi')
-const number100 = 100
-const number10000 = 10000
-const number6 = 6
+const maxBatchSize = 100
+const tenSecondWaitTime = 10000
+const sixHourWaitTime = 6
 
 const schema = Joi.object({
-  settlementProcessingInterval: Joi.number().default(number10000), // 10 seconds
-  scheduleProcessingMaxBatchSize: Joi.number().default(number100),
-  sfi23QuarterlyStatementConstructionActive: Joi.boolean().default(true),
-  settlementWaitTime: Joi.number().default(number10000), // 10 seconds
-  delinkedPaymentStatementActive: Joi.boolean().default(true),
-  hoursLimit: Joi.number().default(number6) // 6 hours
+  sfi23QuarterlyStatementProcessingActive: Joi.boolean().default(true),
+  delinkedStatementProcessingActive: Joi.boolean().default(true),
+  statementProcessingInterval: Joi.number().default(tenSecondWaitTime),
+  maxProcessingBatchSize: Joi.number().default(maxBatchSize),
+  maxProcessingRequestAgeHours: Joi.number().default(sixHourWaitTime)
 })
 
 const config = {
-  settlementProcessingInterval: process.env.SETTLEMENT_PROCESSING_INTERVAL,
-  scheduleProcessingMaxBatchSize: process.env.SCHEDULE_PROCESSING_MAX_BATCH_SIZE,
-  sfi23QuarterlyStatementConstructionActive: process.env.SFI_23_QUARTERLY_STATEMENT_CONSTRUCTION_ACTIVE,
-  settlementWaitTime: process.env.SETTLEMENT_WAIT_TIME,
-  delinkedPaymentStatementActive: process.env.DELINKED_PAYMENT_STATEMENT_ACTIVE,
-  hoursLimit: process.env.HOURS_LIMIT
+  sfi23QuarterlyStatementProcessingActive: process.env.SFI23_QUARTERLY_STATENENT_PROCESSING_ACTIVE,
+  delinkedStatementProcessingActive: process.env.DELINKED_STATENENT_PROCESSING_ACTIVE,
+  statementProcessingInterval: process.env.STATEMENT_PROCESSING_INTERVAL,
+  maxProcessingBatchSize: process.env.MAX_PROCESSING_BATCH_SIZE,
+  maxProcessingRequestAgeHours: process.env.MAX_PROCESSING_REQUEST_AGE_HOURS
 }
 
 const result = schema.validate(config, {

@@ -34,7 +34,7 @@ const processing = require('../../../app/processing')
 
 describe('start processing', () => {
   beforeEach(() => {
-    processingConfig.settlementProcessingInterval = 10000
+    processingConfig.statementProcessingInterval = 10000
   })
 
   afterEach(() => {
@@ -43,8 +43,8 @@ describe('start processing', () => {
 
   describe('when sfi-23-quarterly-statement-constructor, delinkedPaymentStatements are active', () => {
     beforeEach(() => {
-      processingConfig.sfi23QuarterlyStatementConstructionActive = true
-      processingConfig.delinkedPaymentStatementActive = true
+      processingConfig.sfi23QuarterlyStatementProcessingActive = true
+      processingConfig.delinkedStatementProcessingActive = true
     })
 
     test('should call waitForIdleMessaging', async () => {
@@ -87,16 +87,16 @@ describe('start processing', () => {
       expect(setTimeout).toHaveBeenCalledTimes(1)
     })
 
-    test('should call setTimeout with processing.start and processingConfig.settlementProcessingInterval', async () => {
+    test('should call setTimeout with processing.start and processingConfig.statementProcessingInterval', async () => {
       await processing.start()
-      expect(setTimeout).toHaveBeenCalledWith(processing.start, processingConfig.settlementProcessingInterval)
+      expect(setTimeout).toHaveBeenCalledWith(processing.start, processingConfig.statementProcessingInterval)
     })
   })
 
   describe('when sfi-23-quarterly-statement-constructor is active with delinkedStatement not active', () => {
     beforeEach(() => {
-      processingConfig.sfi23QuarterlyStatementConstructionActive = true
-      processingConfig.delinkedPaymentStatementActive = false
+      processingConfig.sfi23QuarterlyStatementProcessingActive = true
+      processingConfig.delinkedStatementProcessingActive = false
     })
 
     test('should call waitForIdleMessaging', async () => {
@@ -134,16 +134,16 @@ describe('start processing', () => {
       expect(setTimeout).toHaveBeenCalledTimes(1)
     })
 
-    test('should call setTimeout with processing.start and processingConfig.settlementProcessingInterval', async () => {
+    test('should call setTimeout with processing.start and processingConfig.statementProcessingInterval', async () => {
       await processing.start()
-      expect(setTimeout).toHaveBeenCalledWith(processing.start, processingConfig.settlementProcessingInterval)
+      expect(setTimeout).toHaveBeenCalledWith(processing.start, processingConfig.statementProcessingInterval)
     })
   })
 
   describe('when sfi-23-quarterly-statement-constructor and delinkedStatement not active', () => {
     beforeEach(() => {
-      processingConfig.sfi23QuarterlyStatementConstructionActive = false
-      processingConfig.delinkedPaymentStatementActive = false
+      processingConfig.sfi23QuarterlyStatementProcessingActive = false
+      processingConfig.delinkedStatementProcessingActive = false
     })
 
     test('should not call waitForIdleMessaging', async () => {
@@ -171,9 +171,9 @@ describe('start processing', () => {
       expect(setTimeout).toHaveBeenCalledTimes(1)
     })
 
-    test('should call setTimeout with processing.start and processingConfig.settlementProcessingInterval', async () => {
+    test('should call setTimeout with processing.start and processingConfig.statementProcessingInterval', async () => {
       await processing.start()
-      expect(setTimeout).toHaveBeenCalledWith(processing.start, processingConfig.settlementProcessingInterval)
+      expect(setTimeout).toHaveBeenCalledWith(processing.start, processingConfig.statementProcessingInterval)
     })
   })
 })

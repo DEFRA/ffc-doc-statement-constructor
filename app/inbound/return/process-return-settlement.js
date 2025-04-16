@@ -13,14 +13,14 @@ const processReturnSettlement = async (settlement) => {
     if (existingSettlement) {
       console.info(`Duplicate settlement received, skipping ${existingSettlement.reference}`)
 
-      const hoursLimit = config.hoursLimit
+      const maxProcessingRequestAgeHours = config.maxProcessingRequestAgeHours
       const receivedDate = new Date(existingSettlement.received)
       const currentDate = new Date()
       const hoursDifference = Math.abs(currentDate - receivedDate) / hourInMs
 
-      if (hoursDifference > hoursLimit) {
-        console.error(`Settlement ${existingSettlement.invoiceNumber} was received more than ${hoursLimit} hours ago.`)
-        throw new Error(`Settlement ${existingSettlement.invoiceNumber} was received more than ${hoursLimit} hours ago.`)
+      if (hoursDifference > maxProcessingRequestAgeHours) {
+        console.error(`Settlement ${existingSettlement.invoiceNumber} was received more than ${maxProcessingRequestAgeHours} hours ago.`)
+        throw new Error(`Settlement ${existingSettlement.invoiceNumber} was received more than ${maxProcessingRequestAgeHours} hours ago.`)
       }
 
       await transaction.rollback()

@@ -12,12 +12,12 @@ const processTask = async (subscriptions, processFunction, processName) => {
 const start = async () => {
   const tasks = []
 
-  if (processingConfig.sfi23QuarterlyStatementConstructionActive) {
+  if (processingConfig.sfi23QuarterlyStatementProcessingActive) {
     const relatedSubscriptions = [messageConfig.statementDataSubscription]
     tasks.push(() => processTask(relatedSubscriptions, processSfi23QuarterlyStatement, 'SFI23 Quarterly Statement'))
   }
 
-  if (!processingConfig.delinkedPaymentStatementActive) {
+  if (!processingConfig.delinkedStatementProcessingActive) {
     console.log('Delinked Payment Statement processing is disabled')
   } else {
     const relatedSubscriptions = [messageConfig.statementDataSubscription]
@@ -29,7 +29,7 @@ const start = async () => {
   } catch (err) {
     console.error(err)
   } finally {
-    setTimeout(start, processingConfig.settlementProcessingInterval)
+    setTimeout(start, processingConfig.statementProcessingInterval)
   }
 }
 
