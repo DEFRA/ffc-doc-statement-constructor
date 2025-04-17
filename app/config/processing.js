@@ -10,8 +10,8 @@ const schema = Joi.object({
 })
 
 const config = {
-  sfi23QuarterlyStatementProcessingActive: process.env.SFI23_QUARTERLY_STATENENT_PROCESSING_ACTIVE,
-  delinkedStatementProcessingActive: process.env.DELINKED_STATENENT_PROCESSING_ACTIVE,
+  sfi23QuarterlyStatementProcessingActive: process.env.SFI23_QUARTERLY_STATEMENT_PROCESSING_ACTIVE,
+  delinkedStatementProcessingActive: process.env.DELINKED_STATEMENT_PROCESSING_ACTIVE,
   statementProcessingInterval: process.env.STATEMENT_PROCESSING_INTERVAL,
   maxProcessingBatchSize: process.env.MAX_PROCESSING_BATCH_SIZE
 }

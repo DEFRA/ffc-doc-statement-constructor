@@ -18,8 +18,8 @@ data:
   POSTGRES_PORT: {{ quote .Values.postgresService.postgresPort }}
   POSTGRES_SCHEMA_NAME: {{ quote .Values.postgresService.postgresSchema }}
   STATEMENT_PROCESSING_INTERVAL: {{ quote .Values.container.statementProcessingInterval }}
-  SFI23_QUARTERLY_STATENENT_PROCESSING_ACTIVE: {{ quote .Values.container.sfi23QuarterlyStatementProcessingActive }}
-  DELINKED_STATENENT_PROCESSING_ACTIVE: {{ quote .Values.container.delinkedStatementProcessingActive }}
+  SFI23_QUARTERLY_STATEMENT_PROCESSING_ACTIVE: {{ quote .Values.container.sfi23QuarterlyStatementProcessingActive }}
+  DELINKED_STATEMENT_PROCESSING_ACTIVE: {{ quote .Values.container.delinkedStatementProcessingActive }}
   IDLE_CHECK_BATCH_SIZE: {{ quote .Values.container.idleCheckBatchSize }}
   IDLE_CHECK_MAX_DELIVERY_COUNT: {{ quote .Values.container.idleCheckMaxDeliveryCount }}
   IDLE_CHECK_INTERVAL: {{ quote .Values.container.idleCheckInterval }}
