@@ -8,7 +8,7 @@ const getDaxsForSfi23QuarterlyStatement = async (transaction) => {
     order: [
       ['lastProcessAttempt', 'ASC']
     ],
-    limit: config.scheduleProcessingMaxBatchSize,
+    limit: config.maxProcessingBatchSize,
     transaction,
     attributes: [
       'daxId',

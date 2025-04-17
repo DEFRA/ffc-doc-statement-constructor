@@ -1,5 +1,5 @@
 const util = require('util')
-const { processStatementData } = require('../inbound')
+const processStatementData = require('../inbound/statement-data/process-statement-data')
 
 const processStatementDataMessage = async (message, receiver) => {
   try {

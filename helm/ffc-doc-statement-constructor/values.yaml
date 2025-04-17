@@ -31,31 +31,18 @@ container:
   limitMemory: 500Mi
   limitCpu: 500m
   messageQueueHost: namespace.servicebus.windows.net
-  processingTopicAddress: ffc-pay-processing
-  processingSubscriptionAddress: ffc-doc-statement-constructor
-  submitTopicAddress: ffc-pay-submit
-  submitSubscriptionAddress: ffc-doc-statement-constructor
-  returnTopicAddress: ffc-pay-return
-  returnSubscriptionAddress: ffc-doc-statement-constructor
   dataTopicAddress: ffc-doc-statement-data
   dataSubscriptionAddress: ffc-doc-statement-constructor
   statementTopicAddress: ffc-doc-statements
   alertingTopicAddress: ffc-doc-alert
-  processingTopicFailedAddress: ffc-doc-alerting
-  submitTopicFailedAddress: ffc-doc-alerting
-  returnTopicFailedAddress: ffc-doc-alerting  
-  settlementProcessingInterval: 60000
+  statementProcessingInterval: 60000
   statementConstructionActive: false
   scheduleConstructionActive: false
-  sfi23QuarterlyStatementConstructionActive: true
-  sfi23AdvancedStatementConstructionActive: true
-  delinkedPaymentStatementActive: true
+  sfi23QuarterlyStatementProcessingActive: true
+  delinkedStatementProcessingActive: true
   idleCheckBatchSize: 250
   idleCheckMaxDeliveryCount: 1
   idleCheckInterval: 60000
-  settlementWaitTime: 600000
-  paymentLinkActive: true
-  hoursLimit: 6
 
 postgresService:
   postgresDb: ffc_doc_statement_constructor
