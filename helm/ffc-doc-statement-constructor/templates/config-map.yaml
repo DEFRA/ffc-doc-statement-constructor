@@ -6,11 +6,9 @@ data:
   MESSAGE_QUEUE_HOST: {{ quote .Values.container.messageQueueHost }}
   ALERTING_TOPIC_ADDRESS: {{ quote .Values.container.alertingTopicAddress }}
   {{- if and (.Values.environmentCode) (not .Values.pr) }}
-  PROCESSING_TOPIC_FAILED_ADDRESS: {{ .Values.container.processingTopicFailedAddress }}-{{ .Values.environmentCode }}
   DATA_TOPIC_ADDRESS: {{ .Values.container.dataTopicAddress }}-{{ .Values.environmentCode }}
   STATEMENT_TOPIC_ADDRESS: {{ .Values.container.statementTopicAddress }}-{{ .Values.environmentCode }}
   {{ else }}
-  PROCESSING_TOPIC_FAILED_ADDRESS: {{ .Values.container.processingTopicFailedAddress }}
   DATA_TOPIC_ADDRESS: {{ .Values.container.dataTopicAddress }}
   STATEMENT_TOPIC_ADDRESS: {{ .Values.container.statementTopicAddress }}
   {{- end }}
