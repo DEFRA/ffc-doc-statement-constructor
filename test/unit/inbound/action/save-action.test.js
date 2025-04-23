@@ -1,7 +1,7 @@
-const db = require('../../../app/data')
-const saveAction = require('../../../app/inbound/total/save-actions')
+const db = require('../../../../app/data')
+const saveAction = require('../../../../app/inbound/total/save-actions')
 
-jest.mock('../../../app/data')
+jest.mock('../../../../app/data')
 
 describe('saveAction', () => {
   afterEach(() => {

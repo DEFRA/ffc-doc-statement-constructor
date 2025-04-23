@@ -5,27 +5,27 @@ const mockTransaction = {
   rollback: mockRollback
 }
 
-jest.mock('../../../app/data', () => {
+jest.mock('../../../../app/data', () => {
   return {
     sequelize:
-       {
-         transaction: jest.fn().mockImplementation(() => {
-           return { ...mockTransaction }
-         })
-       }
+    {
+      transaction: jest.fn().mockImplementation(() => {
+        return { ...mockTransaction }
+      })
+    }
   }
 })
 
-jest.mock('../../../app/inbound/organisation/save-organisation')
-const saveOrganisation = require('../../../app/inbound/organisation/save-organisation')
+jest.mock('../../../../app/inbound/organisation/save-organisation')
+const saveOrganisation = require('../../../../app/inbound/organisation/save-organisation')
 
-const processOrganisation = require('../../../app/inbound/organisation')
+const processOrganisation = require('../../../../app/inbound/organisation')
 
 let organisation
 
 describe('process organisation', () => {
   beforeEach(() => {
-    organisation = JSON.parse(JSON.stringify(require('../../mock-objects/mock-organisation')))
+    organisation = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-organisation')))
     saveOrganisation.mockResolvedValue(undefined)
   })
 
