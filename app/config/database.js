@@ -40,7 +40,14 @@ const dbConfig = {
   logging: process.env.POSTGRES_LOGGING || false,
   retry,
   schema: process.env.POSTGRES_SCHEMA_NAME || 'public',
-  username: process.env.POSTGRES_USERNAME
+  username: process.env.POSTGRES_USERNAME,
+  pool: {
+    max: 150,
+    min: 20,
+    idle: 10000,
+    acquire: 60000,
+    evict: 30000
+  }
 }
 
 module.exports = {

@@ -5,11 +5,11 @@ const mockTransaction = {
   rollback: mockRollback
 }
 
-const saveActions = require('../../../app/inbound/total/save-actions')
-const processTotal = require('../../../app/inbound/total')
-const mockTotal = require('../../mock-objects/mock-total')
+const saveActions = require('../../../../app/inbound/total/save-actions')
+const processTotal = require('../../../../app/inbound/total')
+const mockTotal = require('../../../mock-objects/mock-total')
 
-jest.mock('../../../app/data', () => {
+jest.mock('../../../../app/data', () => {
   return {
     sequelize: {
       transaction: jest.fn().mockImplementation(() => {
@@ -22,22 +22,22 @@ jest.mock('../../../app/data', () => {
   }
 })
 
-jest.mock('../../../app/inbound/total/get-total-by-calculation-id')
-const getTotalByCalculationId = require('../../../app/inbound/total/get-total-by-calculation-id')
+jest.mock('../../../../app/inbound/total/get-total-by-calculation-id')
+const getTotalByCalculationId = require('../../../../app/inbound/total/get-total-by-calculation-id')
 
-jest.mock('../../../app/inbound/total/save-total')
-const saveTotal = require('../../../app/inbound/total/save-total')
+jest.mock('../../../../app/inbound/total/save-total')
+const saveTotal = require('../../../../app/inbound/total/save-total')
 
-jest.mock('../../../app/inbound/total/save-placeholder-organisation')
-const savePlaceholderOrganisation = require('../../../app/inbound/total/save-placeholder-organisation')
+jest.mock('../../../../app/inbound/total/save-placeholder-organisation')
+const savePlaceholderOrganisation = require('../../../../app/inbound/total/save-placeholder-organisation')
 
-jest.mock('../../../app/inbound/total/save-actions')
+jest.mock('../../../../app/inbound/total/save-actions')
 
 let total
 
 describe('process total', () => {
   beforeEach(() => {
-    total = JSON.parse(JSON.stringify(require('../../mock-objects/mock-total')))
+    total = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-total')))
 
     getTotalByCalculationId.mockResolvedValue(null)
     savePlaceholderOrganisation.mockResolvedValue(undefined)

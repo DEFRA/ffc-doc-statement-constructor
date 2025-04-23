@@ -1,5 +1,5 @@
 const Joi = require('joi')
-const maxBatchSize = 100
+const maxBatchSize = 250
 const tenSecondWaitTime = 10000
 
 const schema = Joi.object({

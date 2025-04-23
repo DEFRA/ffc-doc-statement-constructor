@@ -5,36 +5,36 @@ const mockTransaction = {
   rollback: mockRollback
 }
 
-jest.mock('../../../app/data', () => {
+jest.mock('../../../../app/data', () => {
   return {
     sequelize:
-       {
-         transaction: jest.fn().mockImplementation(() => {
-           return { ...mockTransaction }
-         })
-       }
+    {
+      transaction: jest.fn().mockImplementation(() => {
+        return { ...mockTransaction }
+      })
+    }
   }
 })
 
-jest.mock('../../../app/inbound/calculation/get-calculation-by-calculation-reference')
-const getCalculationByCalculationReference = require('../../../app/inbound/calculation/get-calculation-by-calculation-reference')
+jest.mock('../../../../app/inbound/calculation/get-calculation-by-calculation-reference')
+const getCalculationByCalculationReference = require('../../../../app/inbound/calculation/get-calculation-by-calculation-reference')
 
-jest.mock('../../../app/inbound/calculation/save-calculation')
-const saveCalculation = require('../../../app/inbound/calculation/save-calculation')
+jest.mock('../../../../app/inbound/calculation/save-calculation')
+const saveCalculation = require('../../../../app/inbound/calculation/save-calculation')
 
-jest.mock('../../../app/inbound/calculation/save-placeholder-organisation')
-const savePlaceholderOrganisation = require('../../../app/inbound/calculation/save-placeholder-organisation')
+jest.mock('../../../../app/inbound/calculation/save-placeholder-organisation')
+const savePlaceholderOrganisation = require('../../../../app/inbound/calculation/save-placeholder-organisation')
 
-jest.mock('../../../app/inbound/calculation/save-fundings')
-const saveFundings = require('../../../app/inbound/calculation/save-fundings')
+jest.mock('../../../../app/inbound/calculation/save-fundings')
+const saveFundings = require('../../../../app/inbound/calculation/save-fundings')
 
-const processCalculation = require('../../../app/inbound/calculation')
+const processCalculation = require('../../../../app/inbound/calculation')
 
 let calculation
 
 describe('process calculation', () => {
   beforeEach(() => {
-    calculation = JSON.parse(JSON.stringify(require('../../mock-objects/mock-calculation')))
+    calculation = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-calculation')))
 
     getCalculationByCalculationReference.mockResolvedValue(null)
     savePlaceholderOrganisation.mockResolvedValue(undefined)

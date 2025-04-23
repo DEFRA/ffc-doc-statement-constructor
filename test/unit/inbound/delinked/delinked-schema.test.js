@@ -1,5 +1,5 @@
-const schema = require('../../../app/inbound/delinked/schema')
-const { constants } = require('../../../app/utility/common-schema-fields')
+const schema = require('../../../../app/inbound/delinked/schema')
+const { constants } = require('../../../../app/utility/common-schema-fields')
 
 describe('delinked-schema', () => {
   const validData = {

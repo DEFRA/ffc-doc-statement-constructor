@@ -1,5 +1,5 @@
-const schema = require('../../../app/inbound/organisation/schema')
-const { CALCULATION } = require('../../../app/constants/types')
+const schema = require('../../../../app/inbound/organisation/schema')
+const { CALCULATION } = require('../../../../app/constants/types')
 
 describe('Schema Validation', () => {
   test('should validate a correct object', () => {

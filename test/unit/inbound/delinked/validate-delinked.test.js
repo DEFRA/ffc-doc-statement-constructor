@@ -1,7 +1,7 @@
-const schema = require('../../../app/inbound/delinked/schema')
-const validateDelinked = require('../../../app/inbound/delinked/validate-delinked')
+const schema = require('../../../../app/inbound/delinked/schema')
+const validateDelinked = require('../../../../app/inbound/delinked/validate-delinked')
 
-jest.mock('../../../app/inbound/delinked/schema')
+jest.mock('../../../../app/inbound/delinked/schema')
 
 describe('validateDelinked', () => {
   const calculationId = 'calculationId1'

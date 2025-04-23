@@ -1,5 +1,5 @@
-const db = require('../../../app/data')
-const saveTotal = require('../../../app/inbound/total/save-total')
+const db = require('../../../../app/data')
+const saveTotal = require('../../../../app/inbound/total/save-total')
 
 describe('saveTotal function', () => {
   test('should throw an error if saving the total fails', async () => {

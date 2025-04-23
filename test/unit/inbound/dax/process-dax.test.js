@@ -1,14 +1,14 @@
-const db = require('../../../app/data')
-const processDax = require('../../../app/inbound/dax/process-dax')
-const saveDax = require('../../../app/inbound/dax/save-dax')
-const validateDax = require('../../../app/inbound/dax/validate-dax')
-const getDaxByPaymentReference = require('../../../app/inbound/dax/get-dax-by-payment-reference')
+const db = require('../../../../app/data')
+const processDax = require('../../../../app/inbound/dax/process-dax')
+const saveDax = require('../../../../app/inbound/dax/save-dax')
+const validateDax = require('../../../../app/inbound/dax/validate-dax')
+const getDaxByPaymentReference = require('../../../../app/inbound/dax/get-dax-by-payment-reference')
 
-jest.mock('../../../app/data')
-jest.mock('../../../app/inbound/dax/save-dax')
-jest.mock('../../../app/inbound/dax/schema')
-jest.mock('../../../app/inbound/dax/validate-dax')
-jest.mock('../../../app/inbound/dax/get-dax-by-payment-reference')
+jest.mock('../../../../app/data')
+jest.mock('../../../../app/inbound/dax/save-dax')
+jest.mock('../../../../app/inbound/dax/schema')
+jest.mock('../../../../app/inbound/dax/validate-dax')
+jest.mock('../../../../app/inbound/dax/get-dax-by-payment-reference')
 
 describe('processDax', () => {
   let transaction
@@ -31,7 +31,7 @@ describe('processDax', () => {
   test('should validate, save and commit transaction when dax with same paymentReference does not exist', async () => {
     const dax = { paymentReference: '123' }
     getDaxByPaymentReference.mockResolvedValue(null)
-    validateDax.mockImplementation(() => {})
+    validateDax.mockImplementation(() => { })
     saveDax.mockResolvedValue()
 
     await processDax(dax)
