@@ -9,7 +9,7 @@ const getD365ForDelinkedStatement = async (transaction) => {
       order: [
         ['lastProcessAttempt', 'ASC']
       ],
-      limit: config.scheduleProcessingMaxBatchSize,
+      limit: config.maxProcessingBatchSize,
       transaction,
       attributes: [
         'd365Id',

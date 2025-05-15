@@ -1,7 +1,7 @@
 jest.mock('ffc-messaging')
 
-jest.mock('../../../app/inbound')
-const { processStatementData } = require('../../../app/inbound')
+jest.mock('../../../app/inbound/statement-data/process-statement-data')
+const processStatementData = require('../../../app/inbound/statement-data/process-statement-data')
 
 const processStatementDataMessage = require('../../../app/messaging/process-statement-data-message')
 
@@ -16,7 +16,8 @@ describe('process statement data message', () => {
     organisation = JSON.parse(JSON.stringify(require('../../mock-objects/mock-organisation')))
 
     receiver = {
-      completeMessage: jest.fn()
+      completeMessage: jest.fn(),
+      deadLetterMessage: jest.fn()
     }
 
     message = { body: organisation }
@@ -68,7 +69,7 @@ describe('process statement data message', () => {
 
   test('should not call receiver.completeMessage when processStatementData throws', async () => {
     processStatementData.mockRejectedValue(new Error('Transaction failed'))
-    try { await processStatementDataMessage(message, receiver) } catch {}
+    try { await processStatementDataMessage(message, receiver) } catch { }
     expect(receiver.completeMessage).not.toHaveBeenCalled()
   })
 

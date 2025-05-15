@@ -1,7 +1,11 @@
 resources:
+  identity: doc-statement-constructor
+  postgreSql:
+    name: ffc-doc-statement-constructor
   topics:
-    - name: processing
-    - name: submit
-    - name: return
-    - name: statement
-    - name: data
+    - name: ffc-doc-statement-data
+      role: receiver
+      subscriptions:
+        - name: ffc-doc-statement-constructor
+    - name: ffc-doc-statements
+      role: sender

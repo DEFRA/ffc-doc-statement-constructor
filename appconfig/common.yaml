@@ -1,0 +1,2 @@
+container.dataTopicAddress: queue:ffc-doc-statement-data
+container.statementTopicAddress: queue:ffc-doc-statements

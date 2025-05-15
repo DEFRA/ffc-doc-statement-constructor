@@ -1,4 +1,4 @@
-const { DefaultAzureCredential } = require('@azure/identity')
+const { DefaultAzureCredential, getBearerTokenProvider } = require('@azure/identity')
 const port5432 = 5432
 function isProd () {
   return process.env.NODE_ENV === 'production'
@@ -7,9 +7,13 @@ function isProd () {
 const hooks = {
   beforeConnect: async (cfg) => {
     if (isProd()) {
-      const credential = new DefaultAzureCredential()
-      const accessToken = await credential.getToken('https://ossrdbms-aad.database.windows.net', { requestOptions: { timeout: 1000 } })
-      cfg.password = accessToken.token
+      const dbAuthEndpoint = 'https://ossrdbms-aad.database.windows.net/.default'
+      const credential = new DefaultAzureCredential({ managedIdentityClientId: process.env.AZURE_CLIENT_ID })
+      const tokenProvider = getBearerTokenProvider(
+        credential,
+        dbAuthEndpoint
+      )
+      cfg.password = tokenProvider
     }
   }
 }
@@ -36,7 +40,14 @@ const dbConfig = {
   logging: process.env.POSTGRES_LOGGING || false,
   retry,
   schema: process.env.POSTGRES_SCHEMA_NAME || 'public',
-  username: process.env.POSTGRES_USERNAME
+  username: process.env.POSTGRES_USERNAME,
+  pool: {
+    max: 150,
+    min: 20,
+    idle: 10000,
+    acquire: 60000,
+    evict: 30000
+  }
 }
 
 module.exports = {

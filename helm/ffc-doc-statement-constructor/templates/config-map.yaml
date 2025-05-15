@@ -4,35 +4,23 @@ data:
   NODE_ENV: {{ quote .Values.environment }}
   APPINSIGHTS_CLOUDROLE: {{ quote .Values.name }}
   MESSAGE_QUEUE_HOST: {{ quote .Values.container.messageQueueHost }}
+  ALERTING_TOPIC_ADDRESS: {{ quote .Values.container.alertingTopicAddress }}
   {{- if and (.Values.environmentCode) (not .Values.pr) }}
-  PROCESSING_TOPIC_ADDRESS: {{ .Values.container.processingTopicAddress }}-{{ .Values.environmentCode }}
-  SUBMIT_TOPIC_ADDRESS: {{ .Values.container.submitTopicAddress }}-{{ .Values.environmentCode }}
-  RETURN_TOPIC_ADDRESS: {{ .Values.container.returnTopicAddress }}-{{ .Values.environmentCode }}
   DATA_TOPIC_ADDRESS: {{ .Values.container.dataTopicAddress }}-{{ .Values.environmentCode }}
   STATEMENT_TOPIC_ADDRESS: {{ .Values.container.statementTopicAddress }}-{{ .Values.environmentCode }}
   {{ else }}
-  PROCESSING_TOPIC_ADDRESS: {{ .Values.container.processingTopicAddress }}
-  SUBMIT_TOPIC_ADDRESS: {{ .Values.container.submitTopicAddress }}
-  RETURN_TOPIC_ADDRESS: {{ .Values.container.returnTopicAddress }}
   DATA_TOPIC_ADDRESS: {{ .Values.container.dataTopicAddress }}
   STATEMENT_TOPIC_ADDRESS: {{ .Values.container.statementTopicAddress }}
   {{- end }}
-  PROCESSING_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.processingSubscriptionAddress }}
-  SUBMIT_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.submitSubscriptionAddress }}
-  RETURN_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.returnSubscriptionAddress }}
   DATA_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.dataSubscriptionAddress }}
   POSTGRES_DB: {{ quote .Values.postgresService.postgresDb }}
   POSTGRES_HOST: {{ quote .Values.postgresService.postgresqlHost }}
   POSTGRES_PORT: {{ quote .Values.postgresService.postgresPort }}
   POSTGRES_SCHEMA_NAME: {{ quote .Values.postgresService.postgresSchema }}
-  SETTLEMENT_PROCESSING_INTERVAL: {{ quote .Values.container.settlementProcessingInterval }}
-  STATEMENT_CONSTRUCTION_ACTIVE: {{ quote .Values.container.statementConstructionActive }}
-  SCHEDULE_CONSTRUCTION_ACTIVE: {{ quote .Values.container.scheduleConstructionActive }}
-  SFI_23_ADVANCED_STATEMENT_CONSTRUCTION_ACTIVE: {{ quote .Values.container.sfi23AdvancedStatementConstructionActive }}
-  SFI_23_QUARTERLY_STATEMENT_CONSTRUCTION_ACTIVE: {{ quote .Values.container.sfi23QuarterlyStatementConstructionActive }}
-  DELINKED_PAYMENT_STATEMENT_ACTIVE: {{ quote .Values.container.delinkedPaymentStatementActive }}
+  STATEMENT_PROCESSING_INTERVAL: {{ quote .Values.container.statementProcessingInterval }}
+  SFI23_QUARTERLY_STATEMENT_PROCESSING_ACTIVE: {{ quote .Values.container.sfi23QuarterlyStatementProcessingActive }}
+  DELINKED_STATEMENT_PROCESSING_ACTIVE: {{ quote .Values.container.delinkedStatementProcessingActive }}
   IDLE_CHECK_BATCH_SIZE: {{ quote .Values.container.idleCheckBatchSize }}
   IDLE_CHECK_MAX_DELIVERY_COUNT: {{ quote .Values.container.idleCheckMaxDeliveryCount }}
   IDLE_CHECK_INTERVAL: {{ quote .Values.container.idleCheckInterval }}
-  SETTLEMENT_WAIT_TIME: {{ quote .Values.container.settlementWaitTime }}
 {{- end -}}
