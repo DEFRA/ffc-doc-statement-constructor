@@ -9,7 +9,7 @@ const processDax = async (dax) => {
   try {
     const existingDax = await getDaxByCalculationId(dax.calculationReference, transaction)
     if (existingDax) {
-      console.info(`Duplicate Dax calculation ID received, skipping calculation ID ${existingDax.calculationReference} for ${existingDax.paymentReference}`)
+      console.info(`Duplicate Dax calculation ID received, skipping calculation ID ${existingDax.calculationId} for ${existingDax.paymentReference}`)
       await transaction.rollback()
     } else {
       validateDax(dax, dax.paymentReference)
