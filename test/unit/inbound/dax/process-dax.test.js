@@ -19,7 +19,10 @@ describe('processDax', () => {
 
   test('should rollback transaction and log info when dax with same paymentReference exists', async () => {
     const dax = { calculationReference: 1, paymentReference: '123' }
-    getDaxByCalculationId.mockResolvedValue(dax)
+    getDaxByCalculationId.mockResolvedValue({
+      ...dax,
+      calculationId: dax.calculationReference
+    })
     console.info = jest.fn()
 
     await processDax(dax)
