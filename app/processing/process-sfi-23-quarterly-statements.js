@@ -16,7 +16,7 @@ const processSfi23QuarterlyStatement = async () => {
       if (paymentReferenceIsExcluded) {
         console.log(`Payment reference ${dax.paymentReference} is excluded from SFI-23 quarterly statement processing`)
       }
-      const sfi23QuarterlyStatement = await getSfi23QuarterlyStatementByPaymentReference(dax.paymentReference, paymentReferenceIsExcluded)
+      const sfi23QuarterlyStatement = await getSfi23QuarterlyStatementByPaymentReference(dax.calculationId, paymentReferenceIsExcluded)
       await sendSfi23QuarterlyStatement(sfi23QuarterlyStatement)
       await updateDaxCompletePublishByDaxId(dax.daxId)
     } catch (err) {
