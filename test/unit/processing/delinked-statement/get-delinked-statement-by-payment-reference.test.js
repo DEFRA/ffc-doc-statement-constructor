@@ -137,10 +137,21 @@ test('should handle missing saved document data', async () => {
   await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow('Invalid saved document data for payment reference: paymentRef123')
 })
 
+jest.mock('../../../../app/constants/delinked-scheme', () => ({
+  marketingYear: 2024,
+  fullName: 'Delinked Payment Statement',
+  shortName: 'DP',
+  createScheme: jest.fn().mockReturnValue({
+    fullName: 'Delinked Payment Statement',
+    shortName: 'DP',
+    year: 2024
+  })
+}))
+
 test('should return delinked statement data successfully', async () => {
   const paymentReference = 'paymentRef123'
   const excluded = false
-  const d365Mock = { calculationId: 'calc123', otherData: 'data', marketingYear: 2024 }
+  const d365Mock = { calculationId: 'calc123', otherData: 'data', marketingYear: 2024, paymentReference }
   const delinkedCalculationMock = { sbi: 'sbi123', calculationData: 'data' }
   const organisationMock = { name: 'OrgName', emailAddress: 'email@example.com', frn: 'frn123', sbi: 'sbi123' }
   const addressMock = { addressLine1: 'line1', addressLine2: 'line2' }
@@ -167,13 +178,14 @@ test('should return delinked statement data successfully', async () => {
     ...d365Mock,
     ...delinkedCalculationMock,
     scheme: {
-      name: delinkedScheme.fullName,
-      shortName: delinkedScheme.shortName,
-      year: delinkedScheme.marketingYear
+      name: 'Delinked Payment Statement',
+      shortName: 'DP',
+      year: 2024
     },
     previousPaymentCount: previousPaymentCountMock,
     documentReference: savedDocumentMock.documentId
   })
+  expect(delinkedScheme.createScheme).toHaveBeenCalledWith(d365Mock.marketingYear)
 })
 
 test('should use DELINKED document type code', async () => {

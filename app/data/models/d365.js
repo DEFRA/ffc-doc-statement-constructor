@@ -1,8 +1,8 @@
 module.exports = (sequelize, DataTypes) => {
   const paymentReferenceChars = 30
   const paymentPeriodLength = 200
-  const marketingYearMinLength = 1000
-  const marketingYearMaxLength = 9999
+  const marketingYearMinLength = 2023
+  const marketingYearMaxLength = 2050
   const d365 = sequelize.define('d365', {
     paymentReference: { type: DataTypes.STRING(paymentReferenceChars), primaryKey: true, allowNull: false, unique: true },
     calculationId: { type: DataTypes.INTEGER, allowNull: true },

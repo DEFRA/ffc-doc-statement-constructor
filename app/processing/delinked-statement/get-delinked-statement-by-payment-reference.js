@@ -39,15 +39,26 @@ const getDelinkedStatementByPaymentReference = async (paymentReference, _exclude
     throw new Error(`Invalid previous payment count for calculation ID: ${d365.calculationId}`)
   }
 
-  const scheme = {
-    name: delinkedScheme.fullName,
-    shortName: delinkedScheme.shortName,
-    year: delinkedScheme.marketingYear
-  }
+  console.log('D365 data loaded:', JSON.stringify({
+    paymentReference: d365.paymentReference,
+    calculationId: d365.calculationId,
+    marketingYear: d365.marketingYear
+  }, null, 2))
+
+  const scheme = (() => {
+    const createdScheme = delinkedScheme.createScheme(d365.marketingYear)
+    return {
+      name: createdScheme.fullName,
+      shortName: createdScheme.shortName,
+      year: createdScheme.year
+    }
+  })()
+
   const document = {
     documentTypeId: documentType.documentTypeId,
     documentSourceReference: paymentReference
   }
+
   const savedDocument = await saveDocument(document)
   if (!savedDocument?.documentId) {
     throw new Error(`Invalid saved document data for payment reference: ${paymentReference}`)
