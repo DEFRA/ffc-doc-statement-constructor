@@ -10,6 +10,7 @@ const processD365 = async (d365) => {
       paymentReference: d365.paymentReference,
       calculationId: d365.calculationReference,
       paymentPeriod: d365.paymentPeriod,
+      marketingYear: d365.marketingYear,
       paymentAmount: d365.paymentAmount,
       transactionDate: d365.transactionDate || new Date(),
       type: D365

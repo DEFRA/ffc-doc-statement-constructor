@@ -6,12 +6,9 @@ const getPreviousPaymentCountByCalculationId = require('./get-previous-payment-c
 const getDocumentTypeByCode = require('./get-document-type-by-code')
 const getAddressFromOrganisation = require('./get-address-from-organisation')
 const { DELINKED } = require('../../constants/document-types')
+const delinkedScheme = require('../../constants/delinked-scheme')
 
 const getDelinkedStatementByPaymentReference = async (paymentReference, _excluded) => {
-  const delinkedMarketingYear = '2024'
-  const delinkedFullName = 'Delinked Payment Statement'
-  const delinkedShortName = 'DP'
-
   const d365 = await getD365(paymentReference)
   if (!d365) {
     throw new Error(`D365 data not found for payment reference: ${paymentReference}`)
@@ -42,15 +39,26 @@ const getDelinkedStatementByPaymentReference = async (paymentReference, _exclude
     throw new Error(`Invalid previous payment count for calculation ID: ${d365.calculationId}`)
   }
 
-  const scheme = {
-    name: delinkedFullName,
-    shortName: delinkedShortName,
-    year: delinkedMarketingYear
-  }
+  console.log('D365 data loaded:', JSON.stringify({
+    paymentReference: d365.paymentReference,
+    calculationId: d365.calculationId,
+    marketingYear: d365.marketingYear
+  }, null, 2))
+
+  const scheme = (() => {
+    const createdScheme = delinkedScheme.createScheme(d365.marketingYear)
+    return {
+      name: createdScheme.fullName,
+      shortName: createdScheme.shortName,
+      year: createdScheme.year
+    }
+  })()
+
   const document = {
     documentTypeId: documentType.documentTypeId,
     documentSourceReference: paymentReference
   }
+
   const savedDocument = await saveDocument(document)
   if (!savedDocument?.documentId) {
     throw new Error(`Invalid saved document data for payment reference: ${paymentReference}`)

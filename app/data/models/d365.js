@@ -1,10 +1,13 @@
 module.exports = (sequelize, DataTypes) => {
-  const number30 = 30
-  const number200 = 200
+  const paymentReferenceChars = 30
+  const paymentPeriodLength = 200
+  const marketingYearMin = 2023
+  const marketingYearMax = 2050
   const d365 = sequelize.define('d365', {
-    paymentReference: { type: DataTypes.STRING(number30), primaryKey: true, allowNull: false, unique: true },
+    paymentReference: { type: DataTypes.STRING(paymentReferenceChars), primaryKey: true, allowNull: false, unique: true },
     calculationId: { type: DataTypes.INTEGER, allowNull: true },
-    paymentPeriod: { type: DataTypes.STRING(number200), allowNull: true },
+    paymentPeriod: { type: DataTypes.STRING(paymentPeriodLength), allowNull: true },
+    marketingYear: { type: DataTypes.INTEGER(), allowNull: false, validate: { isInt: true, min: marketingYearMin, max: marketingYearMax } },
     paymentAmount: { type: DataTypes.NUMERIC, allowNull: false },
     transactionDate: { type: DataTypes.DATE, allowNull: false },
     datePublished: { type: DataTypes.DATE, allowNull: true },
