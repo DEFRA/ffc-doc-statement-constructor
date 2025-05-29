@@ -6,6 +6,7 @@ const getD365ByPaymentReference = async (paymentReference) => {
       'paymentReference',
       'calculationId',
       'paymentPeriod',
+      'marketingYear',
       'paymentAmount',
       'transactionDate'
     ],

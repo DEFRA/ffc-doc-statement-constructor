@@ -3,6 +3,8 @@ const D365 = 'd365'
 
 const paymentReferenceChars = 30
 const paymentPeriodChars = 200
+const marketingYearMin = 2023
+const marketingYearMax = 2050
 
 module.exports = Joi.object({
   paymentReference: Joi.string().max(paymentReferenceChars).required().messages({
@@ -21,6 +23,12 @@ module.exports = Joi.object({
   paymentPeriod: Joi.string().max(paymentPeriodChars).allow('', null).optional().messages({
     'string.base': 'paymentPeriod should be a type of string',
     'string.max': `paymentPeriod should have a maximum length of ${paymentPeriodChars}`
+  }),
+  marketingYear: Joi.number().integer().min(marketingYearMin).max(marketingYearMax).required().messages({
+    'number.base': 'maxketingYear should be a type of number',
+    'number.integer': 'marketingYear must be an integer',
+    'number.min': 'marketingYear should have minimum year of ' + marketingYearMin,
+    'number.max': 'marketingYear should have maximim year of ' + marketingYearMax
   }),
   paymentAmount: Joi.number().required().messages({
     'number.base': 'paymentAmount should be a type of number',
