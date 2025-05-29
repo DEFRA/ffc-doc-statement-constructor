@@ -1,6 +1,6 @@
 const db = require('../../../data')
 
-const getDaxByPaymentReference = async (paymentReference) => {
+const getDaxByPaymentReference = async (calculationId) => {
   return db.dax.findOne({
     attributes: [
       'paymentReference',
@@ -10,7 +10,7 @@ const getDaxByPaymentReference = async (paymentReference) => {
       'transactionDate'
     ],
     where: {
-      paymentReference
+      calculationId
     },
     raw: true
   })

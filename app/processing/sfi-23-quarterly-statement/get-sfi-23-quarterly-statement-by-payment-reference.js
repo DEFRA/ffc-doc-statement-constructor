@@ -9,13 +9,13 @@ const getAddressFromOrganisation = require('./get-address-from-organisation')
 
 const { SFI23QUARTERLYSTATEMENT } = require('../../constants/document-types')
 
-const getSfi23QuarterlyStatementByPaymentReference = async (paymentReference, excluded) => {
+const getSfi23QuarterlyStatementByPaymentReference = async (calculationId, excluded) => {
   const sfi23MarketingYear = '2023'
   const sfiFullName = 'Sustainable Farming Incentive'
   const sfi23ShortName = 'SFI'
   const sfi23Frequency = 'Quarterly'
-  const dax = await getDax(paymentReference)
-  const total = await getTotal(dax.calculationId)
+  const dax = await getDax(calculationId)
+  const total = await getTotal(calculationId)
   const organisation = await getOrganisation(total.sbi)
   const address = getAddressFromOrganisation(organisation)
   const actionGroups = await getActionGroups(total.calculationReference)
@@ -31,7 +31,7 @@ const getSfi23QuarterlyStatementByPaymentReference = async (paymentReference, ex
 
   const document = {
     documentTypeId,
-    documentSourceReference: paymentReference
+    documentSourceReference: dax.paymentReference
   }
 
   const { documentId } = await saveDocument(document)

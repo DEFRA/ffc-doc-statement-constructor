@@ -3,7 +3,7 @@ const db = require('../../../../../app/data')
 const getDaxByPaymentReference = require('../../../../../app/processing/sfi-23-quarterly-statement/dax/get-dax-by-payment-reference')
 
 test('should return the DAX record for a given payment reference', async () => {
-  const paymentReference = 'ABC123'
+  const calculationId = '123456'
   const expectedDaxRecord = {
     paymentReference: 'ABC123',
     calculationId: '123456',
@@ -14,7 +14,7 @@ test('should return the DAX record for a given payment reference', async () => {
 
   db.dax.findOne = jest.fn().mockResolvedValue(expectedDaxRecord)
 
-  const result = await getDaxByPaymentReference(paymentReference)
+  const result = await getDaxByPaymentReference(calculationId)
 
   expect(result).toEqual(expectedDaxRecord)
   expect(db.dax.findOne).toHaveBeenCalledWith({
@@ -26,18 +26,18 @@ test('should return the DAX record for a given payment reference', async () => {
       'transactionDate'
     ],
     where: {
-      paymentReference
+      calculationId
     },
     raw: true
   })
 })
 
 test('should return null if no DAX record is found for the given payment reference', async () => {
-  const paymentReference = 'XYZ789'
+  const calculationId = '567789'
 
   db.dax.findOne = jest.fn().mockResolvedValue(null)
 
-  const result = await getDaxByPaymentReference(paymentReference)
+  const result = await getDaxByPaymentReference(calculationId)
 
   expect(result).toBeNull()
   expect(db.dax.findOne).toHaveBeenCalledWith({
@@ -49,7 +49,7 @@ test('should return null if no DAX record is found for the given payment referen
       'transactionDate'
     ],
     where: {
-      paymentReference
+      calculationId
     },
     raw: true
   })
