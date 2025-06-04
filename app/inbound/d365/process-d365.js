@@ -25,7 +25,21 @@ const processD365 = async (d365) => {
     }
 
     const transaction = await db.sequelize.transaction()
+
+    async function waitForCalculationReference(id, maxPollingWaitMs = 5000, pollingIntervalMs = 250){
+      const startPollingTime = Date.now();
+      while ((Date.now() - startPollingTime) < maxPollingWaitMs){
+        var doesCalcExist = await db.DelinkedCalculation.findByPk(id);
+        if(doesCalcExist){
+          return doesCalcExist;
+        }
+        await new Promise(res => setTimeout(res, pollingIntervalMs));
+      }
+      throw new Error("Polling Timeout Error: calculationReference was not resolved within the timeout period.");
+    }
+
     try {
+      await waitForCalculationReference(transformedD365.calculationReference);
       await saveD365(transformedD365, transaction)
       await transaction.commit()
 
