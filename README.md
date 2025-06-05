@@ -41,6 +41,7 @@ Use Docker Compose to run service locally.
 
 ```
 docker compose up
+
 ```
 
 ## Test structure
