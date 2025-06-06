@@ -2,13 +2,13 @@ const db = require('../../../../app/data')
 const processDax = require('../../../../app/inbound/dax/process-dax')
 const saveDax = require('../../../../app/inbound/dax/save-dax')
 const validateDax = require('../../../../app/inbound/dax/validate-dax')
-const getDaxByCalculationId = require('../../../../app/inbound/dax/get-dax-by-calculation-id')
+const getDaxByCalculationIdAndPaymentReference = require('../../../../app/inbound/dax/get-dax-by-calculation-id-and-payment-reference')
 
 jest.mock('../../../../app/data')
 jest.mock('../../../../app/inbound/dax/save-dax')
 jest.mock('../../../../app/inbound/dax/schema')
 jest.mock('../../../../app/inbound/dax/validate-dax')
-jest.mock('../../../../app/inbound/dax/get-dax-by-calculation-id')
+jest.mock('../../../../app/inbound/dax/get-dax-by-calculation-id-and-payment-reference')
 
 describe('processDax', () => {
   let transaction
@@ -19,7 +19,7 @@ describe('processDax', () => {
 
   test('should rollback transaction and log info when dax with same paymentReference exists', async () => {
     const dax = { calculationReference: 1, paymentReference: '123' }
-    getDaxByCalculationId.mockResolvedValue({
+    getDaxByCalculationIdAndPaymentReference.mockResolvedValue({
       ...dax,
       calculationId: dax.calculationReference
     })
@@ -27,13 +27,13 @@ describe('processDax', () => {
 
     await processDax(dax)
 
-    expect(console.info).toHaveBeenCalledWith(`Duplicate Dax calculation ID received, skipping calculation ID ${dax.calculationReference} for ${dax.paymentReference}`)
+    expect(console.info).toHaveBeenCalledWith(`Duplicate Dax record received, skipping payment reference ${dax.paymentReference} for calculation ${dax.calculationReference}`)
     expect(transaction.rollback).toHaveBeenCalled()
   })
 
   test('should validate, save and commit transaction when dax with same paymentReference does not exist', async () => {
     const dax = { paymentReference: '123' }
-    getDaxByCalculationId.mockResolvedValue(null)
+    getDaxByCalculationIdAndPaymentReference.mockResolvedValue(null)
     validateDax.mockImplementation(() => { })
     saveDax.mockResolvedValue()
 
@@ -46,7 +46,7 @@ describe('processDax', () => {
 
   test('should rollback transaction when an error occurs', async () => {
     const dax = { paymentReference: '123' }
-    getDaxByCalculationId.mockRejectedValue(new Error('Test error'))
+    getDaxByCalculationIdAndPaymentReference.mockRejectedValue(new Error('Test error'))
 
     try {
       await processDax(dax)

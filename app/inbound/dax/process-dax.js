@@ -1,15 +1,15 @@
 const db = require('../../data')
 const saveDax = require('./save-dax')
 const validateDax = require('./validate-dax')
-const getDaxByCalculationId = require('./get-dax-by-calculation-id')
+const getDaxByCalculationIdAndPaymentReference = require('./get-dax-by-calculation-id-and-payment-reference')
 
 const processDax = async (dax) => {
   const transaction = await db.sequelize.transaction()
 
   try {
-    const existingDax = await getDaxByCalculationId(dax.calculationReference, transaction)
+    const existingDax = await getDaxByCalculationIdAndPaymentReference(dax, transaction)
     if (existingDax) {
-      console.info(`Duplicate Dax calculation ID received, skipping calculation ID ${existingDax.calculationId} for ${existingDax.paymentReference}`)
+      console.info(`Duplicate Dax record received, skipping payment reference ${existingDax.paymentReference} for calculation ${existingDax.calculationReference}`)
       await transaction.rollback()
     } else {
       validateDax(dax, dax.paymentReference)
