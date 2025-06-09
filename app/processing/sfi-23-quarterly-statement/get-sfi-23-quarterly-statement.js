@@ -7,7 +7,6 @@ const getDocumentTypeByCode = require('./get-document-type-by-code')
 const getAddressFromOrganisation = require('./get-address-from-organisation')
 
 const { SFI23QUARTERLYSTATEMENT } = require('../../constants/document-types')
-const calculation = require('../../data/models/calculation')
 
 const getSfi23QuarterlyStatement = async (dax, excluded) => {
   const sfi23MarketingYear = '2023'
