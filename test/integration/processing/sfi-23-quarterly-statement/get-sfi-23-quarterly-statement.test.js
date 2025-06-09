@@ -1,6 +1,3 @@
-jest.mock('../../../../app/processing/sfi-23-quarterly-statement/dax')
-const getDax = require('../../../../app/processing/sfi-23-quarterly-statement/dax')
-
 jest.mock('../../../../app/processing/sfi-23-quarterly-statement/organisation')
 const getOrganisation = require('../../../../app/processing/sfi-23-quarterly-statement/organisation')
 
@@ -22,7 +19,7 @@ const getDocumentTypeByCode = require('../../../../app/processing/sfi-23-quarter
 jest.mock('../../../../app/processing/sfi-23-quarterly-statement/get-address-from-organisation')
 const getAddressFromOrganisation = require('../../../../app/processing/sfi-23-quarterly-statement/get-address-from-organisation')
 
-const getSfi23QuarterlyStatementByPaymentReference = require('../../../../app/processing/sfi-23-quarterly-statement/get-sfi-23-quarterly-statement-by-payment-reference')
+const getSfi23QuarterlyStatement = require('../../../../app/processing/sfi-23-quarterly-statement/get-sfi-23-quarterly-statement')
 
 const paymentReference = 'PY12345670'
 
@@ -44,7 +41,6 @@ describe('get Sfi23 Quarterly Statement by Payment reference', () => {
       postcode: '12345'
     }
 
-    getDax.mockResolvedValue(dax)
     getOrganisation.mockResolvedValue(organisation)
     getTotal.mockResolvedValue(total)
     getActionGroups.mockResolvedValue(actionGroups)
@@ -58,43 +54,38 @@ describe('get Sfi23 Quarterly Statement by Payment reference', () => {
     jest.clearAllMocks()
   })
 
-  test('should call getDax', async () => {
-    await getSfi23QuarterlyStatementByPaymentReference(paymentReference)
-    expect(getDax).toHaveBeenCalled()
-  })
-
   test('should call getOrganisation', async () => {
-    await getSfi23QuarterlyStatementByPaymentReference(paymentReference)
+    await getSfi23QuarterlyStatement(paymentReference)
     expect(getOrganisation).toHaveBeenCalled()
   })
 
   test('should call getTotal', async () => {
-    await getSfi23QuarterlyStatementByPaymentReference(paymentReference)
+    await getSfi23QuarterlyStatement(paymentReference)
     expect(getTotal).toHaveBeenCalled()
   })
 
   test('should call getActionGroups', async () => {
-    await getSfi23QuarterlyStatementByPaymentReference(paymentReference)
+    await getSfi23QuarterlyStatement(paymentReference)
     expect(getActionGroups).toHaveBeenCalled()
   })
 
   test('should call saveDocument', async () => {
-    await getSfi23QuarterlyStatementByPaymentReference(paymentReference)
+    await getSfi23QuarterlyStatement(paymentReference)
     expect(saveDocument).toHaveBeenCalled()
   })
 
   test('should call getPreviousPaymentCountByCalculationId', async () => {
-    await getSfi23QuarterlyStatementByPaymentReference(paymentReference)
+    await getSfi23QuarterlyStatement(paymentReference)
     expect(getPreviousPaymentCountByCalculationId).toHaveBeenCalled()
   })
 
   test('should call getDocumentTypeByCode', async () => {
-    await getSfi23QuarterlyStatementByPaymentReference(paymentReference)
+    await getSfi23QuarterlyStatement(paymentReference)
     expect(getDocumentTypeByCode).toHaveBeenCalled()
   })
 
   test('should call getAddressFromOrganisation', async () => {
-    await getSfi23QuarterlyStatementByPaymentReference(paymentReference)
+    await getSfi23QuarterlyStatement(paymentReference)
     expect(getAddressFromOrganisation).toHaveBeenCalled()
   })
 })

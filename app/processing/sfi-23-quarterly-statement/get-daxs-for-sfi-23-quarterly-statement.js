@@ -13,7 +13,10 @@ const getDaxsForSfi23QuarterlyStatement = async (transaction) => {
     attributes: [
       'daxId',
       'calculationId',
-      'paymentReference'
+      'paymentReference',
+      'paymentPeriod',
+      'paymentAmount',
+      'transactionDate'
     ],
     where: {
       startPublish: null
