@@ -3,6 +3,10 @@ const number30 = 30
 const number200 = 200
 
 module.exports = Joi.object({
+  daxId: Joi.number().integer().messages({
+    'number.base': 'daxId should be a type of number',
+    'number.integer': 'daxId should be an integer'
+  }),
   paymentReference: Joi.string().max(number30).required().messages({
     'string.base': 'paymentReference should be a type of string',
     'string.max': `paymentReference should have a maximum length of ${number30}`,
