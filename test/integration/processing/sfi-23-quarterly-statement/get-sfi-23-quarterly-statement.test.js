@@ -25,7 +25,6 @@ const paymentReference = 'PY12345670'
 
 describe('get Sfi23 Quarterly Statement by Payment reference', () => {
   beforeEach(async () => {
-    const dax = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-dax')))
     const organisation = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-organisation')))
     const total = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-total')))
     const actionGroups = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-action-groups')))
