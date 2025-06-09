@@ -3,20 +3,22 @@ const {
   sendSfi23QuarterlyStatement,
   updateDaxCompletePublishByDaxId,
   resetDaxUnCompletePublishByDaxId,
-  getSfi23QuarterlyStatementByPaymentReference,
+  getSfi23QuarterlyStatement,
   getExcludedPaymentReferenceByPaymentReference
 } = require('./sfi-23-quarterly-statement')
+const validateDax = require('./sfi-23-quarterly-statement/dax/validate-dax')
 
 const processSfi23QuarterlyStatement = async () => {
   const daxs = await getVerifiedDaxsSfi23QuarterlyStatements()
 
   for (const dax of daxs) {
     try {
+      validateDax(dax)
       const paymentReferenceIsExcluded = await getExcludedPaymentReferenceByPaymentReference(dax.paymentReference)
       if (paymentReferenceIsExcluded) {
         console.log(`Payment reference ${dax.paymentReference} is excluded from SFI-23 quarterly statement processing`)
       }
-      const sfi23QuarterlyStatement = await getSfi23QuarterlyStatementByPaymentReference(dax.calculationId, paymentReferenceIsExcluded)
+      const sfi23QuarterlyStatement = await getSfi23QuarterlyStatement(dax, paymentReferenceIsExcluded)
       await sendSfi23QuarterlyStatement(sfi23QuarterlyStatement)
       await updateDaxCompletePublishByDaxId(dax.daxId)
     } catch (err) {
