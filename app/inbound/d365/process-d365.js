@@ -16,20 +16,21 @@ const processD365 = async (d365) => {
       type: D365
     }
 
-    validateD365(transformedD365, transformedD365.paymentReference)
+    validateD365(transformedD365, transformedD365.paymentReference);
 
-    const existingD365 = await getD365ByPaymentReference(d365.paymentReference)
+    const existingD365 = await getD365ByPaymentReference(d365.paymentReference);
     if (existingD365) {
-      console.info(`Duplicate D365 paymentReference received, skipping ${existingD365.paymentReference}`)
-      return
+      console.info(`Duplicate D365 paymentReference received, skipping ${existingD365.paymentReference}`);
+      return;
     }
 
-    const transaction = await db.sequelize.transaction()
+    const transaction = await db.sequelize.transaction();
 
     async function waitForCalculationReference(id, maxPollingWaitMs = 5000, pollingIntervalMs = 250){
       const startPollingTime = Date.now();
+      console.log("Polling calculation.");
       while ((Date.now() - startPollingTime) < maxPollingWaitMs){
-        var doesCalcExist = await db.DelinkedCalculation.findByPk(id);
+        var doesCalcExist = await db.delinkedCalculation.findByPk(id);
         if(doesCalcExist){
           return doesCalcExist;
         }
@@ -42,7 +43,6 @@ const processD365 = async (d365) => {
       await waitForCalculationReference(transformedD365.calculationReference);
       await saveD365(transformedD365, transaction)
       await transaction.commit()
-
       console.log(`Successfully committed D365: ${transformedD365.paymentReference}`)
     } catch (error) {
       console.error(`Transaction error for D365 ${transformedD365.paymentReference}:`, error)
