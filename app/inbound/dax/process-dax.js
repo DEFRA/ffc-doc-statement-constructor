@@ -20,7 +20,7 @@ const processDax = async (dax) => {
       const startPollingTime = Date.now();
       console.log("Polling calculation.");
       while ((Date.now() - startPollingTime) < maxPollingWaitMs) {
-        var doesCalcExist = await db.dax.findByPk(id);
+        var doesCalcExist = await db.total.findByPk(id);
         if (doesCalcExist) {
           return doesCalcExist;
         }
