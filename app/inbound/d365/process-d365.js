@@ -30,7 +30,7 @@ const processD365 = async (d365) => {
       const startPollingTime = Date.now();
       console.log("Polling calculation.");
       while ((Date.now() - startPollingTime) < maxPollingWaitMs){
-        var doesCalcExist = await db.delinkedCalculation.findByPk(id);
+        var doesCalcExist = await db.d365.findByPk(id);
         if(doesCalcExist){
           return doesCalcExist;
         }
