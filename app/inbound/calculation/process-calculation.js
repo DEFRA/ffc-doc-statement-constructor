@@ -2,8 +2,7 @@ const db = require('../../data')
 const getCalculationByCalculationReference = require('./get-calculation-by-calculation-reference')
 const saveCalculation = require('./save-calculation')
 const saveFundings = require('./save-fundings')
-const saveOrganisation = require('./save-organisation')
-const validateOrganisation = require('./validate-organisation')
+const saveOrganisation = require('./save-placeholder-organisation')
 
 const processCalculation = async (calculation) => {
   const transaction = await db.sequelize.transaction()
