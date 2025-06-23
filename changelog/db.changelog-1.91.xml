@@ -6,8 +6,5 @@
     <changeSet id="2" author="Ross Massie">
         <modifyDataType tableName="delinkedCalculation" columnName="calculationId" newDataType="INTEGER(11)">
         <modifyDataType tableName="delinkedCalculation" columnName="sbi" newDataType="INTEGER(38)">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
     </changeSet>
 </databaseChangeLog>
