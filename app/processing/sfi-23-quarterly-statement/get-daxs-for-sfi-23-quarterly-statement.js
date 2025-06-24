@@ -29,10 +29,9 @@ const getDaxsForSfi23QuarterlyStatement = async (transaction) => {
       raw: true
     })
     return daxRecords
-
   } catch (error) {
-      console.error('Error fetching dax records for SFI23 statements:', error)
-      throw new Error('Failed to fetch dax records for SFI23 statements')
+    console.error('Error fetching dax records for SFI23 statements:', error)
+    throw new Error('Failed to fetch dax records for SFI23 statements')
   }
 }
 
