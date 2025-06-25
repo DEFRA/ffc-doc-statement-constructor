@@ -3,7 +3,8 @@ const {
   sendDelinkedStatement,
   updateD365CompletePublishByD365Id,
   resetD365UnCompletePublishByD365Id,
-  getDelinkedStatementByPaymentReference
+  getDelinkedStatementByPaymentReference,
+  checkIfExcluded
 } = require('./delinked-statement')
 
 const handleProcessingError = async (item, err) => {
@@ -20,8 +21,13 @@ const processDelinkedStatement = async () => {
 
   for (const item of d365) {
     try {
-      const delinkedStatement = await getDelinkedStatementByPaymentReference(item.paymentReference)
-      await sendDelinkedStatement(delinkedStatement)
+      const excluded = await checkIfExcluded(item)
+      if (excluded) {
+        console.log(`Statement ${item.paymentReference} for customer ${item.frn} has been identified as on hold or subject to a PPA. A statement will not be produced.`)
+      } else {
+        const delinkedStatement = await getDelinkedStatementByPaymentReference(item.paymentReference)
+        await sendDelinkedStatement(delinkedStatement)
+      }
       await updateD365CompletePublishByD365Id(item.d365Id)
     } catch (err) {
       await handleProcessingError(item, err)
