@@ -17,7 +17,8 @@ const getD365ForDelinkedStatement = async (transaction) => {
       attributes: [
         'd365Id',
         'calculationId',
-        'paymentReference'
+        'paymentReference',
+        'marketingYear'
       ],
       where: {
         startPublish: null,
