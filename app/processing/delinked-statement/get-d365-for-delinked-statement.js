@@ -3,6 +3,9 @@ const config = require('../../config').processingConfig
 
 const getD365ForDelinkedStatement = async (transaction) => {
   try {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
     const d365ForDelinkedStatement = await db.d365.findAll({
       lock: true,
       skipLocked: true,
@@ -17,7 +20,8 @@ const getD365ForDelinkedStatement = async (transaction) => {
         'paymentReference'
       ],
       where: {
-        startPublish: null
+        startPublish: null,
+        transactionDate: { [db.Sequelize.Op.lt]: today }
       },
       raw: true
     })
