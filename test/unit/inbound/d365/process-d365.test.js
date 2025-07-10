@@ -98,4 +98,30 @@ describe('processD365', () => {
     await expect(processD365(d365)).rejects.toThrow('Validation failed')
     expect(transaction.rollback).not.toHaveBeenCalled()
   })
+
+  test('should retry on ForeignKeyConstraintError and succeed on later attempt', async () => {
+    const d365 = {
+      paymentReference: 'retry123',
+      calculationReference: 'abc',
+      paymentPeriod: '2024-Q1',
+      paymentAmount: 1000,
+      transactionDate: '2024-04-01'
+    }
+    getD365ByPaymentReference.mockResolvedValue(null)
+    validateD365.mockImplementation(() => { })
+    const fkError = new db.Sequelize.ForeignKeyConstraintError({ message: 'FK error' })
+    saveD365
+      .mockRejectedValueOnce(fkError)
+      .mockRejectedValueOnce(fkError)
+      .mockRejectedValueOnce(fkError)
+      .mockResolvedValueOnce()
+    console.warn = jest.fn()
+
+    await processD365(d365)
+
+    expect(saveD365).toHaveBeenCalledTimes(4)
+    expect(transaction.commit).toHaveBeenCalledTimes(1)
+    expect(transaction.rollback).toHaveBeenCalledTimes(3)
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('FK error for D365 retry123'))
+  })
 })
