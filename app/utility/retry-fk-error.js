@@ -1,12 +1,13 @@
 const { Sequelize } = require('../data')
 
-const MAX_RETRIES = 5
-const BASE_DELAY_MS = 1000
+const MAX_RETRIES = 8
+const BASE_DELAY_MS = 5000 // 5 seconds
+const MAX_DELAY_MS = 300000 // 5 minutes
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 /**
- * Retry a function on ForeignKeyConstraintError with exponential backoff
+ * Retry a function on ForeignKeyConstraintError with exponential backoff (capped at 5 minutes)
  * @param {Function} fn - The function to retry
  * @param {string} context - Context for logging (e.g., 'D365', 'calculation')
  * @param {string} identifier - Identifier for logging (e.g., paymentReference, calculationReference)
@@ -21,7 +22,7 @@ const retryOnFkError = async (fn, context, identifier) => {
       if (error instanceof Sequelize.ForeignKeyConstraintError) {
         attempt++
         if (attempt < MAX_RETRIES) {
-          const delay = BASE_DELAY_MS * Math.pow(2, attempt - 1)
+          const delay = Math.min(BASE_DELAY_MS * Math.pow(2, attempt - 1), MAX_DELAY_MS)
           console.warn(`FK error for ${context} ${identifier}, retrying in ${delay}ms (attempt ${attempt}/${MAX_RETRIES})`)
           await module.exports.sleep(delay)
           continue
@@ -40,5 +41,6 @@ module.exports = {
   retryOnFkError,
   MAX_RETRIES,
   BASE_DELAY_MS,
+  MAX_DELAY_MS,
   sleep
 }
