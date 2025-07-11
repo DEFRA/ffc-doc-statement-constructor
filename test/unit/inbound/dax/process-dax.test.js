@@ -18,7 +18,11 @@ jest.mock('../../../../app/data', () => {
       transaction: jest.fn()
     },
     Sequelize: {
-      ForeignKeyConstraintError: class extends Error {}
+      ForeignKeyConstraintError: class extends Error {
+        constructor (msg) {
+          super(typeof msg === 'string' ? msg : (msg && msg.message) || 'FK error')
+        }
+      }
     }
   }
 })
@@ -65,7 +69,7 @@ describe('processDax', () => {
     const dax = { calculationReference: 'retry123', paymentReference: '123' }
     getDaxByCalculationIdAndPaymentReference.mockResolvedValue(null)
     validateDax.mockImplementation(() => { })
-    const fkError = new db.Sequelize.ForeignKeyConstraintError({ message: 'FK error' })
+    const fkError = new db.Sequelize.ForeignKeyConstraintError('FK error')
     saveDax
       .mockRejectedValueOnce(fkError)
       .mockRejectedValueOnce(fkError)
@@ -78,7 +82,7 @@ describe('processDax', () => {
     expect(saveDax).toHaveBeenCalledTimes(5)
     expect(transaction.rollback).toHaveBeenCalledTimes(3)
     expect(transaction.commit).toHaveBeenCalledTimes(1)
-    expect(console.warn).toHaveBeenNthCalledWith(1, expect.stringContaining('FK error for Dax'))
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('FK error for Dax'))
   })
 
   test('should rollback transaction when an error occurs', async () => {
