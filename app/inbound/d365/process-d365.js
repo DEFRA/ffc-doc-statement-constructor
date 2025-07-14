@@ -3,6 +3,7 @@ const saveD365 = require('./save-d365')
 const validateD365 = require('./validate-d365')
 const getD365ByPaymentReference = require('./get-d365-by-payment-reference')
 const { D365 } = require('../../constants/types')
+const { retryOnFkError } = require('../../utility/retry-fk-error')
 
 const processD365 = async (d365) => {
   try {
@@ -24,17 +25,17 @@ const processD365 = async (d365) => {
       return
     }
 
-    const transaction = await db.sequelize.transaction()
-    try {
-      await saveD365(transformedD365, transaction)
-      await transaction.commit()
-
-      console.log(`Successfully committed D365: ${transformedD365.paymentReference}`)
-    } catch (error) {
-      console.error(`Transaction error for D365 ${transformedD365.paymentReference}:`, error)
-      await transaction.rollback()
-      throw error
-    }
+    await retryOnFkError(async () => {
+      const transaction = await db.sequelize.transaction()
+      try {
+        await saveD365(transformedD365, transaction)
+        await transaction.commit()
+        console.log(`Successfully committed D365: ${transformedD365.paymentReference}`)
+      } catch (error) {
+        await transaction.rollback()
+        throw error
+      }
+    }, 'D365', transformedD365.paymentReference)
   } catch (error) {
     console.error(`Failed to process D365 ${d365?.paymentReference || 'unknown'}:`, error)
     throw error

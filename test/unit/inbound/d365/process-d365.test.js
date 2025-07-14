@@ -3,9 +3,28 @@ const processD365 = require('../../../../app/inbound/d365/process-d365')
 const saveD365 = require('../../../../app/inbound/d365/save-d365')
 const validateD365 = require('../../../../app/inbound/d365/validate-d365')
 const getD365ByPaymentReference = require('../../../../app/inbound/d365/get-d365-by-payment-reference')
+const retryUtil = require('../../../../app/utility/retry-fk-error')
 const { D365 } = require('../../../../app/constants/types')
 
-jest.mock('../../../../app/data')
+beforeAll(() => {
+  jest.spyOn(retryUtil, 'sleep').mockImplementation(() => Promise.resolve())
+})
+afterAll(() => {
+  retryUtil.sleep.mockRestore()
+})
+
+jest.mock('../../../../app/data', () => {
+  return {
+    sequelize: { transaction: jest.fn() },
+    Sequelize: {
+      ForeignKeyConstraintError: class extends Error {
+        constructor (msg) {
+          super(typeof msg === 'string' ? msg : (msg && msg.message) || 'FK error')
+        }
+      }
+    }
+  }
+})
 jest.mock('../../../../app/inbound/d365/save-d365')
 jest.mock('../../../../app/inbound/d365/schema')
 jest.mock('../../../../app/inbound/d365/validate-d365')
@@ -97,5 +116,31 @@ describe('processD365', () => {
 
     await expect(processD365(d365)).rejects.toThrow('Validation failed')
     expect(transaction.rollback).not.toHaveBeenCalled()
+  })
+
+  test('should retry on ForeignKeyConstraintError and succeed on later attempt', async () => {
+    const d365 = {
+      paymentReference: 'retry123',
+      calculationReference: 'abc',
+      paymentPeriod: '2024-Q1',
+      paymentAmount: 1000,
+      transactionDate: '2024-04-01'
+    }
+    getD365ByPaymentReference.mockResolvedValue(null)
+    validateD365.mockImplementation(() => { })
+    const fkError = new db.Sequelize.ForeignKeyConstraintError({ message: 'FK error' })
+    saveD365
+      .mockRejectedValueOnce(fkError)
+      .mockRejectedValueOnce(fkError)
+      .mockRejectedValueOnce(fkError)
+      .mockResolvedValueOnce()
+    console.warn = jest.fn()
+
+    await processD365(d365)
+
+    expect(saveD365).toHaveBeenCalledTimes(4)
+    expect(transaction.commit).toHaveBeenCalledTimes(1)
+    expect(transaction.rollback).toHaveBeenCalledTimes(3)
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('FK error for D365 retry123'))
   })
 })

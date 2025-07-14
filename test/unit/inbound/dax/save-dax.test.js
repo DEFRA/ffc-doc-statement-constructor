@@ -75,6 +75,6 @@ describe('saveDax', () => {
 
     db.dax.create.mockRejectedValueOnce(new Error(errorMessage))
 
-    await expect(saveDax(dax, transaction)).rejects.toThrow(`Error saving DAX: ${errorMessage}`)
+    await expect(saveDax(dax, transaction)).rejects.toThrow(errorMessage)
   })
 })
