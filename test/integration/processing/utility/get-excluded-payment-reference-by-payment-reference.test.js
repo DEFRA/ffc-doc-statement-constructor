@@ -1,6 +1,6 @@
 const db = require('../../../../app/data')
 
-const getExcludedPaymentReferenceByPaymentReference = require('../../../../app/processing/sfi-23-quarterly-statement/get-excluded-payment-reference-by-payment-reference')
+const getExcludedPaymentReferenceByPaymentReference = require('../../../../app/utility/get-excluded-payment-reference-by-payment-reference')
 
 let excludedPaymentReferences
 

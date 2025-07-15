@@ -1,4 +1,4 @@
-const db = require('../../data')
+const db = require('../data')
 
 const getExcludedPaymentReferenceByPaymentReference = async (paymentReference) => {
   const excludedPaymentReference = await db.excludedPaymentReference.findOne({

@@ -8,7 +8,7 @@ const getAddressFromOrganisation = require('./get-address-from-organisation')
 const { DELINKED } = require('../../constants/document-types')
 const delinkedScheme = require('../../constants/delinked-scheme')
 
-const getDelinkedStatementByPaymentReference = async (paymentReference, _excluded) => {
+const getDelinkedStatementByPaymentReference = async (paymentReference, excluded) => {
   const d365 = await getD365(paymentReference)
   if (!d365) {
     throw new Error(`D365 data not found for payment reference: ${paymentReference}`)
@@ -74,7 +74,8 @@ const getDelinkedStatementByPaymentReference = async (paymentReference, _exclude
     ...d365,
     scheme,
     previousPaymentCount,
-    documentReference: savedDocument.documentId
+    documentReference: savedDocument.documentId,
+    excludedFromNotify: excluded
   }
 }
 
