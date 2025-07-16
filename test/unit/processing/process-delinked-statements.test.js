@@ -115,6 +115,6 @@ describe('process statements', () => {
 
     await processDelinkedStatements()
 
-    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Payment reference P54542352 is excluded from Delinked statement processing'));
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Payment reference P54542352 is excluded from Delinked statement processing'))
   })
 })
