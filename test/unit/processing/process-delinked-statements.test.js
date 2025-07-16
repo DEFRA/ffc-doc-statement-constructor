@@ -1,4 +1,6 @@
 jest.mock('../../../app/processing/delinked-statement')
+jest.mock('../../../app/utility/get-excluded-payment-reference-by-payment-reference') // Mocking the utility function
+
 const {
   getVerifiedD365DelinkedStatements,
   sendDelinkedStatement,
@@ -6,6 +8,8 @@ const {
   resetD365UnCompletePublishByD365Id,
   getDelinkedStatementByPaymentReference
 } = require('../../../app/processing/delinked-statement')
+
+const getExcludedPaymentReferenceByPaymentReference = require('../../../app/utility/get-excluded-payment-reference-by-payment-reference')
 
 const processDelinkedStatements = require('../../../app/processing/process-delinked-payment-statements')
 
@@ -21,6 +25,7 @@ describe('process statements', () => {
     resetD365UnCompletePublishByD365Id.mockResolvedValue(undefined)
     getDelinkedStatementByPaymentReference.mockResolvedValue(undefined)
     sendDelinkedStatement.mockResolvedValue(undefined)
+    getExcludedPaymentReferenceByPaymentReference.mockResolvedValue(false)
   })
 
   afterEach(() => {
@@ -30,6 +35,11 @@ describe('process statements', () => {
   test('should call getVerifiedD365DelinkedStatements', async () => {
     await processDelinkedStatements()
     expect(getVerifiedD365DelinkedStatements).toHaveBeenCalled()
+  })
+
+  test('should call getExcludedPaymentReferenceByPaymentReference for each payment reference', async () => {
+    await processDelinkedStatements()
+    expect(getExcludedPaymentReferenceByPaymentReference).toHaveBeenCalledTimes(retrievedD365.length)
   })
 
   test('should call getDelinkedStatementByPaymentReference', async () => {
@@ -97,5 +107,14 @@ describe('process statements', () => {
     expect(sendDelinkedStatement).toHaveBeenCalled()
     expect(updateD365CompletePublishByD365Id).toHaveBeenCalled()
     expect(resetD365UnCompletePublishByD365Id).toHaveBeenCalled()
+  })
+
+  test('should log when payment reference is excluded', async () => {
+    getExcludedPaymentReferenceByPaymentReference.mockResolvedValue(true)
+    console.log = jest.fn()
+
+    await processDelinkedStatements()
+
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Payment reference P54542352 is excluded from Delinked statement processing'))
   })
 })

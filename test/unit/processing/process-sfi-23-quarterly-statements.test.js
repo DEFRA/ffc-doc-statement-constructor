@@ -4,13 +4,14 @@ const {
   sendSfi23QuarterlyStatement,
   updateDaxCompletePublishByDaxId,
   resetDaxUnCompletePublishByDaxId,
-  getSfi23QuarterlyStatement,
-  getExcludedPaymentReferenceByPaymentReference
+  getSfi23QuarterlyStatement
 } = require('../../../app/processing/sfi-23-quarterly-statement')
 
 jest.mock('../../../app/processing/sfi-23-quarterly-statement/dax/validate-dax', () => jest.fn())
 
 const processSfi23QuarterlyStatements = require('../../../app/processing/process-sfi-23-quarterly-statements')
+jest.mock('../../../app/utility/get-excluded-payment-reference-by-payment-reference')
+const getExcludedPaymentReferenceByPaymentReference = require('../../../app/utility/get-excluded-payment-reference-by-payment-reference')
 
 let retrievedDax
 
