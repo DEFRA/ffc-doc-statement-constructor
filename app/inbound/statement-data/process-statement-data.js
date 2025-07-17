@@ -17,11 +17,15 @@ const processMapping = {
 }
 
 const processStatementData = async (statementData) => {
-  const processFunction = processMapping[statementData.type]
-  if (processFunction) {
-    await processFunction(statementData)
-  } else {
-    console.warn(`Type is invalid or not supported: ${statementData.type}`)
+  try {
+    const processFunction = processMapping[statementData.type]
+    if (processFunction) {
+      await processFunction(statementData)
+    } else {
+      console.warn(`Type is invalid or not supported: ${statementData.type}`)
+    }
+  } catch (error) {
+    throw error
   }
 }
 
