@@ -74,4 +74,12 @@ describe('process statement data', () => {
     await processStatementData({ type: 'INVALID_TYPE' })
     expect(console.warn).toHaveBeenCalledWith('Type is invalid or not supported: INVALID_TYPE')
   })
+
+  test('should propagate errors from processing functions', async () => {
+    const errorMessage = 'Processing error'
+    processCalculation.mockRejectedValue(new Error(errorMessage))
+
+    await expect(processStatementData({ type: CALCULATION, ...calculationData }))
+      .rejects.toThrow(errorMessage)
+  })
 })
