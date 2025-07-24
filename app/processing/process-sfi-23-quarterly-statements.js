@@ -1,10 +1,10 @@
+const getExcludedPaymentReferenceByPaymentReference = require('../utility/get-excluded-payment-reference-by-payment-reference')
 const {
   getVerifiedDaxsSfi23QuarterlyStatements,
   sendSfi23QuarterlyStatement,
   updateDaxCompletePublishByDaxId,
   resetDaxUnCompletePublishByDaxId,
-  getSfi23QuarterlyStatement,
-  getExcludedPaymentReferenceByPaymentReference
+  getSfi23QuarterlyStatement
 } = require('./sfi-23-quarterly-statement')
 const validateDax = require('./sfi-23-quarterly-statement/dax/validate-dax')
 
