@@ -19,10 +19,10 @@ containerSecret:
   type: Opaque
 
 deployment:
-  minReplicas: 1
+  minReplicas: 2
   maxReplicas: 4
-  cpuThreshold: 80
-  memoryThreshold: 80
+  cpuThreshold: 60
+  memoryThreshold: 60
   minReadySeconds: 0
 
 container:
