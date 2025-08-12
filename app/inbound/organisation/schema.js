@@ -30,9 +30,8 @@ module.exports = Joi.object({
   county: Joi.string().allow('').messages({
     'string.base': 'county must be a type of string'
   }),
-  emailAddress: Joi.string().email().allow('').messages({
-    'string.base': 'emailAddress must be a type of string',
-    'string.email': 'emailAddress must be a valid email'
+  emailAddress: Joi.string().allow('').messages({
+    'string.base': 'emailAddress must be a type of string'
   }),
   frn: Joi.number().integer().min(frnMin).max(frnMax).required().messages({
     'number.base': 'frn must be a type of number',
