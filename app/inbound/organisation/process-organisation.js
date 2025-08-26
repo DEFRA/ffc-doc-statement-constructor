@@ -1,7 +1,8 @@
 const db = require('../../data')
 const saveOrganisation = require('./save-organisation')
 const validateOrganisation = require('./validate-organisation')
-const { createAlerts } = require('../../messaging/create-alerts')
+const { dataProcessingAlert } = require('../../utility/processing-alerts')
+const { DATA_PROCESSING_ERROR } = require('../../constants/alerts')
 
 const processOrganisation = async (organisation) => {
   const transaction = await db.sequelize.transaction()
@@ -10,13 +11,19 @@ const processOrganisation = async (organisation) => {
     await saveOrganisation(organisation, transaction)
     await transaction.commit()
   } catch (error) {
-    createAlerts({
-      type: 'OrganisationProcessingError',
-      message: `Failed to process organisation with SBI ${organisation.sbi || 'unknown'}`,
-      details: error.message
-    })
+    try {
+      await dataProcessingAlert({
+        process: 'process-organisation',
+        sbi: organisation?.sbi,
+        details: error?.message,
+        error // include the Error instance
+      }, DATA_PROCESSING_ERROR)
+    } catch (alertErr) {
+      console.error('Failed to publish processing alert for organisation', alertErr)
+    }
+
     await transaction.rollback()
-    throw (error)
+    throw error
   }
 }
 

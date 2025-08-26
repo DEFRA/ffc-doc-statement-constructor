@@ -47,13 +47,25 @@ const getMessageFromProp = (obj, propName) => {
 }
 
 const normaliseErrorMessage = (err) => {
+  if (!err || typeof err !== 'object') {
+    return DEFAULT_MESSAGE
+  }
   const message = trimIfString(err.message)
-  return message && message.length > 0 ? message : DEFAULT_MESSAGE
+  if (message && message.length > 0) {
+    return message
+  }
+  return DEFAULT_MESSAGE
 }
 
 const normaliseStringMessage = (str) => {
+  if (typeof str !== 'string') {
+    return DEFAULT_MESSAGE
+  }
   const s = str.trim()
-  return s.length > 0 ? s : DEFAULT_MESSAGE
+  if (s.length > 0) {
+    return s
+  }
+  return DEFAULT_MESSAGE
 }
 
 const normaliseObjectMessage = (obj) => {
@@ -69,13 +81,23 @@ const normaliseObjectMessage = (obj) => {
 }
 
 const normaliseMessage = (error) => {
-  if (error instanceof Error) return normaliseErrorMessage(error)
-  if (error == null) return DEFAULT_MESSAGE
+  if (error instanceof Error) {
+    return normaliseErrorMessage(error)
+  }
+  if (error == null) {
+    return DEFAULT_MESSAGE
+  }
 
   const t = typeof error
-  if (t === 'string') return normaliseStringMessage(error)
-  if (t === 'number' || t === 'boolean') return String(error)
-  if (t === 'object') return normaliseObjectMessage(error)
+  if (t === 'string') {
+    return normaliseStringMessage(error)
+  }
+  if (t === 'number' || t === 'boolean') {
+    return String(error)
+  }
+  if (t === 'object') {
+    return normaliseObjectMessage(error)
+  }
 
   return DEFAULT_MESSAGE
 }
@@ -86,7 +108,7 @@ const sanitizeValue = (value, keyName) => {
   }
 
   if (value == null) {
-    return value
+    return undefined
   }
 
   if (typeof value !== 'object') {
@@ -97,13 +119,30 @@ const sanitizeValue = (value, keyName) => {
   }
 
   if (Array.isArray(value)) {
-    return value.map((item) => sanitizeValue(item, keyName))
+    const arr = value
+      .map((item) => sanitizeValue(item, keyName))
+      .filter((item) => item !== undefined)
+    if (arr.length === 0) {
+      return undefined
+    }
+    return arr
   }
 
   const out = {}
   Object.keys(value).forEach((key) => {
-    out[key] = sanitizeValue(value[key], key)
+    const sanitized = sanitizeValue(value[key], key)
+    if (sanitized === undefined) {
+      return
+    }
+    if (sanitized && typeof sanitized === 'object' && !Array.isArray(sanitized) && Object.keys(sanitized).length === 0) {
+      return
+    }
+    out[key] = sanitized
   })
+
+  if (Object.keys(out).length === 0) {
+    return undefined
+  }
   return out
 }
 
@@ -118,37 +157,71 @@ const truncateStack = (stack, maxLines = 5) => {
   return lines.slice(0, maxLines).join('\n')
 }
 
+const formatDataForEmail = (data) => {
+  if (data == null || typeof data !== 'object') {
+    return String(data)
+  }
+
+  const parts = Object.keys(data).map((key) => {
+    const val = data[key]
+    if (val == null) {
+      return `${key}: ${val}`
+    }
+    const t = typeof val
+    if (t === 'string') {
+      return `${key}: ${val}`
+    }
+    if (t === 'number' || t === 'boolean') {
+      return `${key}: ${String(val)}`
+    }
+    try {
+      return `${key}: ${JSON.stringify(val)}`
+    } catch (e) {
+      return `${key}: ${String(val)}`
+    }
+  })
+
+  return parts.join('\n')
+}
+
 const buildErrorData = (errorInstance) => {
+  if (!errorInstance || typeof errorInstance !== 'object') {
+    return {}
+  }
   const errorData = {
     name: errorInstance.name,
     message: normaliseMessage(errorInstance),
     stack: truncateStack(errorInstance.stack)
   }
-  return sanitizeValue(errorData)
+  const sanitized = sanitizeValue(errorData) || {}
+  sanitized.text = formatDataForEmail(sanitized)
+  return sanitized
 }
 
 const createAlertFromError = (errorInstance, type) => {
-  return { source: SOURCE, type, data: buildErrorData(errorInstance) }
+  const data = buildErrorData(errorInstance)
+  return { source: SOURCE, type, data }
 }
 
 const createAlertFromObjectWithError = (input, type) => {
   const { error: errorInstance, ...context } = input || {}
-  const sanitizedContext = sanitizeValue(context || {})
+  const sanitizedContext = sanitizeValue(context || {}) || {}
   sanitizedContext.error = buildErrorData(errorInstance)
   sanitizedContext.message = sanitizedContext.message || normaliseMessage(errorInstance)
+  sanitizedContext.text = formatDataForEmail(sanitizedContext)
   return { source: SOURCE, type, data: sanitizedContext }
 }
 
 const createAlertFromObject = (input, type) => {
-  const data = sanitizeValue(input)
+  const data = sanitizeValue(input) || {}
 
   const hasMessageProp = Object.hasOwn(data, 'message')
   const msgValue = hasMessageProp ? data.message : undefined
 
   const needsDefault =
-    !hasMessageProp ||
-    msgValue === null ||
-    msgValue === undefined ||
+    (!hasMessageProp) ||
+    (msgValue === null) ||
+    (msgValue === undefined) ||
     (typeof msgValue === 'string' && msgValue.trim().length === 0)
 
   if (needsDefault) {
@@ -161,11 +234,15 @@ const createAlertFromObject = (input, type) => {
     data.message = String(msgValue)
   }
 
+  data.text = formatDataForEmail(data)
+
   return { source: SOURCE, type, data }
 }
 
 const createAlertFromPrimitive = (input, type) => {
-  return { source: SOURCE, type, data: { message: normaliseMessage(input) } }
+  const data = { message: normaliseMessage(input) }
+  data.text = formatDataForEmail(data)
+  return { source: SOURCE, type, data }
 }
 
 const createAlert = (input, type) => {
@@ -185,7 +262,7 @@ const createAlert = (input, type) => {
 }
 
 const createAlerts = async (errors, type = DATA_PROCESSING_ERROR) => {
-  if (!errors?.length) {
+  if (!errors || !errors.length) {
     return
   }
 
@@ -193,7 +270,7 @@ const createAlerts = async (errors, type = DATA_PROCESSING_ERROR) => {
     .map((error) => createAlert(error, type))
     .filter(Boolean)
 
-  if (!alerts.length) {
+  if (!alerts || !alerts.length) {
     return
   }
 

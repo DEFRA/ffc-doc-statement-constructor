@@ -360,3 +360,30 @@ test('normaliseStringMessage trims strings correctly and returns DEFAULT_MESSAGE
   // Second call is for '   '
   expect(secondPublished[0].data.message).toBe('An error occurred')
 })
+
+test('createAlerts includes human-friendly text (unquoted) for top-level simple key values', async () => {
+  const { createAlerts, EventPublisher } = loadCreateAlerts()
+
+  const errors = [{
+    process: 'process-organisation',
+    sbi: 105321000,
+    details: 'Sequelize transaction commit issue'
+  }]
+
+  await createAlerts(errors)
+
+  const publisherInstance = EventPublisher.mock.instances[0]
+  expect(publisherInstance).toBeDefined()
+  const published = publisherInstance.publishEvents.mock.calls[0][0]
+  const data = published[0].data
+
+  expect(typeof data.text).toBe('string')
+  expect(data.text).toContain('process: process-organisation')
+  expect(data.text).toContain('sbi: 105321000')
+  expect(data.text).toContain('details: Sequelize transaction commit issue')
+
+  // structured data remains
+  expect(data.process).toBe('process-organisation')
+  expect(data.sbi).toBe(105321000)
+  expect(data.details).toBe('Sequelize transaction commit issue')
+})

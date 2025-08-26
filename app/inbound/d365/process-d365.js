@@ -4,7 +4,7 @@ const validateD365 = require('./validate-d365')
 const getD365ByPaymentReference = require('./get-d365-by-payment-reference')
 const { D365 } = require('../../constants/types')
 const { retryOnFkError } = require('../../utility/retry-fk-error')
-const { createAlerts } = require('../../messaging/create-alerts')
+const { dataProcessingAlert } = require('../../utility/processing-alerts')
 const { DATA_PROCESSING_ERROR } = require('../../constants/alerts')
 
 const processD365 = async (d365) => {
@@ -41,14 +41,13 @@ const processD365 = async (d365) => {
   } catch (error) {
     console.error(`Failed to process D365 ${d365?.paymentReference || 'unknown'}:`, error)
     try {
-      await createAlerts([{
+      await dataProcessingAlert({
         process: 'process-d365',
         paymentReference: d365?.paymentReference,
         paymentAmount: d365?.paymentAmount,
         transactionDate: d365?.transactionDate || new Date(),
-        message: error?.message || String(error),
-        error: error?.name
-      }], DATA_PROCESSING_ERROR)
+        error // pass the Error object; wrapper will normalize message
+      }, DATA_PROCESSING_ERROR)
     } catch (alertErr) {
       console.error('Failed to publish processing alert for D365', alertErr)
     }

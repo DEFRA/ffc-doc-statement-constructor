@@ -25,11 +25,19 @@ jest.mock('../../../../app/messaging/create-alerts', () => {
   }
 })
 
+jest.mock('../../../../app/utility/processing-alerts', () => {
+  return {
+    dataProcessingAlert: jest.fn().mockResolvedValue(undefined)
+  }
+})
+
 const db = require('../../../../app/data')
 const processD365 = require('../../../../app/inbound/d365/process-d365')
 const saveD365 = require('../../../../app/inbound/d365/save-d365')
 const validateD365 = require('../../../../app/inbound/d365/validate-d365')
 const getD365ByPaymentReference = require('../../../../app/inbound/d365/get-d365-by-payment-reference')
+const { dataProcessingAlert } = require('../../../../app/utility/processing-alerts')
+const { DATA_PROCESSING_ERROR } = require('../../../../app/constants/alerts')
 
 beforeAll(() => {
   jest.spyOn(retryUtil, 'sleep').mockImplementation(() => Promise.resolve())
@@ -150,5 +158,56 @@ describe('processD365', () => {
     expect(transaction.commit).toHaveBeenCalledTimes(1)
     expect(transaction.rollback).toHaveBeenCalledTimes(3)
     expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('FK error for D365 PY1000001'))
+  })
+
+  test('should call dataProcessingAlert on processing error', async () => {
+    const d365 = {
+      paymentReference: 'PY1000001',
+      calculationReference: 'abc',
+      paymentPeriod: '2024-Q1',
+      paymentAmount: 1000,
+      transactionDate: '2024-04-01'
+    }
+    getD365ByPaymentReference.mockResolvedValue(null)
+    validateD365.mockImplementation(() => { })
+    const saveError = new Error('Save failed for alert test')
+    saveD365.mockRejectedValue(saveError)
+
+    dataProcessingAlert.mockResolvedValueOnce()
+
+    await expect(processD365(d365)).rejects.toThrow('Save failed for alert test')
+
+    expect(dataProcessingAlert).toHaveBeenCalledTimes(1)
+    const alertArg = dataProcessingAlert.mock.calls[0][0]
+    const alertType = dataProcessingAlert.mock.calls[0][1]
+    expect(alertArg).toMatchObject({
+      process: 'process-d365',
+      paymentReference: 'PY1000001',
+      paymentAmount: 1000
+    })
+    expect(alertType).toBe(DATA_PROCESSING_ERROR)
+  })
+
+  test('should log when dataProcessingAlert fails but still throw original error', async () => {
+    const d365 = {
+      paymentReference: 'PY1000001',
+      calculationReference: 'abc',
+      paymentPeriod: '2024-Q1',
+      paymentAmount: 1000,
+      transactionDate: '2024-04-01'
+    }
+    getD365ByPaymentReference.mockResolvedValue(null)
+    validateD365.mockImplementation(() => { })
+    const saveError = new Error('Save failed and alert also fails')
+    saveD365.mockRejectedValue(saveError)
+
+    dataProcessingAlert.mockRejectedValueOnce(new Error('alert publish failed'))
+
+    console.error = jest.fn()
+
+    await expect(processD365(d365)).rejects.toThrow('Save failed and alert also fails')
+
+    expect(dataProcessingAlert).toHaveBeenCalledTimes(1)
+    expect(console.error).toHaveBeenCalledWith('Failed to publish processing alert for D365', expect.any(Error))
   })
 })
