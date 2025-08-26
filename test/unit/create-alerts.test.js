@@ -161,6 +161,7 @@ test('createAlerts redacts top-level password and token fields', async () => {
   expect(published[0].data.password).toBe('[REDACTED]')
   expect(published[0].data.token).toBe('[REDACTED]')
 })
+
 test('createAlerts handles object.message null -> DEFAULT_MESSAGE', async () => {
   const { createAlerts, EventPublisher } = loadCreateAlerts()
   const errors = [{ message: null }]
@@ -207,4 +208,88 @@ test('createAlerts rethrows when publishEvents fails', async () => {
   const publisherInstance = EventPublisher.mock.instances[0]
   expect(publisherInstance).toBeDefined()
   expect(publisherInstance.publishEvents).toHaveBeenCalled()
+})
+
+test('createAlerts treats object.msg as non-primitive -> DEFAULT_MESSAGE', async () => {
+  const { createAlerts, EventPublisher } = loadCreateAlerts()
+  const errors = [{ msg: { nested: 'x' } }]
+  await createAlerts(errors)
+
+  const publisherInstance = EventPublisher.mock.instances[0]
+  expect(publisherInstance).toBeDefined()
+  const published = publisherInstance.publishEvents.mock.calls[0][0]
+
+  expect(published[0].data.message).toBe('An error occurred')
+})
+
+test('sanitizeValue redacts long strings, array items and nested sensitive keys (case-insensitive api-key variants)', async () => {
+  const { createAlerts, EventPublisher } = loadCreateAlerts()
+
+  const veryLong = 'a'.repeat(300)
+  const veryLong2 = 'b'.repeat(400)
+  const errors = [{
+    msg: 'arr',
+    values: ['short', veryLong],
+    longText: veryLong2,
+    details: {
+      password: 'p',
+      'Api-Key': 'abc123',
+      nested: {
+        api_key: 'lowercase-match'
+      }
+    }
+  }]
+
+  await createAlerts(errors)
+
+  const publisherInstance = EventPublisher.mock.instances[0]
+  const published = publisherInstance.publishEvents.mock.calls[0][0]
+  const data = published[0].data
+
+  expect(Array.isArray(data.values)).toBe(true)
+  expect(data.values[0]).toBe('short')
+  expect(data.values[1]).toBe('[REDACTED]')
+
+  expect(data.longText).toBe('[REDACTED]')
+
+  expect(data.details.password).toBe('[REDACTED]')
+  expect(data.details['Api-Key']).toBe('[REDACTED]')
+  expect(data.details.nested.api_key).toBe('[REDACTED]')
+})
+
+test('truncateStack truncates error stacks to five lines when building error data from error property', async () => {
+  const { createAlerts, EventPublisher } = loadCreateAlerts()
+
+  const err = new Error('stacked')
+  err.stack = [
+    'Error: stacked',
+    ' at one',
+    ' at two',
+    ' at three',
+    ' at four',
+    ' at five',
+    ' at six'
+  ].join('\n')
+
+  const errors = [{ error: err }]
+  await createAlerts(errors)
+
+  const publisherInstance = EventPublisher.mock.instances[0]
+  const published = publisherInstance.publishEvents.mock.calls[0][0]
+  const errorStack = published[0].data.error.stack
+
+  const lines = errorStack.split('\n').map(l => l.trim()).filter(Boolean)
+  expect(lines.length).toBeLessThanOrEqual(5)
+  expect(lines[0]).toContain('Error: stacked')
+})
+
+test('createAlerts handles primitive inputs (number and boolean) directly', async () => {
+  const { createAlerts, EventPublisher } = loadCreateAlerts()
+  const errors = [42, false]
+  await createAlerts(errors)
+
+  const publisherInstance = EventPublisher.mock.instances[0]
+  const published = publisherInstance.publishEvents.mock.calls[0][0]
+  expect(published[0].data.message).toBe('42')
+  expect(published[1].data.message).toBe('false')
 })

@@ -2,6 +2,7 @@ const { EventPublisher } = require('ffc-pay-event-publisher')
 const { SOURCE } = require('../constants/source')
 const { DATA_PROCESSING_ERROR } = require('../constants/alerts')
 const messageConfig = require('../config/message')
+const santizedMaxLength = 200
 
 const DEFAULT_MESSAGE = 'An error occurred'
 
@@ -9,17 +10,62 @@ const DEFAULT_MESSAGE = 'An error occurred'
 const SENSITIVE_KEY_RE = /(password|pass|secret|token|key|credential|auth|api[_-]?key)/i
 const REDACTED = '[REDACTED]'
 
-const normaliseMessage = (error) => {
-  if (error instanceof Error) {
-    const msg = error.message && String(error.message).trim()
-    return msg || DEFAULT_MESSAGE
+const trimIfString = (value) => {
+  if (typeof value === 'string') {
+    return value.trim()
+  }
+  return value
+}
+
+const getMessageFromProp = (obj, propName) => {
+  if (obj == null || typeof obj !== 'object') {
+    return undefined
   }
 
-  if (error == null) return DEFAULT_MESSAGE
+  if (Object.hasOwn(obj, propName)) {
+    const value = obj[propName]
+
+    if (value === null || value === undefined) {
+      return undefined
+    }
+
+    if (typeof value === 'string') {
+      const string = value.trim()
+      if (string.length > 0) {
+        return string
+      }
+      return undefined
+    }
+
+    if (typeof value === 'number' || typeof value === 'boolean') {
+      return String(value)
+    }
+
+    return undefined
+  }
+
+  return undefined
+}
+
+const normaliseMessage = (error) => {
+  if (error instanceof Error) {
+    const message = trimIfString(error.message)
+    if (message && message.length > 0) {
+      return message
+    }
+    return DEFAULT_MESSAGE
+  }
+
+  if (error == null) {
+    return DEFAULT_MESSAGE
+  }
 
   if (typeof error === 'string') {
     const string = error.trim()
-    return string.length ? string : DEFAULT_MESSAGE
+    if (string.length > 0) {
+      return string
+    }
+    return DEFAULT_MESSAGE
   }
 
   if (typeof error === 'number' || typeof error === 'boolean') {
@@ -27,26 +73,14 @@ const normaliseMessage = (error) => {
   }
 
   if (typeof error === 'object') {
-    if (Object.prototype.hasOwnProperty.call(error, 'msg')) {
-      const message = error.msg
-      if (message === null || message === undefined) return DEFAULT_MESSAGE
-      if (typeof message === 'string') {
-        const string = message.trim()
-        return string.length ? string : DEFAULT_MESSAGE
-      }
-      if (typeof message === 'number' || typeof message === 'boolean') return String(message)
-      return DEFAULT_MESSAGE
+    const msgFromMsgProp = getMessageFromProp(error, 'msg')
+    if (msgFromMsgProp !== undefined) {
+      return msgFromMsgProp
     }
 
-    if (Object.prototype.hasOwnProperty.call(error, 'message')) {
-      const message = error.message
-      if (message === null || message === undefined) return DEFAULT_MESSAGE
-      if (typeof message === 'string') {
-        const string = message.trim()
-        return string.length ? string : DEFAULT_MESSAGE
-      }
-      if (typeof message === 'number' || typeof message === 'boolean') return String(message)
-      return DEFAULT_MESSAGE
+    const msgFromMessageProp = getMessageFromProp(error, 'message')
+    if (msgFromMessageProp !== undefined) {
+      return msgFromMessageProp
     }
   }
 
@@ -58,67 +92,73 @@ const sanitizeValue = (value, keyName) => {
     return REDACTED
   }
 
-  if (value == null) return value
+  if (value == null) {
+    return value
+  }
 
   if (typeof value !== 'object') {
-    if (typeof value === 'string' && value.length > 200) {
+    if (typeof value === 'string' && value.length > santizedMaxLength) {
       return REDACTED
     }
     return value
   }
 
   if (Array.isArray(value)) {
-    return value.map((v) => sanitizeValue(v, keyName))
+    return value.map((item) => sanitizeValue(item, keyName))
   }
 
   const out = {}
-  Object.keys(value).forEach(k => {
-    out[k] = sanitizeValue(value[k], k)
+  Object.keys(value).forEach((key) => {
+    out[key] = sanitizeValue(value[key], key)
   })
   return out
 }
 
 const truncateStack = (stack, maxLines = 5) => {
-  if (!stack) return undefined
-  const lines = String(stack).split('\n').map(l => l.trim()).filter(Boolean)
-  if (!lines.length) return undefined
+  if (!stack) {
+    return undefined
+  }
+  const lines = String(stack).split('\n').map((line) => line.trim()).filter(Boolean)
+  if (!lines.length) {
+    return undefined
+  }
   return lines.slice(0, maxLines).join('\n')
+}
+
+const buildErrorData = (errorInstance) => {
+  const errorData = {
+    name: errorInstance.name,
+    message: normaliseMessage(errorInstance),
+    stack: truncateStack(errorInstance.stack)
+  }
+  return sanitizeValue(errorData)
 }
 
 const createAlert = (input, type) => {
   let data = {}
 
   if (input instanceof Error) {
-    data = sanitizeValue({
-      name: input.name,
-      message: normaliseMessage(input),
-      stack: truncateStack(input.stack)
-    })
+    data = buildErrorData(input)
     return { source: SOURCE, type, data }
   }
 
   if (input && typeof input === 'object' && input.error instanceof Error) {
-    const ctx = { ...input }
-    const errInstance = ctx.error
-    delete ctx.error
+    const context = { ...input }
+    const errorInstance = context.error
+    delete context.error
 
-    data = sanitizeValue(ctx || {})
+    const sanitizedContext = sanitizeValue(context || {})
+    sanitizedContext.error = buildErrorData(errorInstance)
 
-    data.error = sanitizeValue({
-      name: errInstance.name,
-      message: normaliseMessage(errInstance),
-      stack: truncateStack(errInstance.stack)
-    })
+    sanitizedContext.message = sanitizedContext.message || normaliseMessage(errorInstance)
 
-    data.message = data.message || normaliseMessage(errInstance)
-
-    return { source: SOURCE, type, data }
+    return { source: SOURCE, type, data: sanitizedContext }
   }
 
   if (input && typeof input === 'object') {
     data = sanitizeValue(input)
 
-    const hasMessageProp = Object.prototype.hasOwnProperty.call(data, 'message')
+    const hasMessageProp = Object.hasOwn(data, 'message')
     const msgValue = hasMessageProp ? data.message : undefined
 
     const needsDefault =
@@ -132,6 +172,7 @@ const createAlert = (input, type) => {
     } else if (typeof msgValue === 'number' || typeof msgValue === 'boolean') {
       data.message = String(msgValue)
     }
+
     return { source: SOURCE, type, data }
   }
 
@@ -140,13 +181,17 @@ const createAlert = (input, type) => {
 }
 
 const createAlerts = async (errors, type = DATA_PROCESSING_ERROR) => {
-  if (!errors || !errors.length) return
+  if (!errors || !errors.length) {
+    return
+  }
 
   const alerts = errors
-    .map(error => createAlert(error, type))
+    .map((error) => createAlert(error, type))
     .filter(Boolean)
 
-  if (!alerts.length) return
+  if (!alerts.length) {
+    return
+  }
 
   const eventPublisher = new EventPublisher(messageConfig.alertTopic)
   try {
