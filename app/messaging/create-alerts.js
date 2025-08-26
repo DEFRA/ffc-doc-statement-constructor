@@ -49,10 +49,7 @@ const getMessageFromProp = (obj, propName) => {
 const normaliseMessage = (error) => {
   if (error instanceof Error) {
     const message = trimIfString(error.message)
-    if (message && message.length > 0) {
-      return message
-    }
-    return DEFAULT_MESSAGE
+    return message && message.length > 0 ? message : DEFAULT_MESSAGE
   }
 
   if (error == null) {
@@ -61,10 +58,7 @@ const normaliseMessage = (error) => {
 
   if (typeof error === 'string') {
     const string = error.trim()
-    if (string.length > 0) {
-      return string
-    }
-    return DEFAULT_MESSAGE
+    return string.length > 0 ? string : DEFAULT_MESSAGE
   }
 
   if (typeof error === 'number' || typeof error === 'boolean') {
@@ -72,14 +66,9 @@ const normaliseMessage = (error) => {
   }
 
   if (typeof error === 'object') {
-    const msgFromMsgProp = getMessageFromProp(error, 'msg')
-    if (msgFromMsgProp !== undefined) {
-      return msgFromMsgProp
-    }
-
-    const msgFromMessageProp = getMessageFromProp(error, 'message')
-    if (msgFromMessageProp !== undefined) {
-      return msgFromMessageProp
+    const msg = getMessageFromProp(error, 'msg') ?? getMessageFromProp(error, 'message')
+    if (msg !== undefined) {
+      return msg
     }
   }
 
@@ -133,54 +122,67 @@ const buildErrorData = (errorInstance) => {
   return sanitizeValue(errorData)
 }
 
-const createAlert = (input, type) => {
-  let data = {}
+const createAlertFromError = (errorInstance, type) => {
+  return { source: SOURCE, type, data: buildErrorData(errorInstance) }
+}
 
-  if (input instanceof Error) {
-    data = buildErrorData(input)
-    return { source: SOURCE, type, data }
-  }
+const createAlertFromObjectWithError = (input, type) => {
+  const { error: errorInstance, ...context } = input || {}
+  const sanitizedContext = sanitizeValue(context || {})
+  sanitizedContext.error = buildErrorData(errorInstance)
+  sanitizedContext.message = sanitizedContext.message || normaliseMessage(errorInstance)
+  return { source: SOURCE, type, data: sanitizedContext }
+}
 
-  if (input && typeof input === 'object' && input.error instanceof Error) {
-    const context = { ...input }
-    const errorInstance = context.error
-    delete context.error
+const createAlertFromObject = (input, type) => {
+  const data = sanitizeValue(input)
 
-    const sanitizedContext = sanitizeValue(context || {})
-    sanitizedContext.error = buildErrorData(errorInstance)
+  const hasMessageProp = Object.hasOwn(data, 'message')
+  const msgValue = hasMessageProp ? data.message : undefined
 
-    sanitizedContext.message = sanitizedContext.message || normaliseMessage(errorInstance)
+  const needsDefault =
+    !hasMessageProp ||
+    msgValue === null ||
+    msgValue === undefined ||
+    (typeof msgValue === 'string' && msgValue.trim().length === 0)
 
-    return { source: SOURCE, type, data: sanitizedContext }
-  }
-
-  if (input && typeof input === 'object') {
-    data = sanitizeValue(input)
-
-    const hasMessageProp = Object.hasOwn(data, 'message')
-    const msgValue = hasMessageProp ? data.message : undefined
-
-    const needsDefault =
-      !hasMessageProp ||
-      msgValue === null ||
-      msgValue === undefined ||
-      (typeof msgValue === 'string' && msgValue.trim().length === 0)
-
-    if (needsDefault) {
-      data.message = normaliseMessage(input)
-    } else if (typeof msgValue === 'number' || typeof msgValue === 'boolean') {
+  if (needsDefault) {
+    data.message = normaliseMessage(input)
+  } else if (typeof msgValue === 'number' || typeof msgValue === 'boolean') {
+    data.message = String(msgValue)
+  } else {
+    if (typeof msgValue === 'string') {
+      data.message = msgValue.trim()
+    } else {
       data.message = String(msgValue)
     }
-
-    return { source: SOURCE, type, data }
   }
 
-  data.message = normaliseMessage(input)
   return { source: SOURCE, type, data }
 }
 
+const createAlertFromPrimitive = (input, type) => {
+  return { source: SOURCE, type, data: { message: normaliseMessage(input) } }
+}
+
+const createAlert = (input, type) => {
+  if (input instanceof Error) {
+    return createAlertFromError(input, type)
+  }
+
+  if (input && typeof input === 'object' && input.error instanceof Error) {
+    return createAlertFromObjectWithError(input, type)
+  }
+
+  if (input && typeof input === 'object') {
+    return createAlertFromObject(input, type)
+  }
+
+  return createAlertFromPrimitive(input, type)
+}
+
 const createAlerts = async (errors, type = DATA_PROCESSING_ERROR) => {
-  if (!errors || !errors.length) {
+  if (!errors?.length) {
     return
   }
 
