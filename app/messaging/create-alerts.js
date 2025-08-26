@@ -6,7 +6,6 @@ const santizedMaxLength = 200
 
 const DEFAULT_MESSAGE = 'An error occurred'
 
-// redaction config: keys that should be redacted
 const SENSITIVE_KEY_RE = /(password|pass|secret|token|key|credential|auth|api[_-]?key)/i
 const REDACTED = '[REDACTED]'
 
