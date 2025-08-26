@@ -46,31 +46,36 @@ const getMessageFromProp = (obj, propName) => {
   return undefined
 }
 
+const normaliseErrorMessage = (err) => {
+  const message = trimIfString(err.message)
+  return message && message.length > 0 ? message : DEFAULT_MESSAGE
+}
+
+const normaliseStringMessage = (str) => {
+  const s = str.trim()
+  return s.length > 0 ? s : DEFAULT_MESSAGE
+}
+
+const normaliseObjectMessage = (obj) => {
+  const msgFromMsgProp = getMessageFromProp(obj, 'msg')
+  if (msgFromMsgProp !== undefined) {
+    return msgFromMsgProp
+  }
+  const msgFromMessageProp = getMessageFromProp(obj, 'message')
+  if (msgFromMessageProp !== undefined) {
+    return msgFromMessageProp
+  }
+  return DEFAULT_MESSAGE
+}
+
 const normaliseMessage = (error) => {
-  if (error instanceof Error) {
-    const message = trimIfString(error.message)
-    return message && message.length > 0 ? message : DEFAULT_MESSAGE
-  }
+  if (error instanceof Error) return normaliseErrorMessage(error)
+  if (error == null) return DEFAULT_MESSAGE
 
-  if (error == null) {
-    return DEFAULT_MESSAGE
-  }
-
-  if (typeof error === 'string') {
-    const string = error.trim()
-    return string.length > 0 ? string : DEFAULT_MESSAGE
-  }
-
-  if (typeof error === 'number' || typeof error === 'boolean') {
-    return String(error)
-  }
-
-  if (typeof error === 'object') {
-    const msg = getMessageFromProp(error, 'msg') ?? getMessageFromProp(error, 'message')
-    if (msg !== undefined) {
-      return msg
-    }
-  }
+  const t = typeof error
+  if (t === 'string') return normaliseStringMessage(error)
+  if (t === 'number' || t === 'boolean') return String(error)
+  if (t === 'object') return normaliseObjectMessage(error)
 
   return DEFAULT_MESSAGE
 }
@@ -150,12 +155,10 @@ const createAlertFromObject = (input, type) => {
     data.message = normaliseMessage(input)
   } else if (typeof msgValue === 'number' || typeof msgValue === 'boolean') {
     data.message = String(msgValue)
+  } else if (typeof msgValue === 'string') {
+    data.message = msgValue.trim()
   } else {
-    if (typeof msgValue === 'string') {
-      data.message = msgValue.trim()
-    } else {
-      data.message = String(msgValue)
-    }
+    data.message = String(msgValue)
   }
 
   return { source: SOURCE, type, data }

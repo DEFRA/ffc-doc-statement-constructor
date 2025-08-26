@@ -196,18 +196,24 @@ test('createAlerts handles numeric and boolean message values', async () => {
   expect(published[1].data.message).toBe('false')
 })
 
-test('createAlerts rethrows when publishEvents fails', async () => {
+test('createAlerts rethrows when publishEvents fails and logs error', async () => {
   const { createAlerts, EventPublisher } = loadCreateAlerts()
 
   EventPublisher.mockImplementationOnce(function () {
     this.publishEvents = jest.fn().mockRejectedValue(new Error('publish failure'))
   })
 
+  const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
   await expect(createAlerts([{ msg: 'will fail' }])).rejects.toThrow('publish failure')
 
   const publisherInstance = EventPublisher.mock.instances[0]
   expect(publisherInstance).toBeDefined()
   expect(publisherInstance.publishEvents).toHaveBeenCalled()
+
+  expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to publish alerts', expect.any(Error))
+
+  consoleErrorSpy.mockRestore()
 })
 
 test('createAlerts treats object.msg as non-primitive -> DEFAULT_MESSAGE', async () => {
@@ -292,4 +298,65 @@ test('createAlerts handles primitive inputs (number and boolean) directly', asyn
   const published = publisherInstance.publishEvents.mock.calls[0][0]
   expect(published[0].data.message).toBe('42')
   expect(published[1].data.message).toBe('false')
+})
+
+test('object message is preserved when error property also present', async () => {
+  const { createAlerts, EventPublisher } = loadCreateAlerts()
+  const err = new Error('boom')
+  const errors = [{ message: 'explicit message', error: err }]
+  await createAlerts(errors)
+
+  const publisherInstance = EventPublisher.mock.instances[0]
+  expect(publisherInstance).toBeDefined()
+  const published = publisherInstance.publishEvents.mock.calls[0][0]
+  // message present on the object should be kept
+  expect(published[0].data.message).toBe('explicit message')
+  // error data still included and its message normalized
+  expect(published[0].data.error).toBeDefined()
+  expect(published[0].data.error.message).toBe('boom')
+})
+
+test('object-with-error but no object.message uses error.message as message', async () => {
+  const { createAlerts, EventPublisher } = loadCreateAlerts()
+  const err = new Error('err-message')
+  const errors = [{ error: err }]
+  await createAlerts(errors)
+
+  const publisherInstance = EventPublisher.mock.instances[0]
+  const published = publisherInstance.publishEvents.mock.calls[0][0]
+  // object had no explicit message so message should be taken from the error
+  expect(published[0].data.message).toBe('err-message')
+  // error data still included
+  expect(published[0].data.error).toBeDefined()
+  expect(published[0].data.error.message).toBe('err-message')
+})
+
+test('getMessageFromProp handles boolean msg (true) -> "true"', async () => {
+  const { createAlerts, EventPublisher } = loadCreateAlerts()
+  const errors = [{ msg: true }]
+  await createAlerts(errors)
+
+  const publisherInstance = EventPublisher.mock.instances[0]
+  const published = publisherInstance.publishEvents.mock.calls[0][0]
+  expect(published[0].data.message).toBe('true')
+})
+
+test('normaliseStringMessage trims strings correctly and returns DEFAULT_MESSAGE for empty', async () => {
+  const { createAlerts, EventPublisher } = loadCreateAlerts()
+  // first call: trimmed string kept
+  await createAlerts(['  trimmed  '])
+  // second call: blank string becomes default
+  await createAlerts(['   '])
+
+  const instances = EventPublisher.mock.instances
+  expect(instances.length).toBeGreaterThanOrEqual(2)
+
+  const firstPublished = instances[0].publishEvents.mock.calls[0][0]
+  const secondPublished = instances[1].publishEvents.mock.calls[0][0]
+
+  // First call is for '  trimmed  '
+  expect(firstPublished[0].data.message).toBe('trimmed')
+
+  // Second call is for '   '
+  expect(secondPublished[0].data.message).toBe('An error occurred')
 })
