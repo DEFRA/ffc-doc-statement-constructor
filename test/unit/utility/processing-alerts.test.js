@@ -65,7 +65,7 @@ describe('dataProcessingAlert', () => {
     const [argArray] = createAlerts.mock.calls[0]
     const alert = argArray[0]
     expect(alert.message).toBe('string-error')
-    expect(alert.error).toBeUndefined()
+    expect(alert.error).toBe(null)
   })
 
   test('preserves an explicit non-empty message', async () => {
