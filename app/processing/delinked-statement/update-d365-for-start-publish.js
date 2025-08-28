@@ -1,4 +1,6 @@
 const updateD365StartPublishByD365Id = require('./update-d365-start-publish-by-d365-id')
+const { dataProcessingAlert } = require('../../../app/utility/processing-alerts')
+const { DATA_PROCESSING_ERROR } = require('../../../app/constants/alerts')
 
 const updateD365ForStartPublish = async (d365, transaction) => {
   const started = new Date()
@@ -6,7 +8,16 @@ const updateD365ForStartPublish = async (d365, transaction) => {
     try {
       await updateD365StartPublishByD365Id(item.d365Id, started, transaction)
     } catch (err) {
-      console.error(`Could not start delinked statement for d365 payment: ${item.paymentReference}`)
+      try {
+        await dataProcessingAlert({
+          process: 'updateD365ForStartPublish',
+          paymentReference: item?.paymentReference,
+          error: err,
+          message: `Could not start delinked statement for d365 payment: ${item.paymentReference}`
+        }, DATA_PROCESSING_ERROR)
+      } catch (alertErr) {
+        console.error(`Could not start delinked statement for d365 payment: ${item.paymentReference}`, err)
+      }
       throw new Error(`Could not start delinked statement for d365 payment: ${item.paymentReference}`)
     }
   }
