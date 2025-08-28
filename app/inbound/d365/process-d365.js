@@ -24,6 +24,18 @@ const processD365 = async (d365) => {
     const existingD365 = await getD365ByPaymentReference(d365.paymentReference)
     if (existingD365) {
       console.info(`Duplicate D365 paymentReference received, skipping ${existingD365.paymentReference}`)
+      try {
+        await dataProcessingAlert({
+          process: 'process-d365',
+          paymentReference: d365.paymentReference,
+          paymentAmount: d365.paymentAmount,
+          transactionDate: d365.transactionDate || new Date(),
+          duplicateFound: true,
+          message: `Duplicate D365 paymentReference received: ${d365.paymentReference}`
+        }, DATA_PROCESSING_ERROR)
+      } catch (alertErr) {
+        console.error('Failed to publish duplicate payment reference alert', alertErr)
+      }
       return
     }
 
@@ -46,7 +58,7 @@ const processD365 = async (d365) => {
         paymentReference: d365?.paymentReference,
         paymentAmount: d365?.paymentAmount,
         transactionDate: d365?.transactionDate || new Date(),
-        error // pass the Error object; wrapper will normalize message
+        error
       }, DATA_PROCESSING_ERROR)
     } catch (alertErr) {
       console.error('Failed to publish processing alert for D365', alertErr)

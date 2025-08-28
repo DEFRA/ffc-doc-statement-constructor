@@ -16,7 +16,7 @@ const processOrganisation = async (organisation) => {
         process: 'process-organisation',
         sbi: organisation?.sbi,
         details: error?.message,
-        error // include the Error instance
+        error
       }, DATA_PROCESSING_ERROR)
     } catch (alertErr) {
       console.error('Failed to publish processing alert for organisation', alertErr)
