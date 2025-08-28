@@ -19,14 +19,6 @@ jest.mock('../../../../app/data', () => {
 jest.mock('../../../../app/inbound/organisation/save-organisation')
 const saveOrganisation = require('../../../../app/inbound/organisation/save-organisation')
 
-jest.mock('../../../../app/utility/processing-alerts', () => {
-  return {
-    dataProcessingAlert: jest.fn().mockResolvedValue(undefined)
-  }
-})
-const { dataProcessingAlert } = require('../../../../app/utility/processing-alerts')
-const { DATA_PROCESSING_ERROR } = require('../../../../app/constants/alerts')
-
 const processOrganisation = require('../../../../app/inbound/organisation')
 
 let organisation
@@ -154,39 +146,5 @@ describe('process organisation', () => {
     mockTransaction.commit.mockRejectedValue(new Error('Sequelize transaction commit issue'))
     try { await processOrganisation(organisation) } catch { }
     expect(mockTransaction.rollback).toHaveBeenCalledTimes(1)
-  })
-
-  test('should call dataProcessingAlert with expected payload and type when saveOrganisation throws', async () => {
-    const saveError = new Error('Database save down issue')
-    saveOrganisation.mockRejectedValue(saveError)
-
-    await expect(processOrganisation(organisation)).rejects.toThrow('Database save down issue')
-
-    expect(dataProcessingAlert).toHaveBeenCalledTimes(1)
-    const [alertArg, alertType] = dataProcessingAlert.mock.calls[0]
-    expect(alertType).toBe(DATA_PROCESSING_ERROR)
-    expect(alertArg).toMatchObject({
-      process: 'process-organisation',
-      sbi: organisation.sbi,
-      details: saveError.message
-    })
-    expect(alertArg.error).toBeInstanceOf(Error)
-  })
-
-  test('should log when dataProcessingAlert fails but still throw original error', async () => {
-    const saveError = new Error('Database save down issue - alert fail test')
-    saveOrganisation.mockRejectedValue(saveError)
-
-    const alertPublishError = new Error('alert publish failed')
-    dataProcessingAlert.mockRejectedValueOnce(alertPublishError)
-
-    console.error = jest.fn()
-
-    await expect(processOrganisation(organisation)).rejects.toThrow('Database save down issue - alert fail test')
-
-    expect(dataProcessingAlert).toHaveBeenCalledTimes(1)
-    expect(console.error).toHaveBeenCalledWith('Failed to publish processing alert for organisation', expect.any(Error))
-
-    expect(mockTransaction.rollback).toHaveBeenCalled()
   })
 })
