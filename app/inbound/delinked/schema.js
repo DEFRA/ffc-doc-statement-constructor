@@ -6,10 +6,6 @@ const monetaryPattern = /^\d+\.\d{2}$/
 
 const createStringSchema = (name, pattern) => stringSchema(name, maxChars, pattern)
 
-const createProgressiveReductionSchema = (name) => Joi.string().allow(null).messages({
-  'string.base': `${name} should be a type of string`
-})
-
 const createNumberSchemaWithMessages = (name, min, max) => Joi.number().integer().min(min).max(max).required().messages({
   'number.base': `${name} should be a type of number`,
   'number.integer': `${name} should be an integer`,
