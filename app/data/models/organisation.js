@@ -17,11 +17,5 @@ module.exports = (sequelize, DataTypes) => {
     freezeTableName: true,
     timestamps: false
   })
-  organisation.associate = function (models) {
-    organisation.hasMany(models.calculation, {
-      foreignKey: 'sbi',
-      as: 'calculations'
-    })
-  }
   return organisation
 }

@@ -1,11 +1,10 @@
+const { DELINKED } = require('../../../../app/constants/types')
 const schema = require('../../../../app/inbound/delinked/schema')
 const { constants } = require('../../../../app/utility/common-schema-fields')
 
 describe('delinked-schema', () => {
   const validData = {
-    applicationReference: 123456,
     applicationId: 123456,
-    calculationReference: 123456,
     calculationId: 123456,
     sbi: constants.minSbi,
     frn: constants.minFrn,
@@ -13,20 +12,21 @@ describe('delinked-schema', () => {
     paymentBand2: 'validString',
     paymentBand3: 'validString',
     paymentBand4: 'validString',
-    percentageReduction1: 'validString',
-    percentageReduction2: 'validString',
-    percentageReduction3: 'validString',
-    percentageReduction4: 'validString',
-    progressiveReductions1: 'validString',
-    progressiveReductions2: 'validString',
-    progressiveReductions3: 'validString',
-    progressiveReductions4: 'validString',
-    referenceAmount: 'validString',
-    totalProgressiveReduction: 'validString',
-    totalDelinkedPayment: 'validString',
-    paymentAmountCalculated: 'validString',
+    percentageReduction1: '50.00',
+    percentageReduction2: '60.00',
+    percentageReduction3: '75.00',
+    percentageReduction4: '100.00',
+    progressiveReductions1: '1.25',
+    progressiveReductions2: '32.00',
+    progressiveReductions3: '250.00',
+    progressiveReductions4: '1234563673634.54',
+    referenceAmount: '45124.12',
+    totalProgressiveReduction: '124.12',
+    totalDelinkedPayment: '45000.00',
+    paymentAmountCalculated: '22500.00',
+    updated: new Date(),
     datePublished: new Date(),
-    type: constants.DELINKED
+    type: DELINKED
   }
 
   test('should validate a valid object', () => {
@@ -45,6 +45,7 @@ describe('delinked-schema', () => {
       applicationReference: 'notANumber',
       sbi: 'notANumber',
       frn: 'notANumber',
+      updated: 'notADate',
       datePublished: 'notADate',
       type: 'invalidType'
     }
@@ -84,6 +85,15 @@ describe('delinked-schema', () => {
     }
     const { error } = schema.validate(validDataWithNullDate)
     expect(error).toBeUndefined()
+  })
+
+  test('should not allow null for updated', () => {
+    const validDataWithNullDate = {
+      ...validData,
+      updated: null
+    }
+    const { error } = schema.validate(validDataWithNullDate)
+    expect(error).toBeDefined()
   })
 
   test('should invalidate an object with non-integer applicationReference', () => {

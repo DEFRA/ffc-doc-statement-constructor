@@ -1,5 +1,5 @@
 const schema = require('../../../../app/inbound/organisation/schema')
-const { CALCULATION } = require('../../../../app/constants/types')
+const { ORGANISATION } = require('../../../../app/constants/types')
 
 describe('Schema Validation', () => {
   test('should validate a correct object', () => {
@@ -14,7 +14,7 @@ describe('Schema Validation', () => {
       frn: 1000000001,
       name: 'Name',
       postcode: 'AB1 2CD',
-      type: CALCULATION,
+      type: ORGANISATION,
       updated: new Date()
     }
     const { error } = schema.validate(obj)

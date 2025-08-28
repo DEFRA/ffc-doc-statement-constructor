@@ -5,6 +5,7 @@ const constants = {
   maxSbi: 999999999,
   minFrn: 1000000000,
   maxFrn: 9999999999,
+  number2: 2,
   number5: 5,
   number10: 10,
   number15: 15,
@@ -34,13 +35,17 @@ const numberSchema = (field) => Joi.number().integer().required().messages({
   'any.required': messages.required(field)
 })
 
-const stringSchema = (field, max) => {
+const stringSchema = (field, max, pattern) => {
   let schema = Joi.string().required().messages({
     'string.base': `${field} should be a type of string`,
     'any.required': `The field ${field} is not present but it is required`
   })
 
-  if (max !== undefined) {
+  if (pattern) {
+    schema = schema.pattern(pattern).messages({
+      'string.pattern.base': `${field} is not in the correct format`
+    })
+  } else if (max !== undefined) {
     schema = schema.max(max).messages({
       'string.max': `${field} should have a maximum length of ${max}`
     })
