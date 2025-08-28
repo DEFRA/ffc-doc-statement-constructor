@@ -18,28 +18,53 @@ const processMapping = {
   [D365]: processD365
 }
 
+// Extractor functions given compliant variable names so Sonar's function-name rule is satisfied
+const extractOrganisation = (organisation, error) => ({
+  process: 'process-organisation',
+  sbi: organisation?.sbi,
+  error
+})
+
+const extractDelinked = (delinked, error) => ({
+  process: 'process-delinked',
+  sbi: delinked?.sbi,
+  calculationId: delinked?.calculationId,
+  calculationReference: delinked?.calculationReference,
+  applicationId: delinked?.applicationId,
+  error
+})
+
+const extractTotal = (total, error) => ({
+  process: 'process-total',
+  sbi: total?.sbi,
+  agreementNumber: total?.agreementNumber,
+  claimReference: total?.claimReference,
+  error
+})
+
+const extractDax = (dax, error) => ({
+  process: 'process-dax',
+  paymentReference: dax?.paymentReference,
+  sbi: dax?.sbi,
+  transactionDate: dax?.transactionDate || new Date(),
+  calculationReference: dax?.calculationReference,
+  error
+})
+
+const extractD365 = (d365, error) => ({
+  process: 'process-d365',
+  paymentReference: d365?.paymentReference,
+  paymentAmount: d365?.paymentAmount,
+  transactionDate: d365?.transactionDate || new Date(),
+  error
+})
+
 const detailExtractors = {
-  [DAX]: (dax, error) => ({
-    process: 'process-dax',
-    paymentReference: dax?.paymentReference,
-    sbi: dax?.sbi,
-    transactionDate: dax?.transactionDate || new Date(),
-    calculationReference: dax?.calculationReference,
-    error
-  }),
-  [D365]: (d365, error) => ({
-    process: 'process-d365',
-    paymentReference: d365?.paymentReference,
-    paymentAmount: d365?.paymentAmount,
-    transactionDate: d365?.transactionDate || new Date(),
-    error
-  }),
-  [ORGANISATION]: (organisation, error) => ({
-    process: 'process-organisation',
-    sbi: organisation?.sbi,
-    error
-  })
-  // Add other type extractors as we go.
+  [ORGANISATION]: extractOrganisation,
+  [DELINKED]: extractDelinked,
+  [TOTAL]: extractTotal,
+  [DAX]: extractDax,
+  [D365]: extractD365
 }
 
 const defaultExtractor = (statementData, error) => ({
@@ -72,3 +97,4 @@ const processStatementData = async (statementData) => {
 }
 
 module.exports = processStatementData
+module.exports.detailExtractors = detailExtractors

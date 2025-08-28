@@ -8,7 +8,6 @@ const { createAlerts } = require('../../../app/messaging/create-alerts')
 describe('dataProcessingAlert', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    // restore console methods if any test replaced them
     if (console.error.mockRestore) {
       try { console.error.mockRestore() } catch (e) {}
     }
@@ -51,7 +50,6 @@ describe('dataProcessingAlert', () => {
     const [argArray, argType] = createAlerts.mock.calls[0]
     const alert = argArray[0]
     expect(alert.message).toBe('object-message')
-    // the error remains the object (not cleared)
     expect(alert.error).toBe(errObj)
     expect(argType).toBe('MY_TYPE')
   })
@@ -81,7 +79,6 @@ describe('dataProcessingAlert', () => {
     const [argArray] = createAlerts.mock.calls[0]
     const alert = argArray[0]
     expect(alert.message).toBe('explicit message')
-    // original error still present
     expect(alert.error).toBeInstanceOf(Error)
   })
 
@@ -107,7 +104,6 @@ describe('dataProcessingAlert', () => {
     createAlerts.mockRejectedValueOnce(publishError)
     console.error = jest.fn()
 
-    // should not throw because throwOnPublishError default is false
     await expect(dataProcessingAlert(payload)).resolves.toBeUndefined()
 
     expect(createAlerts).toHaveBeenCalledTimes(1)

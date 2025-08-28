@@ -12,27 +12,43 @@ const validatePayload = (payload) => {
   return processName
 }
 
-const deriveAlertData = (payload, processName) => {
-  const alertData = { ...payload, process: processName }
-
-  const needsMessage =
+const needsMessage = (alertData) => {
+  return (
     (!Object.hasOwn(alertData, 'message')) ||
     (alertData.message == null) ||
     (typeof alertData.message === 'string' && alertData.message.trim().length === 0)
+  )
+}
 
-  if (needsMessage) {
-    const maybeError = alertData.error
+const extractMessage = (maybeError, processName) => {
+  if (maybeError instanceof Error) {
+    return { message: maybeError.message || `Failed processing ${processName}`, clearError: false }
+  }
 
-    if (maybeError instanceof Error) {
-      alertData.message = maybeError.message || `Failed processing ${processName}`
-    } else if (typeof maybeError === 'object' && maybeError != null && typeof maybeError.message === 'string') {
-      alertData.message = maybeError.message
-    } else if (typeof maybeError === 'string') {
-      alertData.message = maybeError
-      alertData.error = null
-    } else {
-      alertData.message = `Failed processing ${processName}`
-    }
+  if (typeof maybeError === 'object' && maybeError != null && typeof maybeError.message === 'string') {
+    return { message: maybeError.message, clearError: false }
+  }
+
+  if (typeof maybeError === 'string') {
+    return { message: maybeError, clearError: true }
+  }
+
+  return { message: `Failed processing ${processName}`, clearError: false }
+}
+
+const deriveAlertData = (payload, processName) => {
+  const alertData = { ...payload, process: processName }
+
+  if (!needsMessage(alertData)) {
+    return alertData
+  }
+
+  const maybeError = alertData.error
+  const { message, clearError } = extractMessage(maybeError, processName)
+
+  alertData.message = message
+  if (clearError) {
+    alertData.error = null
   }
 
   return alertData
@@ -57,5 +73,6 @@ const dataProcessingAlert = async (payload = {}, type = DATA_PROCESSING_ERROR, o
 }
 
 module.exports = {
-  dataProcessingAlert
+  dataProcessingAlert,
+  deriveAlertData
 }

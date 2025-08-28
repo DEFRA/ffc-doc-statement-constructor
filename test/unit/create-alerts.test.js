@@ -19,39 +19,42 @@ const loadCreateAlerts = () => {
   return { createAlerts, EventPublisher }
 }
 
-// Helper function to search for values in nested objects
 const containsValueOrProperty = (obj, searchValue, propertyName = null) => {
-  if (!obj) return false
+  if (obj === undefined || obj === null) return false
   if (obj === searchValue) return true
 
   if (typeof obj !== 'object') {
-    // Check string equivalence for primitives
     if (typeof searchValue === 'string' && typeof obj === 'string') {
       return obj.trim() === searchValue.trim()
     }
     return obj === searchValue || String(obj) === String(searchValue)
   }
 
-  // Check specific property if requested
   if (propertyName && obj[propertyName] !== undefined) {
     return containsValueOrProperty(obj[propertyName], searchValue)
   }
 
-  // Search through object properties
+  if (Array.isArray(obj)) {
+    return obj.some(val => containsValueOrProperty(val, searchValue))
+  }
+
   return Object.values(obj).some(val => containsValueOrProperty(val, searchValue))
 }
 
 describe('createAlerts', () => {
-  test('returns early for no input or empty array', async () => {
+  test('returns early for no input or empty array and returns undefined', async () => {
     const { createAlerts, EventPublisher } = loadCreateAlerts()
 
-    await createAlerts()
-    await createAlerts([])
+    const r1 = await createAlerts()
+    const r2 = await createAlerts([])
+
+    expect(r1).toBeUndefined()
+    expect(r2).toBeUndefined()
 
     expect(EventPublisher.mock.instances.length).toBe(0)
   })
 
-  test('publishes alerts for mixed inputs with default type', async () => {
+  test('publishes alerts for mixed inputs with default type and returns undefined', async () => {
     const { createAlerts, EventPublisher } = loadCreateAlerts()
 
     const inputs = [
@@ -62,49 +65,51 @@ describe('createAlerts', () => {
       { msg: true }
     ]
 
-    await createAlerts(inputs)
+    const result = await createAlerts(inputs)
+    expect(result).toBeUndefined()
 
     const published = EventPublisher.mock.instances[0].publishEvents.mock.calls[0][0]
     expect(published).toHaveLength(inputs.length)
-
-    // Check that Error's message is preserved
     expect(containsValueOrProperty(published[0].data, 'boom!')).toBe(true)
-
-    // Check that string is trimmed somewhere in the data
     expect(containsValueOrProperty(published[1].data, 'trimmed')).toBe(true)
-
-    // Check that number is converted to string somewhere in the data
-    expect(containsValueOrProperty(published[2].data, '42') ||
-           containsValueOrProperty(published[2].data, 42)).toBe(true)
-
-    // Check that boolean is converted to string somewhere in the data
-    expect(containsValueOrProperty(published[3].data, 'false') ||
-           containsValueOrProperty(published[3].data, false)).toBe(true)
-
-    // Check that object property is preserved somewhere
-    expect(containsValueOrProperty(published[4].data, true) ||
-           containsValueOrProperty(published[4].data, 'true')).toBe(true)
-
-    // Check all alerts have correct type
+    expect(
+      containsValueOrProperty(published[2].data, '42') ||
+      containsValueOrProperty(published[2].data, 42)
+    ).toBe(true)
+    expect(
+      containsValueOrProperty(published[3].data, 'false') ||
+      containsValueOrProperty(published[3].data, false)
+    ).toBe(true)
+    expect(
+      containsValueOrProperty(published[4].data, true) ||
+      containsValueOrProperty(published[4].data, 'true')
+    ).toBe(true)
     expect(published.every(alert => alert.type === DATA_PROCESSING_ERROR)).toBe(true)
   })
 
-  test('uses custom alert type and includes source', async () => {
+  test('uses custom alert type and includes source and correct topic passed to EventPublisher', async () => {
     const { createAlerts, EventPublisher } = loadCreateAlerts()
+    const messageConfig = require('../../app/config/message')
 
-    await createAlerts([{ msg: 'custom' }], 'CUSTOM_TYPE')
+    const r = await createAlerts([{ msg: 'custom' }], 'CUSTOM_TYPE')
+    expect(r).toBeUndefined()
 
     const published = EventPublisher.mock.instances[0].publishEvents.mock.calls[0][0]
     expect(published[0].type).toBe('CUSTOM_TYPE')
     expect(published[0].source).toBe('ffc-doc-statement-constructor')
+    expect(EventPublisher.mock.calls.length).toBeGreaterThan(0)
+    expect(EventPublisher.mock.calls[0][0]).toBe(messageConfig.alertTopic)
   })
 
-  test('redacts sensitive keys and long strings', async () => {
+  test('redacts sensitive keys and long strings (including regex variants)', async () => {
     const { createAlerts, EventPublisher } = loadCreateAlerts()
 
     const input = [{
       password: 'secret',
       apiKey: 'key',
+      'api-key': 'dashkey',
+      api_key: 'underscore',
+      AUTH: 'token',
       nested: { secret: 'hidden' },
       longText: 'a'.repeat(300)
     }]
@@ -114,24 +119,37 @@ describe('createAlerts', () => {
     const data = EventPublisher.mock.instances[0].publishEvents.mock.calls[0][0][0].data
     expect(data.password).toBe('[REDACTED]')
     expect(data.apiKey).toBe('[REDACTED]')
+    expect(data['api-key']).toBe('[REDACTED]')
+    expect(data.api_key).toBe('[REDACTED]')
+    expect(data.AUTH).toBe('[REDACTED]')
     expect(data.nested.secret).toBe('[REDACTED]')
     expect(data.longText).toBe('[REDACTED]')
   })
 
-  test('handles circular references gracefully', async () => {
+  test('handles object circular references and array circular references gracefully', async () => {
     const { createAlerts, EventPublisher } = loadCreateAlerts()
 
-    const circular = {}
-    circular.self = circular
+    const circularObj = {}
+    circularObj.self = circularObj
 
-    await createAlerts([{ circular }])
+    const circularArr = []
+    circularArr.push(circularArr)
+
+    await createAlerts([{ circularObj, circularArr }])
 
     const data = EventPublisher.mock.instances[0].publishEvents.mock.calls[0][0][0].data
+    expect(containsValueOrProperty(data, '[Circular]')).toBe(true)
+  })
 
-    // Check if circular reference is handled by searching for "[Circular]" string
-    expect(
-      containsValueOrProperty(data, '[Circular]')
-    ).toBe(true)
+  test('handles function values (fallback branch) by preserving them', async () => {
+    const { createAlerts, EventPublisher } = loadCreateAlerts()
+
+    const fn = function myFunc () { return 'ok' }
+    await createAlerts([{ keepFn: fn }])
+
+    const data = EventPublisher.mock.instances[0].publishEvents.mock.calls[0][0][0].data
+    expect(typeof data.keepFn).toBe('function')
+    expect(data.keepFn()).toBe('ok')
   })
 
   test('logs and rethrows errors when publishing fails', async () => {
@@ -149,7 +167,7 @@ describe('createAlerts', () => {
     consoleErrorSpy.mockRestore()
   })
 
-  test('removes empty objects, arrays, and undefined values', async () => {
+  test('removes empty objects, arrays, and undefined values from nested structures', async () => {
     const { createAlerts, EventPublisher } = loadCreateAlerts()
 
     const input = [{
@@ -163,17 +181,12 @@ describe('createAlerts', () => {
     await createAlerts(input)
 
     const data = EventPublisher.mock.instances[0].publishEvents.mock.calls[0][0][0].data
-
-    // Check expected properties are undefined/removed
     expect(data.emptyObj).toBeUndefined()
     expect(data.emptyArr).toBeUndefined()
     expect(data.nestedEmpty).toBeUndefined()
-
-    // Verify only non-empty values are kept
     expect(containsValueOrProperty(data, 'keep')).toBe(true)
     expect(containsValueOrProperty(data, 'yes')).toBe(true)
 
-    // Check that empty values are filtered out
     if (data.values) {
       expect(data.values.includes(null)).toBe(false)
       expect(data.values.includes('')).toBe(false)
@@ -181,7 +194,7 @@ describe('createAlerts', () => {
     }
   })
 
-  test('truncates stack traces to 5 lines', async () => {
+  test('truncates stack traces to 5 lines for Error inputs', async () => {
     const { createAlerts, EventPublisher } = loadCreateAlerts()
 
     const error = new Error('stack test')
@@ -193,7 +206,7 @@ describe('createAlerts', () => {
     expect(stack.split('\n')).toHaveLength(5)
   })
 
-  test('handles null and undefined inputs gracefully', async () => {
+  test('handles null and undefined inputs gracefully and publishes default messages', async () => {
     const { createAlerts, EventPublisher } = loadCreateAlerts()
 
     const inputs = [null, undefined]
@@ -201,8 +214,6 @@ describe('createAlerts', () => {
 
     const published = EventPublisher.mock.instances[0].publishEvents.mock.calls[0][0]
     expect(published).toHaveLength(inputs.length)
-
-    // Check both alerts have the default message
     expect(containsValueOrProperty(published[0].data, 'An error occurred')).toBe(true)
     expect(containsValueOrProperty(published[1].data, 'An error occurred')).toBe(true)
   })
