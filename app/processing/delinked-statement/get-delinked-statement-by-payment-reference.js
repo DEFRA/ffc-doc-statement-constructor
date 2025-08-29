@@ -7,6 +7,8 @@ const getDocumentTypeByCode = require('./get-document-type-by-code')
 const getAddressFromOrganisation = require('./get-address-from-organisation')
 const { DELINKED } = require('../../constants/document-types')
 const delinkedScheme = require('../../constants/delinked-scheme')
+const { dataProcessingAlert } = require('../../../app/utility/processing-alerts')
+const { DATA_PROCESSING_ERROR } = require('../../../app/constants/alerts')
 
 const getDelinkedStatementByPaymentReference = async (paymentReference, excluded) => {
   const d365 = await getD365(paymentReference)
@@ -16,26 +18,71 @@ const getDelinkedStatementByPaymentReference = async (paymentReference, excluded
 
   const delinkedCalculation = await getDelinkedCalculation(d365.calculationId)
   if (!delinkedCalculation) {
+    try {
+      await dataProcessingAlert({
+        process: 'getDelinkedCalculation',
+        calculationId: d365?.calculationId,
+        message: `Delinked calculation data not found for calculation ID: ${d365?.calculationId}`
+      }, DATA_PROCESSING_ERROR)
+    } catch (alertError) {
+      console.error('Delinked calculation data not found for calculation ID:', alertError)
+    }
     throw new Error(`Delinked calculation data not found for calculation ID: ${d365.calculationId}`)
   }
 
   const organisation = await getOrganisation(delinkedCalculation.sbi)
   if (!organisation) {
+    try {
+      await dataProcessingAlert({
+        process: 'getOrganisation',
+        sbi: delinkedCalculation?.sbi,
+        message: `Organisation data not found for SBI: ${delinkedCalculation.sbi}`
+      }, DATA_PROCESSING_ERROR)
+    } catch (alertError) {
+      console.error(`Organisation data not found for SBI: ${delinkedCalculation.sbi}`, alertError)
+    }
     throw new Error(`Organisation data not found for SBI: ${delinkedCalculation.sbi}`)
   }
 
   const address = getAddressFromOrganisation(organisation)
   if (!address) {
+    try {
+      await dataProcessingAlert({
+        process: 'getAddressFromOrganisation',
+        organisation: organisation?.name,
+        message: `Address data not found for organisation: ${organisation.name}`
+      }, DATA_PROCESSING_ERROR)
+    } catch (alertError) {
+      console.error(`Address data not found for organisation: ${organisation.name}`, alertError)
+    }
     throw new Error(`Address data not found for organisation: ${organisation.name}`)
   }
 
   const documentType = await getDocumentTypeByCode(DELINKED)
   if (!documentType?.documentTypeId) {
+    try {
+      await dataProcessingAlert({
+        process: 'getDocumentTypeByCode',
+        type: DELINKED,
+        message: `Invalid document type code: ${DELINKED}`
+      }, DATA_PROCESSING_ERROR)
+    } catch (alertError) {
+      console.error(`Invalid document type code: ${DELINKED}`, alertError)
+    }
     throw new Error(`Invalid document type code: ${DELINKED}`)
   }
 
   const previousPaymentCount = await getPreviousPaymentCountByCalculationId(d365.calculationId)
   if (previousPaymentCount === null || typeof previousPaymentCount !== 'number') {
+    try {
+      await dataProcessingAlert({
+        process: 'getPreviousPaymentCountByCalculationId',
+        calculationId: d365?.calculationId,
+        message: `Invalid previous payment count for calculation ID: ${d365.calculationId}`
+      }, DATA_PROCESSING_ERROR)
+    } catch (alertError) {
+      console.error(`Invalid previous payment count for calculation ID: ${d365.calculationId}`, alertError)
+    }
     throw new Error(`Invalid previous payment count for calculation ID: ${d365.calculationId}`)
   }
 
@@ -61,6 +108,15 @@ const getDelinkedStatementByPaymentReference = async (paymentReference, excluded
 
   const savedDocument = await saveDocument(document)
   if (!savedDocument?.documentId) {
+    try {
+      await dataProcessingAlert({
+        process: 'saveDocument',
+        paymentReference,
+        message: `Invalid saved document data for payment reference: ${paymentReference}`
+      }, DATA_PROCESSING_ERROR)
+    } catch (alertError) {
+      console.error(`Invalid saved document data for payment reference: ${paymentReference}`, alertError)
+    }
     throw new Error(`Invalid saved document data for payment reference: ${paymentReference}`)
   }
 
