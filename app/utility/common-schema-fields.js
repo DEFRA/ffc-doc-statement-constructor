@@ -45,13 +45,15 @@ const stringSchema = (field, max, pattern) => {
     schema = schema.pattern(pattern).messages({
       'string.pattern.base': `${field} is not in the correct format`
     })
+    return schema
   } else if (max !== undefined) {
     schema = schema.max(max).messages({
       'string.max': `${field} should have a maximum length of ${max}`
     })
+    return schema
+  } else {
+    return schema
   }
-
-  return schema
 }
 
 const dateSchema = (field) => Joi.date().required().messages({
