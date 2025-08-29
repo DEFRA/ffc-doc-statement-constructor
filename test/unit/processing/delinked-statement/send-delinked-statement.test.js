@@ -48,7 +48,7 @@ describe('sendDelinkedStatement', () => {
     expect(dataProcessingAlert).toHaveBeenCalled()
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       `Failed to send statement for D365 Payment Reference: ${statement.paymentReference}`,
-      publishError
+      { originalError: publishError, alertError }
     )
   })
 })

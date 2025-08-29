@@ -65,7 +65,7 @@ describe('updateD365ForStartPublish', () => {
     expect(dataProcessingAlert).toHaveBeenCalled()
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       `Could not start delinked statement for d365 payment: ${d365[1].paymentReference}`,
-      updateError
+      { originalError: updateError, alertError }
     )
   })
 })
