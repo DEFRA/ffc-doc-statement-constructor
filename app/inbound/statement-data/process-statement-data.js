@@ -18,7 +18,6 @@ const processMapping = {
   [D365]: processD365
 }
 
-// Extractor functions given compliant variable names so Sonar's function-name rule is satisfied
 const extractOrganisation = (organisation, error) => ({
   process: 'process-organisation',
   sbi: organisation?.sbi,

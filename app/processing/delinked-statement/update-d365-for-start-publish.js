@@ -16,9 +16,13 @@ const updateD365ForStartPublish = async (d365, transaction) => {
           message: `Could not start delinked statement for d365 payment: ${item.paymentReference}`
         }, DATA_PROCESSING_ERROR)
       } catch (alertErr) {
-        console.error(`Could not start delinked statement for d365 payment: ${item.paymentReference}`, err)
+        console.error(`Could not start delinked statement for d365 payment: ${item.paymentReference}`,
+          { originalError: err, alertError: alertErr }
+        )
       }
-      throw new Error(`Could not start delinked statement for d365 payment: ${item.paymentReference}`)
+      throw new Error(`Could not start delinked statement for d365 payment: ${item.paymentReference}`,
+        { cause: err }
+      )
     }
   }
 }

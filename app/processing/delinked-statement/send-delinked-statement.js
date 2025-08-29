@@ -14,9 +14,13 @@ const sendDelinkedStatement = async (delinkedStatement) => {
         message: `Failed to send statement for D365 Payment Reference: ${delinkedStatement.paymentReference}`
       }, DATA_PROCESSING_ERROR)
     } catch (alertErr) {
-      console.error(`Failed to send statement for D365 Payment Reference: ${delinkedStatement.paymentReference}`, err)
+      console.error(`Failed to send statement for D365 Payment Reference: ${delinkedStatement.paymentReference}`,
+        { originalError: err, alertError: alertErr }
+      )
     }
-    throw new Error(`Failed to send statement for D365 Payment Reference: ${delinkedStatement.paymentReference}`, err)
+    throw new Error(`Failed to send statement for D365 Payment Reference: ${delinkedStatement.paymentReference}`,
+      { cause: err }
+    )
   }
 }
 
