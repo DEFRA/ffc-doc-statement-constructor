@@ -8,7 +8,7 @@ const validateD365 = (d365, paymentReference) => {
   })
 
   if (result.error) {
-    const errorMessage = result.error && result.error.message ? result.error.message : String(result.error)
+    const errorMessage = result.error?.message ?? String(result.error)
 
     dataProcessingAlert({
       process: 'validateD365',

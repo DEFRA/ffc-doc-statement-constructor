@@ -7,7 +7,9 @@ const DEFAULT_MAX_TOTAL_DELAY_MS = 240000 // 4m
 
 const parseEnvInt = (name) => {
   const v = process.env[name]
-  if (typeof v === 'undefined' || v === '') return undefined
+  if (typeof v === 'undefined' || v === '') {
+    return undefined
+  }
   const n = Number(v)
   return Number.isNaN(n) ? undefined : n
 }
@@ -28,8 +30,20 @@ const safeAlert = async (alertPayload, message) => {
 
 const createWrappedError = (message, cause, data) => {
   const thrown = new Error(message)
-  try { thrown.cause = cause } catch (_) {}
-  if (data) thrown.data = data
+
+  if (cause !== undefined) {
+    try {
+      thrown.cause = cause
+    } catch (err) {
+      console.warn('Could not set error.cause property; attaching as .originalError', err)
+      thrown.originalError = cause
+    }
+  }
+
+  if (data !== undefined) {
+    thrown.data = { data }
+  }
+
   return thrown
 }
 

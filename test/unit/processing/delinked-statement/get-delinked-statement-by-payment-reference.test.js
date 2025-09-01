@@ -93,7 +93,7 @@ describe('getDelinkedStatementByPaymentReference', () => {
     await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow(`Delinked calculation data not found for calculation ID: ${d365Mock.calculationId}`)
 
     expect(dataProcessingAlert).toHaveBeenCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Delinked calculation data not found for calculation ID:', alertError)
+    expect(consoleErrorSpy).toHaveBeenCalledWith(`Delinked calculation data not found for calculation ID: ${d365Mock.calculationId}`, alertError)
   })
 
   test('should call alert and throw when organisation data is missing', async () => {
