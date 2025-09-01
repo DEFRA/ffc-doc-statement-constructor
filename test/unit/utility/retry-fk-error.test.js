@@ -1,3 +1,6 @@
+process.env.RETRY_FK_MAX_RETRIES = '3'
+process.env.RETRY_FK_BASE_DELAY_MS = '10'
+process.env.RETRY_FK_MAX_TOTAL_DELAY_MS = '1000'
 const pathToTest = '../../../app/utility/retry-fk-error'
 
 // Use fake timers to control the backoff delays

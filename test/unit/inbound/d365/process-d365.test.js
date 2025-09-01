@@ -1,4 +1,6 @@
 process.env.RETRY_FK_MAX_RETRIES = '4'
+process.env.RETRY_FK_BASE_DELAY_MS = '10'
+process.env.RETRY_FK_MAX_TOTAL_DELAY_MS = '1000'
 const retryUtil = require('../../../../app/utility/retry-fk-error')
 const { D365 } = require('../../../../app/constants/types')
 

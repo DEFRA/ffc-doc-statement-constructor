@@ -1,4 +1,6 @@
 process.env.RETRY_FK_MAX_RETRIES = '4'
+process.env.RETRY_FK_BASE_DELAY_MS = '10'
+process.env.RETRY_FK_MAX_TOTAL_DELAY_MS = '1000'
 const db = require('../../../../app/data')
 const processDax = require('../../../../app/inbound/dax/process-dax')
 const saveDax = require('../../../../app/inbound/dax/save-dax')

@@ -53,7 +53,7 @@ describe('validate Organisation', () => {
     expect(dataProcessingAlert).toHaveBeenCalledTimes(1)
     const alertArg = dataProcessingAlert.mock.calls[0][0]
     const alertType = dataProcessingAlert.mock.calls[0][1]
-    expect(alertArg.process).toBe('validateOrganisation')
+    expect(alertArg.process).toBe('validateOrganisation (Delinked)')
     expect(alertArg.sbi).toBe(sbi)
     expect(alertArg.error).toBe(validationError.message)
     expect(alertArg.message).toMatch(/Organisation with the sbi: .* does not have the required details data/)

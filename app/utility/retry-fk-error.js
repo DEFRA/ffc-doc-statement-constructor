@@ -1,12 +1,37 @@
 const { Sequelize } = require('../data')
 const { dataProcessingAlert } = require('../utility/processing-alerts')
 const { DATA_PROCESSING_ERROR } = require('../../app/constants/alerts')
-const isTestEnv = process.env.NODE_ENV === 'test' || typeof process.env.JEST_WORKER_ID !== 'undefined'
-const MAX_RETRIES = Number(process.env.RETRY_FK_MAX_RETRIES) || (isTestEnv ? 3 : 8)
-const BASE_DELAY_MS = Number(process.env.RETRY_FK_BASE_DELAY_MS) || (isTestEnv ? 10 : 5000) // test: 10ms; prod: 5s
-const MAX_TOTAL_DELAY_MS = Number(process.env.RETRY_FK_MAX_TOTAL_DELAY_MS) || (isTestEnv ? 1000 : 240000) // test: 1s; prod: 4m
+const DEFAULT_MAX_RETRIES = 8
+const DEFAULT_BASE_DELAY_MS = 5000 // 5s
+const DEFAULT_MAX_TOTAL_DELAY_MS = 240000 // 4m
 
+const parseEnvInt = (name) => {
+  const v = process.env[name]
+  if (typeof v === 'undefined' || v === '') return undefined
+  const n = Number(v)
+  return Number.isNaN(n) ? undefined : n
+}
+
+const MAX_RETRIES = parseEnvInt('RETRY_FK_MAX_RETRIES') ?? DEFAULT_MAX_RETRIES
+const BASE_DELAY_MS = parseEnvInt('RETRY_FK_BASE_DELAY_MS') ?? DEFAULT_BASE_DELAY_MS
+const MAX_TOTAL_DELAY_MS = parseEnvInt('RETRY_FK_MAX_TOTAL_DELAY_MS') ?? DEFAULT_MAX_TOTAL_DELAY_MS
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+const safeAlert = async (alertPayload, message) => {
+  try {
+    await dataProcessingAlert({ ...alertPayload, message }, DATA_PROCESSING_ERROR)
+  } catch (alertErr) {
+    console.error('Failed to send dataProcessingAlert in retryOnFkError.',
+      { alertPayload, alertError: alertErr }
+    )
+  }
+}
+
+const createWrappedError = (message, cause, data) => {
+  const thrown = new Error(message)
+  try { thrown.cause = cause } catch (_) {}
+  if (data) thrown.data = data
+  return thrown
+}
 
 /**
  * Retry a function on ForeignKeyConstraintError with exponential backoff (capped at MAX_TOTAL_DELAY_MS total delay)
@@ -18,79 +43,49 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 const retryOnFkError = async (fn, context, identifier) => {
   let attempt = 0
   let totalDelay = 0
+
+  const baseAlertData = {
+    process: 'retryOnFkError',
+    context,
+    identifier
+  }
+
   while (attempt < MAX_RETRIES) {
     try {
       return await fn()
     } catch (error) {
       const alertData = {
-        process: 'retryOnFkError',
-        context,
-        identifier,
+        ...baseAlertData,
         error,
-        data: {
-          attempt,
-          totalDelay
-        }
+        data: { attempt, totalDelay }
       }
 
-      if (error instanceof Sequelize.ForeignKeyConstraintError) {
-        attempt++
-        if (attempt < MAX_RETRIES) {
-          const delay = BASE_DELAY_MS * Math.pow(2, attempt - 1)
-          if (totalDelay + delay > MAX_TOTAL_DELAY_MS) {
-            try {
-              await dataProcessingAlert({
-                ...alertData,
-                message: `FK error would exceed max total retry time (${MAX_TOTAL_DELAY_MS}ms), giving up.`
-              }, DATA_PROCESSING_ERROR)
-            } catch (alertErr) {
-              console.error(`Failed to send dataProcessingAlert for FK error exceed max total delay for ${context} ${identifier}.`,
-                { originalError: error, alertError: alertErr, attempt, totalDelay }
-              )
-            }
-
-            const thrown = new Error(`FK error for ${context} ${identifier} would exceed max total retry time (${MAX_TOTAL_DELAY_MS}ms), giving up.`)
-            try { thrown.cause = error } catch (_) {}
-            thrown.data = { context, identifier, attempt, totalDelay }
-            throw thrown
-          }
-
-          console.warn(`FK error for ${context} ${identifier}, retrying in ${delay}ms (attempt ${attempt}/${MAX_RETRIES})`)
-          await sleep(delay)
-          totalDelay += delay
-          continue
-        } else {
-          try {
-            await dataProcessingAlert({
-              ...alertData,
-              message: `FK error after ${MAX_RETRIES} attempts, giving up.`
-            }, DATA_PROCESSING_ERROR)
-          } catch (alertErr) {
-            console.error(`Failed to send dataProcessingAlert for FK error after max attempts for ${context} ${identifier}.`,
-              { originalError: error, alertError: alertErr, attempt, totalDelay }
-            )
-          }
-
-          const thrown = new Error(`FK error for ${context} ${identifier} after ${MAX_RETRIES} attempts, giving up.`)
-          try { thrown.cause = error } catch (_) {}
-          thrown.data = { context, identifier, attempt, totalDelay }
-          throw thrown
-        }
-      } else {
-        try {
-          await dataProcessingAlert({
-            ...alertData,
-            message: 'Non-FK error thrown, aborting retries.'
-          }, DATA_PROCESSING_ERROR)
-        } catch (alertErr) {
-          console.error(`Failed to send dataProcessingAlert for non-FK error for ${context} ${identifier}.`,
-            { originalError: error, alertError: alertErr, attempt, totalDelay }
-          )
-        }
+      if (!(error instanceof Sequelize.ForeignKeyConstraintError)) {
+        await safeAlert(alertData, 'Non-FK error thrown, aborting retries.')
         throw error
       }
+
+      attempt += 1
+
+      if (attempt >= MAX_RETRIES) {
+        await safeAlert({ ...alertData, data: { attempt, totalDelay } }, `FK error after ${MAX_RETRIES} attempts, giving up.`)
+        throw createWrappedError(`FK error for ${context} ${identifier} after ${MAX_RETRIES} attempts, giving up.`, error, { context, identifier, attempt, totalDelay })
+      }
+
+      const delay = BASE_DELAY_MS * Math.pow(2, attempt - 1)
+
+      if (totalDelay + delay > MAX_TOTAL_DELAY_MS) {
+        await safeAlert({ ...alertData, data: { attempt, totalDelay } }, `FK error would exceed max total retry time (${MAX_TOTAL_DELAY_MS}ms), giving up.`)
+        throw createWrappedError(`FK error for ${context} ${identifier} would exceed max total retry time (${MAX_TOTAL_DELAY_MS}ms), giving up.`, error, { context, identifier, attempt, totalDelay })
+      }
+
+      console.warn(`FK error for ${context} ${identifier}, retrying in ${delay}ms (attempt ${attempt}/${MAX_RETRIES})`)
+      await sleep(delay)
+      totalDelay += delay
     }
   }
+
+  return null
 }
 
 module.exports = {

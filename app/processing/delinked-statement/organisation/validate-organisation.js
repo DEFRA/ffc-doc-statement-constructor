@@ -8,10 +8,9 @@ const validateOrganisation = (organisation, sbi) => {
   })
 
   if (result.error) {
-    const errorMessage = result.error && result.error.message ? result.error.message : String(result.error)
-
+    const errorMessage = result.error?.message ?? String(result.error)
     dataProcessingAlert({
-      process: 'validateOrganisation',
+      process: 'validateOrganisation (Delinked)',
       sbi,
       error: errorMessage,
       message: `Organisation with the sbi: ${sbi} does not have the required details data`
