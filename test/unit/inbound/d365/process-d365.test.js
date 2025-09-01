@@ -1,3 +1,4 @@
+process.env.RETRY_FK_MAX_RETRIES = '4'
 const retryUtil = require('../../../../app/utility/retry-fk-error')
 const { D365 } = require('../../../../app/constants/types')
 

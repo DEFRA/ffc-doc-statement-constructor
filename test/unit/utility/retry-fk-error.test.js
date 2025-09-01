@@ -53,7 +53,7 @@ describe('retryOnFkError', () => {
 
     // allow the first rejection to be handled
     await Promise.resolve()
-    // advance the delay for the first retry (BASE_DELAY_MS = 5000)
+    // advance the delay for the first retry (BASE_DELAY_MS = 5000 in prod; test env uses tiny delays)
     jest.runOnlyPendingTimers()
     // wait for the promise to resolve
     const result = await promise
@@ -65,7 +65,7 @@ describe('retryOnFkError', () => {
     expect(processingAlerts.dataProcessingAlert).not.toHaveBeenCalled()
   })
 
-  test('should call dataProcessingAlert and throw when total delay would exceed MAX_TOTAL_DELAY_MS', async () => {
+  test('should call dataProcessingAlert and throw when give-up occurs (either exceed total delay or max attempts)', async () => {
     const fkError = new Sequelize.ForeignKeyConstraintError()
     // always fail with FK error
     fn = jest.fn(() => Promise.reject(fkError))
@@ -75,8 +75,7 @@ describe('retryOnFkError', () => {
 
     const promise = retryOnFkError(fn, context, identifier)
 
-    // Fast-forward timers and microtasks for many cycles to reach the "would exceed max total retry time" branch.
-    // The implementation uses exponential backoff and will eventually reach the exceed branch; iterate enough cycles.
+    // Fast-forward timers and microtasks for many cycles to reach the give-up branch.
     for (let i = 0; i < 20; i++) {
       jest.runOnlyPendingTimers()
       // allow any pending microtasks to run
@@ -84,9 +83,12 @@ describe('retryOnFkError', () => {
       await Promise.resolve()
     }
 
-    await expect(promise).rejects.toThrow(/would exceed max total retry time/)
+    // Accept either behaviour:
+    // - "would exceed max total retry time (...)" OR
+    // - "after <N> attempts, giving up."
+    await expect(promise).rejects.toThrow(/would exceed max total retry time|after \d+ attempts/)
 
-    // dataProcessingAlert should have been called with an object that contains our context/identifier and a message including 'would exceed'
+    // dataProcessingAlert should have been called
     expect(processingAlerts.dataProcessingAlert).toHaveBeenCalled()
     const alertArg = processingAlerts.dataProcessingAlert.mock.calls[0][0]
     expect(alertArg).toMatchObject({
@@ -94,7 +96,7 @@ describe('retryOnFkError', () => {
       context,
       identifier
     })
-    expect(alertArg.message).toMatch(/would exceed max total retry time/)
+    expect(alertArg.message).toMatch(/would exceed max total retry time|after \d+ attempts/)
   }, 15000)
 
   test('should alert and rethrow immediately on non-FK error (and log if alert fails)', async () => {

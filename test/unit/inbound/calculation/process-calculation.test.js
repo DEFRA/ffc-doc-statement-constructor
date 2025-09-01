@@ -1,3 +1,4 @@
+process.env.RETRY_FK_MAX_RETRIES = '4'
 const db = require('../../../../app/data')
 const processCalculation = require('../../../../app/inbound/calculation/process-calculation')
 const saveCalculation = require('../../../../app/inbound/calculation/save-calculation')

@@ -1,3 +1,4 @@
+process.env.RETRY_FK_MAX_RETRIES = '4'
 const db = require('../../../../app/data')
 const processTotal = require('../../../../app/inbound/total/process-total')
 const getTotalByCalculationId = require('../../../../app/inbound/total/get-total-by-calculation-id')
