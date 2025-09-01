@@ -1,9 +1,9 @@
 const getOrganisationBySbi = require('../../../../../app/processing/delinked-statement/organisation/get-organisation-by-sbi')
-const validateOrganisation = require('../../../../../app/processing/delinked-statement/organisation/validate-organisation')
+const validateOrganisation = require('../../../../../app/processing/organisation/validate-organisation')
 const getOrganisation = require('../../../../../app/processing/delinked-statement/organisation/get-organisation')
 
 jest.mock('../../../../../app/processing/delinked-statement/organisation/get-organisation-by-sbi')
-jest.mock('../../../../../app/processing/delinked-statement/organisation/validate-organisation')
+jest.mock('../../../../../app/processing/organisation/validate-organisation')
 
 describe('getOrganisation', () => {
   const sbi = '123456789'

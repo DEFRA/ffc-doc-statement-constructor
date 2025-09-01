@@ -1,5 +1,5 @@
 const getOrganisationBySbi = require('./get-organisation-by-sbi')
-const validateOrganisation = require('./validate-organisation')
+const validateOrganisation = require('../../organisation/validate-organisation')
 
 const getOrganisation = async (sbi) => {
   const organisation = await getOrganisationBySbi(sbi)
