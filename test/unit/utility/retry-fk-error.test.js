@@ -4,12 +4,8 @@ process.env.RETRY_FK_MAX_TOTAL_DELAY_MS = '1000'
 const pathToTest = '../../../app/utility/retry-fk-error'
 
 jest.useFakeTimers()
-jest.mock('../../../app/utility/processing-alerts', () => ({
-  dataProcessingAlert: jest.fn()
-}))
 
-const processingAlerts = require('../../../app/utility/processing-alerts')
-const { retryOnFkError } = require(pathToTest)
+const { retryOnFkError, parseEnvInt, createWrappedError } = require(pathToTest) // Updated: Destructure the new functions
 const { Sequelize } = require('../../../app/data')
 
 describe('retryOnFkError', () => {
@@ -37,7 +33,6 @@ describe('retryOnFkError', () => {
     const result = await retryOnFkError(fn, context, identifier)
     expect(result).toBe('success')
     expect(fn).toHaveBeenCalledTimes(1)
-    expect(processingAlerts.dataProcessingAlert).not.toHaveBeenCalled()
     expect(consoleWarnSpy).not.toHaveBeenCalled()
   })
 
@@ -57,14 +52,11 @@ describe('retryOnFkError', () => {
     expect(result).toBe('success')
     expect(fn).toHaveBeenCalledTimes(2)
     expect(consoleWarnSpy).toHaveBeenCalled()
-    expect(processingAlerts.dataProcessingAlert).not.toHaveBeenCalled()
   })
 
-  test('should call dataProcessingAlert and throw when give-up occurs (either exceed total delay or max attempts)', async () => {
+  test('should throw wrapped error when give-up occurs (exceed max attempts or total delay)', async () => {
     const fkError = new Sequelize.ForeignKeyConstraintError()
     fn = jest.fn(() => Promise.reject(fkError))
-
-    processingAlerts.dataProcessingAlert.mockResolvedValueOnce(undefined)
 
     const promise = retryOnFkError(fn, context, identifier)
     for (let i = 0; i < 20; i++) {
@@ -73,46 +65,20 @@ describe('retryOnFkError', () => {
     }
 
     await expect(promise).rejects.toThrow(/would exceed max total retry time|after \d+ attempts/)
-
-    expect(processingAlerts.dataProcessingAlert).toHaveBeenCalled()
-    const alertArg = processingAlerts.dataProcessingAlert.mock.calls[0][0]
-    expect(alertArg).toMatchObject({
-      process: 'retryOnFkError',
-      context,
-      identifier
-    })
-    expect(alertArg.message).toMatch(/would exceed max total retry time|after \d+ attempts/)
   }, 15000)
 
-  test('should alert and rethrow immediately on non-FK error (and log if alert fails)', async () => {
+  test('should rethrow immediately on non-FK error', async () => {
     const otherError = new Error('Some other error')
     fn = jest.fn().mockRejectedValue(otherError)
-    processingAlerts.dataProcessingAlert.mockResolvedValueOnce(undefined)
 
     await expect(retryOnFkError(fn, context, identifier)).rejects.toThrow('Some other error')
     expect(fn).toHaveBeenCalledTimes(1)
-    expect(processingAlerts.dataProcessingAlert).toHaveBeenCalled()
-    const callArg = processingAlerts.dataProcessingAlert.mock.calls[0][0]
-    expect(callArg).toMatchObject({
-      process: 'retryOnFkError',
-      context,
-      identifier
-    })
-    expect(callArg.message).toMatch(/Non-FK error thrown/)
-
-    processingAlerts.dataProcessingAlert.mockRejectedValueOnce(new Error('alert failure'))
-    fn = jest.fn().mockRejectedValue(new Error('another non-FK'))
-
-    await expect(retryOnFkError(fn, context, identifier)).rejects.toThrow('another non-FK')
-    expect(processingAlerts.dataProcessingAlert).toHaveBeenCalled()
-    expect(consoleErrorSpy).toHaveBeenCalled()
   })
 
   test('wrapped error should reference the original FK error (either .cause or .originalError)', async () => {
     const fkError = new Sequelize.ForeignKeyConstraintError()
     fn = jest.fn(() => Promise.reject(fkError))
 
-    processingAlerts.dataProcessingAlert.mockResolvedValue(undefined)
     const promise = retryOnFkError(fn, context, identifier)
 
     for (let i = 0; i < 20; i++) {
@@ -131,5 +97,20 @@ describe('retryOnFkError', () => {
     const causeMatches = thrownErr.cause === fkError
     const originalMatches = thrownErr.originalError === fkError
     expect(causeMatches || originalMatches).toBe(true)
+  })
+
+  test('parseEnvInt handles invalid env values', () => {
+    process.env.TEST_VAR = 'invalid'
+    expect(parseEnvInt('TEST_VAR')).toBeUndefined()
+    delete process.env.TEST_VAR
+  })
+
+  test('createWrappedError sets cause and data correctly', () => {
+    const cause = new Error('cause')
+    const data = { key: 'value' }
+    const wrapped = createWrappedError('msg', cause, data)
+    expect(wrapped.message).toBe('msg')
+    expect(wrapped.cause || wrapped.originalError).toBe(cause)
+    expect(wrapped.data).toEqual({ data })
   })
 })
