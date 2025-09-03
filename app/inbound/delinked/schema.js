@@ -1,15 +1,20 @@
 const { Joi, constants, numberSchema, stringSchema } = require('../../utility/common-schema-fields')
 const { DELINKED } = require('../../constants/types')
 const maxChars = 4000
-const percentageReductionPattern = /^\d{1,3}\.\d{2}$/
-const monetaryPattern = /^\d+\.\d{2}$/
 
 const createStringSchema = (name) => stringSchema(name, maxChars)
 
-const createPatternSchema = (name, pattern) => Joi.string().pattern(pattern).required().messages({
+const createMonetarySchema = (name) => Joi.string().pattern(/^\d+\.\d{2}$/).required().messages({
   'string.base': `${name} should be a type of string`,
   'string.empty': `${name} cannot be an empty field`,
-  'string.pattern.base': `${name} must match the required pattern: ${pattern}`,
+  'string.pattern.base': `${name} must be in monetary format with 2 decimal places`,
+  'any.required': `The field ${name} is not present but it is required`
+})
+
+const createPercentageSchema = (name) => Joi.string().pattern(/^\d{1,3}\.\d{2}$/).required().messages({
+  'string.base': `${name} should be a type of string`,
+  'string.empty': `${name} cannot be an empty field`,
+  'string.pattern.base': `${name} must be a a valid percentage with 2 decimal places`,
   'any.required': `The field ${name} is not present but it is required`
 })
 
@@ -29,17 +34,17 @@ const paymentBands = {
 }
 
 const percentageReductions = {
-  percentageReduction1: createPatternSchema('percentageReduction1', percentageReductionPattern),
-  percentageReduction2: createPatternSchema('percentageReduction2', percentageReductionPattern),
-  percentageReduction3: createPatternSchema('percentageReduction3', percentageReductionPattern),
-  percentageReduction4: createPatternSchema('percentageReduction4', percentageReductionPattern)
+  percentageReduction1: createPercentageSchema('percentageReduction1'),
+  percentageReduction2: createPercentageSchema('percentageReduction2'),
+  percentageReduction3: createPercentageSchema('percentageReduction3'),
+  percentageReduction4: createPercentageSchema('percentageReduction4')
 }
 
 const progressiveReductions = {
-  progressiveReductions1: createPatternSchema('progressiveReductions1', monetaryPattern),
-  progressiveReductions2: createPatternSchema('progressiveReductions2', monetaryPattern),
-  progressiveReductions3: createPatternSchema('progressiveReductions3', monetaryPattern),
-  progressiveReductions4: createPatternSchema('progressiveReductions4', monetaryPattern)
+  progressiveReductions1: createMonetarySchema('progressiveReductions1'),
+  progressiveReductions2: createMonetarySchema('progressiveReductions2'),
+  progressiveReductions3: createMonetarySchema('progressiveReductions3'),
+  progressiveReductions4: createMonetarySchema('progressiveReductions4')
 }
 
 module.exports = Joi.object({
@@ -50,10 +55,10 @@ module.exports = Joi.object({
   ...paymentBands,
   ...percentageReductions,
   ...progressiveReductions,
-  referenceAmount: createStringSchema('referenceAmount', monetaryPattern),
-  totalProgressiveReduction: createStringSchema('totalProgressiveReduction', monetaryPattern),
-  totalDelinkedPayment: createStringSchema('totalDelinkedPayment', monetaryPattern),
-  paymentAmountCalculated: createStringSchema('paymentAmountCalculated', monetaryPattern),
+  referenceAmount: createMonetarySchema('referenceAmount'),
+  totalProgressiveReduction: createMonetarySchema('totalProgressiveReduction'),
+  totalDelinkedPayment: createMonetarySchema('totalDelinkedPayment'),
+  paymentAmountCalculated: createMonetarySchema('paymentAmountCalculated'),
   updated: Joi.date().required().messages({
     'date.base': 'updated should be a type of date',
     'any.required': 'The field updated is not present but it is required'
