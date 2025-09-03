@@ -35,25 +35,19 @@ const numberSchema = (field) => Joi.number().integer().required().messages({
   'any.required': messages.required(field)
 })
 
-const stringSchema = (field, max, pattern) => {
+const stringSchema = (field, max) => {
   let schema = Joi.string().required().messages({
     'string.base': `${field} should be a type of string`,
     'any.required': `The field ${field} is not present but it is required`
   })
 
-  if (pattern) {
-    schema = schema.pattern(pattern).messages({
-      'string.pattern.base': `${field} is not in the correct format`
-    })
-    return schema
-  } else if (max !== undefined) {
+  if (max !== undefined) {
     schema = schema.max(max).messages({
       'string.max': `${field} should have a maximum length of ${max}`
     })
-    return schema
-  } else {
-    return schema
   }
+
+  return schema
 }
 
 const dateSchema = (field) => Joi.date().required().messages({

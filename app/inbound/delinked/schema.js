@@ -4,7 +4,14 @@ const maxChars = 4000
 const percentageReductionPattern = /^\d{1,3}\.\d{2}$/
 const monetaryPattern = /^\d+\.\d{2}$/
 
-const createStringSchema = (name, pattern) => stringSchema(name, maxChars, pattern)
+const createStringSchema = (name) => stringSchema(name, maxChars)
+
+const createPatternSchema = (name, pattern) => Joi.string().pattern(pattern).required().messages({
+  'string.base': `${name} should be a type of string`,
+  'string.empty': `${name} cannot be an empty field`,
+  'string.pattern.base': `${name} must match the required pattern: ${pattern}`,
+  'any.required': `The field ${name} is not present but it is required`
+})
 
 const createNumberSchemaWithMessages = (name, min, max) => Joi.number().integer().min(min).max(max).required().messages({
   'number.base': `${name} should be a type of number`,
@@ -22,17 +29,17 @@ const paymentBands = {
 }
 
 const percentageReductions = {
-  percentageReduction1: createStringSchema('percentageReduction1', percentageReductionPattern),
-  percentageReduction2: createStringSchema('percentageReduction2', percentageReductionPattern),
-  percentageReduction3: createStringSchema('percentageReduction3', percentageReductionPattern),
-  percentageReduction4: createStringSchema('percentageReduction4', percentageReductionPattern)
+  percentageReduction1: createPatternSchema('percentageReduction1', percentageReductionPattern),
+  percentageReduction2: createPatternSchema('percentageReduction2', percentageReductionPattern),
+  percentageReduction3: createPatternSchema('percentageReduction3', percentageReductionPattern),
+  percentageReduction4: createPatternSchema('percentageReduction4', percentageReductionPattern)
 }
 
 const progressiveReductions = {
-  progressiveReductions1: createStringSchema('progressiveReductions1', monetaryPattern),
-  progressiveReductions2: createStringSchema('progressiveReductions2', monetaryPattern),
-  progressiveReductions3: createStringSchema('progressiveReductions3', monetaryPattern),
-  progressiveReductions4: createStringSchema('progressiveReductions4', monetaryPattern)
+  progressiveReductions1: createPatternSchema('progressiveReductions1', monetaryPattern),
+  progressiveReductions2: createPatternSchema('progressiveReductions2', monetaryPattern),
+  progressiveReductions3: createPatternSchema('progressiveReductions3', monetaryPattern),
+  progressiveReductions4: createPatternSchema('progressiveReductions4', monetaryPattern)
 }
 
 module.exports = Joi.object({
