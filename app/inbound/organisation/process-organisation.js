@@ -10,7 +10,7 @@ const processOrganisation = async (organisation) => {
     await transaction.commit()
   } catch (error) {
     await transaction.rollback()
-    throw (error)
+    throw error
   }
 }
 

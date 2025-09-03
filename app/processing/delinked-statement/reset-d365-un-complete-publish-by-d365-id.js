@@ -1,4 +1,6 @@
 const db = require('../../data')
+const { dataProcessingAlert } = require('../../../app/utility/processing-alerts')
+const { DATA_PROCESSING_ERROR } = require('../../../app/constants/alerts')
 
 const resetD365UnCompletePublishByDaxId = async (d365Id) => {
   try {
@@ -9,8 +11,21 @@ const resetD365UnCompletePublishByDaxId = async (d365Id) => {
       }
     })
   } catch (err) {
-    console.error(`Error resetting uncomplete publish for D365 ID ${d365Id}: ${err.message}`)
-    throw err
+    try {
+      await dataProcessingAlert({
+        process: 'resetD365UnCompletePublishByDaxId',
+        d365Id,
+        error: err,
+        message: `Error resetting uncomplete publish for D365 ID ${d365Id}`
+      }, DATA_PROCESSING_ERROR)
+    } catch (alertErr) {
+      console.error(`Error resetting uncomplete publish for D365 ID ${d365Id}: ${err.message}`,
+        { originalError: err, alertError: alertErr }
+      )
+    }
+    throw new Error(`Error resetting uncomplete publish for D365 ID ${d365Id}: ${err.message}`,
+      { cause: err }
+    )
   }
 }
 

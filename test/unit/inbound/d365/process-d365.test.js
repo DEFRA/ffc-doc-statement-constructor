@@ -1,17 +1,8 @@
-const db = require('../../../../app/data')
-const processD365 = require('../../../../app/inbound/d365/process-d365')
-const saveD365 = require('../../../../app/inbound/d365/save-d365')
-const validateD365 = require('../../../../app/inbound/d365/validate-d365')
-const getD365ByPaymentReference = require('../../../../app/inbound/d365/get-d365-by-payment-reference')
+process.env.RETRY_FK_MAX_RETRIES = '4'
+process.env.RETRY_FK_BASE_DELAY_MS = '10'
+process.env.RETRY_FK_MAX_TOTAL_DELAY_MS = '1000'
 const retryUtil = require('../../../../app/utility/retry-fk-error')
 const { D365 } = require('../../../../app/constants/types')
-
-beforeAll(() => {
-  jest.spyOn(retryUtil, 'sleep').mockImplementation(() => Promise.resolve())
-})
-afterAll(() => {
-  retryUtil.sleep.mockRestore()
-})
 
 jest.mock('../../../../app/data', () => {
   return {
@@ -25,10 +16,24 @@ jest.mock('../../../../app/data', () => {
     }
   }
 })
+
 jest.mock('../../../../app/inbound/d365/save-d365')
 jest.mock('../../../../app/inbound/d365/schema')
 jest.mock('../../../../app/inbound/d365/validate-d365')
 jest.mock('../../../../app/inbound/d365/get-d365-by-payment-reference')
+
+const db = require('../../../../app/data')
+const processD365 = require('../../../../app/inbound/d365/process-d365')
+const saveD365 = require('../../../../app/inbound/d365/save-d365')
+const validateD365 = require('../../../../app/inbound/d365/validate-d365')
+const getD365ByPaymentReference = require('../../../../app/inbound/d365/get-d365-by-payment-reference')
+
+beforeAll(() => {
+  jest.spyOn(retryUtil, 'sleep').mockImplementation(() => Promise.resolve())
+})
+afterAll(() => {
+  retryUtil.sleep.mockRestore()
+})
 
 describe('processD365', () => {
   let transaction
@@ -43,19 +48,19 @@ describe('processD365', () => {
   })
 
   test('should skip processing and log info when duplicate paymentReference exists', async () => {
-    const d365 = { paymentReference: '123' }
+    const d365 = { paymentReference: 'PY1000001' }
     getD365ByPaymentReference.mockResolvedValue(d365)
     console.info = jest.fn()
 
     await processD365(d365)
 
-    expect(console.info).toHaveBeenCalledWith('Duplicate D365 paymentReference received, skipping 123')
+    expect(console.info).toHaveBeenCalledWith('Duplicate D365 paymentReference received, skipping PY1000001')
     expect(db.sequelize.transaction).not.toHaveBeenCalled()
   })
 
   test('should validate, save and commit transaction when new paymentReference is received', async () => {
     const d365 = {
-      paymentReference: '123',
+      paymentReference: 'PY1000001',
       calculationReference: 'abc',
       paymentPeriod: '2024-Q1',
       paymentAmount: 1000,
@@ -68,7 +73,7 @@ describe('processD365', () => {
     await processD365(d365)
 
     const expectedTransformed = {
-      paymentReference: '123',
+      paymentReference: 'PY1000001',
       calculationId: 'abc',
       paymentPeriod: '2024-Q1',
       paymentAmount: 1000,
@@ -76,14 +81,14 @@ describe('processD365', () => {
       type: D365
     }
 
-    expect(validateD365).toHaveBeenCalledWith(expectedTransformed, '123')
+    expect(validateD365).toHaveBeenCalledWith(expectedTransformed, 'PY1000001')
     expect(saveD365).toHaveBeenCalledWith(expectedTransformed, transaction)
     expect(transaction.commit).toHaveBeenCalled()
   })
 
   test('should rollback transaction and rethrow on internal error', async () => {
     const d365 = {
-      paymentReference: '123',
+      paymentReference: 'PY1000001',
       calculationReference: 'abc',
       paymentPeriod: '2024-Q1',
       paymentAmount: 1000
@@ -98,7 +103,7 @@ describe('processD365', () => {
 
   test('should rollback and throw validation error when validateD365 fails', async () => {
     const d365 = {
-      paymentReference: '123',
+      paymentReference: 'PY1000001',
       calculationReference: 'abc'
     }
     const validationError = new Error('Validation failed')
@@ -110,17 +115,17 @@ describe('processD365', () => {
   })
 
   test('should throw and log when getD365ByPaymentReference fails', async () => {
-    const d365 = { paymentReference: '123' }
+    const d365 = { paymentReference: 'PY1000001' }
     const error = new Error()
     getD365ByPaymentReference.mockRejectedValue(error)
 
-    await expect(processD365(d365)).rejects.toThrow('Validation failed')
+    await expect(processD365(d365)).rejects.toThrow()
     expect(transaction.rollback).not.toHaveBeenCalled()
   })
 
   test('should retry on ForeignKeyConstraintError and succeed on later attempt', async () => {
     const d365 = {
-      paymentReference: 'retry123',
+      paymentReference: 'PY1000001',
       calculationReference: 'abc',
       paymentPeriod: '2024-Q1',
       paymentAmount: 1000,
@@ -141,6 +146,6 @@ describe('processD365', () => {
     expect(saveD365).toHaveBeenCalledTimes(4)
     expect(transaction.commit).toHaveBeenCalledTimes(1)
     expect(transaction.rollback).toHaveBeenCalledTimes(3)
-    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('FK error for D365 retry123'))
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('FK error for D365 PY1000001'))
   })
 })

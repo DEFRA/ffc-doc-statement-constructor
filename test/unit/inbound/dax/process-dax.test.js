@@ -1,3 +1,6 @@
+process.env.RETRY_FK_MAX_RETRIES = '4'
+process.env.RETRY_FK_BASE_DELAY_MS = '10'
+process.env.RETRY_FK_MAX_TOTAL_DELAY_MS = '1000'
 const db = require('../../../../app/data')
 const processDax = require('../../../../app/inbound/dax/process-dax')
 const saveDax = require('../../../../app/inbound/dax/save-dax')
@@ -33,9 +36,17 @@ jest.mock('../../../../app/inbound/dax/get-dax-by-calculation-id-and-payment-ref
 
 describe('processDax', () => {
   let transaction
+
   beforeEach(() => {
+    jest.clearAllMocks()
     transaction = { commit: jest.fn(), rollback: jest.fn() }
     db.sequelize.transaction.mockResolvedValue(transaction)
+  })
+
+  afterEach(() => {
+    if (console.info && console.info.mockRestore) console.info.mockRestore()
+    if (console.warn && console.warn.mockRestore) console.warn.mockRestore()
+    if (console.error && console.error.mockRestore) console.error.mockRestore()
   })
 
   test('should rollback transaction and log info when dax with same paymentReference exists', async () => {
@@ -79,7 +90,7 @@ describe('processDax', () => {
 
     await processDax(dax)
 
-    expect(saveDax).toHaveBeenCalledTimes(5)
+    expect(saveDax).toHaveBeenCalledTimes(4)
     expect(transaction.rollback).toHaveBeenCalledTimes(3)
     expect(transaction.commit).toHaveBeenCalledTimes(1)
     expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('FK error for Dax'))
@@ -89,11 +100,7 @@ describe('processDax', () => {
     const dax = { paymentReference: '123' }
     getDaxByCalculationIdAndPaymentReference.mockRejectedValue(new Error('Test error'))
 
-    try {
-      await processDax(dax)
-    } catch (error) {
-      expect(transaction.rollback).toHaveBeenCalled()
-      expect(error).toEqual(new Error('Test error'))
-    }
+    await expect(processDax(dax)).rejects.toThrow('Test error')
+    expect(transaction.rollback).toHaveBeenCalled()
   })
 })

@@ -27,15 +27,22 @@ const savePlaceholderOrganisation = require('../../../../app/inbound/delinked/sa
 jest.mock('../../../../app/inbound/delinked/save-delinked')
 const saveDelinked = require('../../../../app/inbound/delinked/save-delinked')
 
+jest.mock('../../../../app/inbound/delinked/validate-delinked')
+const validateDelinked = require('../../../../app/inbound/delinked/validate-delinked')
+
 describe('processDelinked', () => {
   beforeEach(() => {
     getDelinkedByCalculationId.mockResolvedValue(null)
     savePlaceholderOrganisation.mockResolvedValue(undefined)
     saveDelinked.mockResolvedValue(undefined)
+    validateDelinked.mockResolvedValue(undefined)
+    jest.clearAllMocks()
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    // clear any console mocks registered by tests to avoid cross-test pollution
+    if (console.info && console.info.mockRestore) console.info.mockRestore()
+    if (console.error && console.error.mockRestore) console.error.mockRestore()
   })
 
   test('should call getDelinkedByCalculationId when no previous delinked exists', async () => {
@@ -141,5 +148,25 @@ describe('processDelinked', () => {
     }
 
     await expect(wrapper).rejects.toThrow('Database retrieval issue')
+  })
+
+  test('should rollback transaction and log errors when saveDelinked throws', async () => {
+    const saveError = new Error('Save error')
+    saveDelinked.mockRejectedValue(saveError)
+
+    console.error = jest.fn()
+
+    const wrapper = async () => {
+      await processDelinked(mockDelinked1)
+    }
+
+    await expect(wrapper).rejects.toThrow('Save error')
+
+    expect(mockTransaction.rollback).toHaveBeenCalled()
+    expect(mockTransaction.commit).not.toHaveBeenCalled()
+    // inner transaction error log
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining(`Transaction error for delinked ${mockDelinked1.calculationReference}:`), expect.any(Error))
+    // outer processing error log
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining(`Failed to process delinked ${mockDelinked1.calculationReference || 'unknown'}:`), expect.any(Error))
   })
 })

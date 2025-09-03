@@ -7,37 +7,118 @@ const getDocumentTypeByCode = require('./get-document-type-by-code')
 const getAddressFromOrganisation = require('./get-address-from-organisation')
 const { DELINKED } = require('../../constants/document-types')
 const delinkedScheme = require('../../constants/delinked-scheme')
+const { dataProcessingAlert } = require('../../../app/utility/processing-alerts')
+const { DATA_PROCESSING_ERROR } = require('../../../app/constants/alerts')
 
-const getDelinkedStatementByPaymentReference = async (paymentReference, excluded) => {
+const alertAndThrow = async (alertPayload, throwMessage) => {
+  try {
+    await dataProcessingAlert(alertPayload, DATA_PROCESSING_ERROR)
+  } catch (alertError) {
+    console.error(throwMessage, alertError)
+  }
+  throw new Error(throwMessage)
+}
+
+const loadD365 = async (paymentReference) => {
   const d365 = await getD365(paymentReference)
   if (!d365) {
     throw new Error(`D365 data not found for payment reference: ${paymentReference}`)
   }
+  return d365
+}
 
-  const delinkedCalculation = await getDelinkedCalculation(d365.calculationId)
+const loadDelinkedCalculation = async (calculationId) => {
+  const delinkedCalculation = await getDelinkedCalculation(calculationId)
   if (!delinkedCalculation) {
-    throw new Error(`Delinked calculation data not found for calculation ID: ${d365.calculationId}`)
+    await alertAndThrow({
+      process: 'getDelinkedCalculation',
+      calculationId,
+      message: `Delinked calculation data not found for calculation ID: ${calculationId}`
+    }, `Delinked calculation data not found for calculation ID: ${calculationId}`)
   }
+  return delinkedCalculation
+}
 
-  const organisation = await getOrganisation(delinkedCalculation.sbi)
+const loadOrganisation = async (sbi) => {
+  const organisation = await getOrganisation(sbi)
   if (!organisation) {
-    throw new Error(`Organisation data not found for SBI: ${delinkedCalculation.sbi}`)
+    await alertAndThrow({
+      process: 'getOrganisation',
+      sbi,
+      message: `Organisation data not found for SBI: ${sbi}`
+    }, `Organisation data not found for SBI: ${sbi}`)
   }
+  return organisation
+}
 
+const loadAddress = async (organisation) => {
   const address = getAddressFromOrganisation(organisation)
   if (!address) {
-    throw new Error(`Address data not found for organisation: ${organisation.name}`)
+    await alertAndThrow({
+      process: 'getAddressFromOrganisation',
+      organisation: organisation?.name,
+      message: `Address data not found for organisation: ${organisation?.name}`
+    }, `Address data not found for organisation: ${organisation?.name}`)
   }
+  return address
+}
 
-  const documentType = await getDocumentTypeByCode(DELINKED)
+const loadDocumentType = async (typeCode) => {
+  const documentType = await getDocumentTypeByCode(typeCode)
   if (!documentType?.documentTypeId) {
-    throw new Error(`Invalid document type code: ${DELINKED}`)
+    await alertAndThrow({
+      process: 'getDocumentTypeByCode',
+      type: typeCode,
+      message: `Invalid document type code: ${typeCode}`
+    }, `Invalid document type code: ${typeCode}`)
   }
+  return documentType
+}
 
-  const previousPaymentCount = await getPreviousPaymentCountByCalculationId(d365.calculationId)
+const loadPreviousPaymentCount = async (calculationId) => {
+  const previousPaymentCount = await getPreviousPaymentCountByCalculationId(calculationId)
   if (previousPaymentCount === null || typeof previousPaymentCount !== 'number') {
-    throw new Error(`Invalid previous payment count for calculation ID: ${d365.calculationId}`)
+    await alertAndThrow({
+      process: 'getPreviousPaymentCountByCalculationId',
+      calculationId,
+      message: `Invalid previous payment count for calculation ID: ${calculationId}`
+    }, `Invalid previous payment count for calculation ID: ${calculationId}`)
   }
+  return previousPaymentCount
+}
+
+const createSchemeFromD365 = (d365) => {
+  const createdScheme = delinkedScheme.createScheme(d365.marketingYear)
+  return {
+    name: createdScheme.fullName,
+    shortName: createdScheme.shortName,
+    year: createdScheme.year
+  }
+}
+
+const createAndSaveDocument = async (documentTypeId, paymentReference) => {
+  const document = {
+    documentTypeId,
+    documentSourceReference: paymentReference
+  }
+  const savedDocument = await saveDocument(document)
+  if (!savedDocument?.documentId) {
+    await alertAndThrow({
+      process: 'saveDocument',
+      paymentReference,
+      message: `Invalid saved document data for payment reference: ${paymentReference}`
+    }, `Invalid saved document data for payment reference: ${paymentReference}`)
+  }
+  return savedDocument
+}
+
+const getDelinkedStatementByPaymentReference = async (paymentReference, excluded) => {
+  const d365 = await loadD365(paymentReference)
+  const delinkedCalculation = await loadDelinkedCalculation(d365.calculationId)
+  const organisation = await loadOrganisation(delinkedCalculation.sbi)
+  const address = await loadAddress(organisation)
+  const documentType = await loadDocumentType(DELINKED)
+  const previousPaymentCount = await loadPreviousPaymentCount(d365.calculationId)
 
   console.log('D365 data loaded:', JSON.stringify({
     paymentReference: d365.paymentReference,
@@ -45,24 +126,8 @@ const getDelinkedStatementByPaymentReference = async (paymentReference, excluded
     marketingYear: d365.marketingYear
   }, null, 2))
 
-  const scheme = (() => {
-    const createdScheme = delinkedScheme.createScheme(d365.marketingYear)
-    return {
-      name: createdScheme.fullName,
-      shortName: createdScheme.shortName,
-      year: createdScheme.year
-    }
-  })()
-
-  const document = {
-    documentTypeId: documentType.documentTypeId,
-    documentSourceReference: paymentReference
-  }
-
-  const savedDocument = await saveDocument(document)
-  if (!savedDocument?.documentId) {
-    throw new Error(`Invalid saved document data for payment reference: ${paymentReference}`)
-  }
+  const scheme = createSchemeFromD365(d365)
+  const savedDocument = await createAndSaveDocument(documentType.documentTypeId, paymentReference)
 
   return {
     address,

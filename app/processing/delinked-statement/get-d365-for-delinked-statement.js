@@ -1,5 +1,7 @@
 const db = require('../../data')
 const config = require('../../config').processingConfig
+const { dataProcessingAlert } = require('../../../app/utility/processing-alerts')
+const { DATA_PROCESSING_ERROR } = require('../../../app/constants/alerts')
 
 const getD365ForDelinkedStatement = async (transaction) => {
   try {
@@ -25,10 +27,39 @@ const getD365ForDelinkedStatement = async (transaction) => {
       },
       raw: true
     })
+
     return d365ForDelinkedStatement
   } catch (error) {
-    console.error('Error fetching D365 for delinked statement:', error)
-    throw new Error('Failed to fetch D365 for delinked statement')
+    const today = (() => {
+      const d = new Date()
+      d.setHours(0, 0, 0, 0)
+      return d.toISOString()
+    })()
+
+    const queryContext = {
+      where: {
+        startPublish: null,
+        transactionDateBefore: today
+      },
+      limit: config.maxProcessingBatchSize
+    }
+
+    const transactionId = transaction && (transaction.id || transaction.txId || transaction.name || null)
+    const message = 'Error fetching D365 for delinked statement'
+    console.error(message, { queryContext, transactionId, error })
+
+    try {
+      await dataProcessingAlert({
+        process: 'getD365ForDelinkedStatement',
+        transactionId,
+        queryContext,
+        message: `${message}: ${error.message}`
+      }, DATA_PROCESSING_ERROR)
+    } catch (alertError) {
+      console.error(`${message} (alert failed)`, { originalError: error, alertError })
+    }
+
+    throw new Error(`${message}: ${error.message}`, { cause: error })
   }
 }
 
