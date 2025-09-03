@@ -27,6 +27,7 @@ describe('process organisation', () => {
   beforeEach(() => {
     organisation = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-organisation')))
     saveOrganisation.mockResolvedValue(undefined)
+    jest.clearAllMocks()
   })
 
   afterEach(() => {

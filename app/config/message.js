@@ -22,6 +22,9 @@ const mqSchema = Joi.object({
     address: Joi.string(),
     source: Joi.string()
   },
+  alertTopic: {
+    address: Joi.string()
+  },
   idleCheckBatchSize: Joi.number().default(number250),
   idleCheckMaxDeliveryCount: Joi.number().default(number1),
   idleCheckInterval: Joi.number().default(number10000)
@@ -45,6 +48,9 @@ const mqConfig = {
     address: process.env.STATEMENT_TOPIC_ADDRESS,
     source: docStatementConstructor
   },
+  alertTopic: {
+    address: process.env.ALERT_TOPIC_ADDRESS
+  },
   idleCheckBatchSize: process.env.IDLE_CHECK_BATCH_SIZE,
   idleCheckMaxDeliveryCount: process.env.IDLE_CHECK_MAX_DELIVERY_COUNT,
   idleCheckInterval: process.env.IDLE_CHECK_INTERVAL
@@ -60,6 +66,7 @@ if (mqResult.error) {
 
 const statementDataSubscription = { ...mqResult.value.messageQueue, ...mqResult.value.statementDataSubscription }
 const statementTopic = { ...mqResult.value.messageQueue, ...mqResult.value.statementTopic }
+const alertTopic = { ...mqResult.value.messageQueue, ...mqResult.value.alertTopic }
 const idleCheckBatchSize = mqResult.value.idleCheckBatchSize
 const idleCheckMaxDeliveryCount = mqResult.value.idleCheckMaxDeliveryCount
 const idleCheckInterval = mqResult.value.idleCheckInterval
@@ -67,6 +74,7 @@ const idleCheckInterval = mqResult.value.idleCheckInterval
 module.exports = {
   statementDataSubscription,
   statementTopic,
+  alertTopic,
   idleCheckBatchSize,
   idleCheckMaxDeliveryCount,
   idleCheckInterval

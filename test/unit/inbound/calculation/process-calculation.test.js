@@ -1,3 +1,6 @@
+process.env.RETRY_FK_MAX_RETRIES = '4'
+process.env.RETRY_FK_BASE_DELAY_MS = '10'
+process.env.RETRY_FK_MAX_TOTAL_DELAY_MS = '1000'
 const db = require('../../../../app/data')
 const processCalculation = require('../../../../app/inbound/calculation/process-calculation')
 const saveCalculation = require('../../../../app/inbound/calculation/save-calculation')
