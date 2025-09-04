@@ -4,7 +4,8 @@ const {
   sendDelinkedStatement,
   updateD365CompletePublishByD365Id,
   resetD365UnCompletePublishByD365Id,
-  getDelinkedStatementByPaymentReference
+  getDelinkedStatementByPaymentReference,
+  validateDelinkedStatement
 } = require('./delinked-statement')
 
 const handleProcessingError = async (item, err) => {
@@ -26,6 +27,7 @@ const processDelinkedStatement = async () => {
         console.log(`Payment reference ${item.paymentReference} is excluded from Delinked statement processing`)
       }
       const delinkedStatement = await getDelinkedStatementByPaymentReference(item.paymentReference, paymentReferenceIsExcluded)
+      validateDelinkedStatement(delinkedStatement)
       await sendDelinkedStatement(delinkedStatement)
       await updateD365CompletePublishByD365Id(item.d365Id)
     } catch (err) {
