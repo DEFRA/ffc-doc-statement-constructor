@@ -10,11 +10,11 @@ describe('validateDelinkedStatement', () => {
     console.error = jest.fn()
   })
 
-  test('should return validated value for a valid delinked statement', () => {
+  test('should return validated value for a valid delinked statement', async () => {
     const mockDelinkedStatement = { calculationId: '12345', validField: 'value' }
     schema.validate.mockReturnValue({ value: mockDelinkedStatement })
 
-    const result = validateDelinkedStatement(mockDelinkedStatement)
+    const result = await validateDelinkedStatement(mockDelinkedStatement)
 
     expect(result).toEqual(mockDelinkedStatement)
     expect(schema.validate).toHaveBeenCalledWith(mockDelinkedStatement, { abortEarly: false })

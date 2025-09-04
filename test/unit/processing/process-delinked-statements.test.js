@@ -1,4 +1,11 @@
-jest.mock('../../../app/processing/delinked-statement')
+jest.mock('../../../app/processing/delinked-statement', () => ({
+  getVerifiedD365DelinkedStatements: jest.fn(),
+  sendDelinkedStatement: jest.fn(),
+  updateD365CompletePublishByD365Id: jest.fn(),
+  resetD365UnCompletePublishByD365Id: jest.fn(),
+  getDelinkedStatementByPaymentReference: jest.fn(),
+  validateDelinkedStatement: jest.fn()
+}))
 jest.mock('../../../app/utility/get-excluded-payment-reference-by-payment-reference')
 
 const {

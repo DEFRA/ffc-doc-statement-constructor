@@ -2,7 +2,7 @@ const schema = require('./delinked-statement-schema')
 const { dataProcessingAlert } = require('../../utility/processing-alerts')
 const { DATA_PROCESSING_ERROR } = require('../../constants/alerts')
 
-const validateDelinkedStatement = (delinkedStatement) => {
+const validateDelinkedStatement = async (delinkedStatement) => {
   const result = schema.validate(delinkedStatement, {
     abortEarly: false
   })
