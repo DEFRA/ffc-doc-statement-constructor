@@ -9,14 +9,14 @@ const marketingYearMax = 2050
 module.exports = Joi.object({
   paymentReference: Joi.string()
     .trim()
-    .pattern(/^PY\d{8,10}$/)
+    .pattern(/^PY\d{7,10}$/)
     .max(paymentReferenceChars)
     .required()
     .messages({
       'string.base': 'paymentReference should be a type of string',
       'string.empty': 'paymentReference cannot be empty',
       'string.max': `paymentReference should have a maximum length of ${paymentReferenceChars}`,
-      'string.pattern.base': 'paymentReference must start with "PY" followed by 8 to 10 digits (example: PY12345678)',
+      'string.pattern.base': 'paymentReference must start with "PY" followed by 7 to 10 digits (example: PY12345678)',
       'any.required': 'The field paymentReference is not present but it is required'
     }),
   calculationId: Joi.number().integer().required().messages({
