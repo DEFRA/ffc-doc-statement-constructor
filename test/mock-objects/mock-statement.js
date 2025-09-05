@@ -14,7 +14,6 @@ const {
   POSTCODE
 } = require('../mock-components/mock-address')
 const { FIVE_HUNDRED_POUNDS } = require('../mock-components/mock-value')
-const FUNDING = require('../mock-objects/mock-fundings')[1]
 const { DAY_FORMAT: CALCULATED_DATE } = require('../mock-components/mock-dates').CALCULATED
 const { DAY_FORMAT: DUE_DATE } = require('../mock-components/mock-dates').DUE
 const { SFI_FIRST_PAYMENT: INVOICE_NUMBER } = require('../mock-components/mock-invoice-number')
@@ -41,29 +40,6 @@ module.exports = {
     line5: COUNTY,
     postcode: POSTCODE
   },
-  funding: [
-    {
-      annualValue: convertToPounds(Number(FIVE_HUNDRED_POUNDS)),
-      area: Number(FUNDING.areaClaimed).toFixed(4),
-      level: 'Introductory',
-      name: 'Arable and horticultural soils',
-      quarterlyPayment: convertToPounds(Number(FIVE_HUNDRED_POUNDS) / 4),
-      quarterlyReduction: convertToPounds(0),
-      quarterlyValue: convertToPounds(Number(FIVE_HUNDRED_POUNDS) / 4),
-      rate: String(FUNDING.rate),
-      reductions: []
-    },
-    {
-      annualValue: convertToPounds(Number(FIVE_HUNDRED_POUNDS)),
-      area: Number(FUNDING.areaClaimed).toFixed(4),
-      level: '',
-      name: 'Total',
-      quarterlyPayment: convertToPounds(Number(FIVE_HUNDRED_POUNDS) / 4),
-      quarterlyReduction: convertToPounds(0),
-      quarterlyValue: convertToPounds(Number(FIVE_HUNDRED_POUNDS) / 4),
-      rate: ''
-    }
-  ],
   payments: [
     {
       calculated: CALCULATED_DATE,

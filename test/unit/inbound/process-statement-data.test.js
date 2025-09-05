@@ -1,21 +1,18 @@
 const processStatementData = require('../../../app/inbound/statement-data/process-statement-data')
-const { CALCULATION, ORGANISATION, TOTAL, DELINKED, DAX, D365 } = require('../../../app/constants/types')
+const { ORGANISATION, TOTAL, DELINKED, DAX, D365 } = require('../../../app/constants/types')
 
 const processOrganisation = require('../../../app/inbound/organisation/process-organisation')
-const processCalculation = require('../../../app/inbound/calculation/process-calculation')
 const processDelinked = require('../../../app/inbound/delinked/process-delinked')
 const processTotal = require('../../../app/inbound/total/process-total')
 const processDax = require('../../../app/inbound/dax/process-dax')
 const processD365 = require('../../../app/inbound/d365/process-d365')
 
 jest.mock('../../../app/inbound/organisation/process-organisation')
-jest.mock('../../../app/inbound/calculation/process-calculation')
 jest.mock('../../../app/inbound/delinked/process-delinked')
 jest.mock('../../../app/inbound/total/process-total')
 jest.mock('../../../app/inbound/dax/process-dax')
 jest.mock('../../../app/inbound/d365/process-d365')
 
-let calculationData
 let organisationData
 let totalData
 let delinkedData
@@ -24,24 +21,17 @@ let d365Data
 
 describe('process statement data', () => {
   beforeEach(() => {
-    calculationData = JSON.parse(JSON.stringify(require('../../mock-objects/mock-calculation')))
     organisationData = JSON.parse(JSON.stringify(require('../../mock-objects/mock-organisation')))
     totalData = JSON.parse(JSON.stringify(require('../../mock-objects/mock-total')))
     delinkedData = JSON.parse(JSON.stringify(require('../../mock-objects/mock-delinked')))
     daxData = JSON.parse(JSON.stringify(require('../../mock-objects/mock-dax')))
     d365Data = JSON.parse(JSON.stringify(require('../../mock-objects/mock-d365')))
 
-    processCalculation.mockResolvedValue(undefined)
     processOrganisation.mockResolvedValue(undefined)
     processDelinked.mockResolvedValue(undefined)
     processTotal.mockResolvedValue(undefined)
     processDax.mockResolvedValue(undefined)
     processD365.mockResolvedValue(undefined)
-  })
-
-  test('should process calculation data', async () => {
-    await processStatementData({ type: CALCULATION, ...calculationData })
-    expect(processCalculation).toHaveBeenCalledWith({ type: CALCULATION, ...calculationData })
   })
 
   test('should process organisation data', async () => {
@@ -77,9 +67,9 @@ describe('process statement data', () => {
 
   test('should propagate errors from processing functions', async () => {
     const errorMessage = 'Processing error'
-    processCalculation.mockRejectedValue(new Error(errorMessage))
+    processOrganisation.mockRejectedValue(new Error(errorMessage))
 
-    await expect(processStatementData({ type: CALCULATION, ...calculationData }))
+    await expect(processStatementData({ type: ORGANISATION, ...organisationData }))
       .rejects.toThrow(errorMessage)
   })
 })

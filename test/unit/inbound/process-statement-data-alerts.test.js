@@ -1,4 +1,4 @@
-const { CALCULATION, DAX, D365, ORGANISATION, DELINKED, TOTAL } = require('../../../app/constants/types')
+const { DAX, D365, ORGANISATION, DELINKED, TOTAL } = require('../../../app/constants/types')
 
 jest.mock('../../../app/utility/processing-alerts', () => {
   return {
@@ -8,7 +8,6 @@ jest.mock('../../../app/utility/processing-alerts', () => {
 jest.mock('../../../app/inbound/dax/process-dax', () => jest.fn())
 jest.mock('../../../app/inbound/d365/process-d365', () => jest.fn())
 jest.mock('../../../app/inbound/organisation/process-organisation', () => jest.fn())
-jest.mock('../../../app/inbound/calculation/process-calculation', () => jest.fn())
 jest.mock('../../../app/inbound/delinked/process-delinked', () => jest.fn())
 jest.mock('../../../app/inbound/total/process-total', () => jest.fn())
 
@@ -16,7 +15,6 @@ const { dataProcessingAlert } = require('../../../app/utility/processing-alerts'
 const processDax = require('../../../app/inbound/dax/process-dax')
 const processD365 = require('../../../app/inbound/d365/process-d365')
 const processOrganisation = require('../../../app/inbound/organisation/process-organisation')
-const processCalculation = require('../../../app/inbound/calculation/process-calculation')
 const processDelinked = require('../../../app/inbound/delinked/process-delinked')
 const processTotal = require('../../../app/inbound/total/process-total')
 const processStatementData = require('../../../app/inbound/statement-data/process-statement-data')
@@ -85,32 +83,6 @@ describe('process-statement-data centralized alerting', () => {
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining(`Failed to publish processing alert for type ${DAX}`), alertPublishError)
 
     expect(dataProcessingAlert).toHaveBeenCalledTimes(1)
-  })
-
-  test('uses defaultExtractor for types without specific detail extractor (CALCULATION)', async () => {
-    const calc = {
-      type: CALCULATION,
-      calculationReference: 'calc-123',
-      someField: 'value'
-    }
-    const underlyingError = new Error('calc processing error')
-    processCalculation.mockRejectedValueOnce(underlyingError)
-    dataProcessingAlert.mockResolvedValueOnce()
-
-    console.error = jest.fn()
-
-    await expect(processStatementData(calc)).rejects.toThrow('calc processing error')
-
-    expect(dataProcessingAlert).toHaveBeenCalledTimes(1)
-    const [alertPayload, alertType] = dataProcessingAlert.mock.calls[0]
-    expect(alertType).toBe(DATA_PROCESSING_ERROR)
-
-    expect(alertPayload).toMatchObject({
-      process: 'process-calculation',
-      calculationReference: 'calc-123',
-      someField: 'value',
-      error: expect.any(Error)
-    })
   })
 
   test('does not publish an alert when the child processor succeeds', async () => {

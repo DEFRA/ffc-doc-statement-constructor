@@ -13,10 +13,6 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'fundingCode',
       as: 'invoiceLines'
     })
-    fundingOption.hasMany(models.funding, {
-      foreignKey: 'fundingCode',
-      as: 'fundings'
-    })
   }
   return fundingOption
 }

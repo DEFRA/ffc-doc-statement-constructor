@@ -1,3 +1,4 @@
+const { TOTAL } = require('../../constants/types')
 const { Joi, constants, numberSchema, stringSchema, dateSchema, precisionSchema } = require('../../utility/common-schema-fields')
 
 module.exports = Joi.object({
@@ -23,17 +24,17 @@ module.exports = Joi.object({
   invoiceNumber: stringSchema('invoiceNumber', constants.number20),
   agreementStart: dateSchema('agreementStart'),
   agreementEnd: dateSchema('agreementEnd'),
-  totalAdditionalPayments: precisionSchema('totalAdditionalPayments', constants.number15),
-  totalActionPayments: precisionSchema('totalActionPayments', constants.number15),
-  totalPayments: precisionSchema('totalPayments', constants.number15),
+  totalAdditionalPayments: precisionSchema('totalAdditionalPayments', constants.number2),
+  totalActionPayments: precisionSchema('totalActionPayments', constants.number2),
+  totalPayments: precisionSchema('totalPayments', constants.number2),
   updated: dateSchema('updated'),
   datePublished: Joi.date().allow(null).messages({
     'date.base': 'datePublished should be a type of date'
   }),
-  type: Joi.string().required().valid(constants.TOTAL).messages({
+  type: Joi.string().required().valid(TOTAL).messages({
     'string.base': 'type should be a type of string',
     'any.required': 'The field type is not present but it is required',
-    'any.only': `type must be ${constants.TOTAL}`
+    'any.only': `type must be ${TOTAL}`
   }),
   actions: Joi.array().items(Joi.object({
     actionReference: numberSchema('actionReference'),
@@ -55,8 +56,9 @@ module.exports = Joi.object({
     overDeclarationPenalty: precisionSchema('overDeclarationPenalty', constants.number15),
     quarterlyPaymentAmount: stringSchema('quarterlyPaymentAmount', constants.number15),
     groupName: stringSchema('groupName', constants.number100)
-  })).optional().messages({
-    'array.base': 'actions should be a type of array'
+  })).required().messages({
+    'array.base': 'actions should be a type of array',
+    'any.required': 'The field actions is not present but it is required'
   })
 }).required().messages({
   'object.base': 'The input should be an object',

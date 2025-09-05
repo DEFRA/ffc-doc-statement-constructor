@@ -18,10 +18,6 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'paymentRequestId',
       as: 'paymentRequests'
     })
-    invoiceLine.belongsTo(models.funding, {
-      foreignKey: 'fundingCode',
-      as: 'fundings'
-    })
   }
   return invoiceLine
 }
