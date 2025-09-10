@@ -12,8 +12,10 @@ const constants = {
   number240: 240,
   number260: 260,
   number4000: 4000,
+  year2023: 2023,
   year2024: 2024,
-  year2025: 2025
+  year2025: 2025,
+  year2050: 2050
 }
 
 const messages = {
@@ -122,6 +124,13 @@ module.exports = Joi.object({
   frn: createNumberSchemaWithMessages('frn', constants.minFrn, constants.maxFrn),
   sbi: createNumberSchemaWithMessages('sbi', constants.minSbi, constants.maxSbi),
   paymentReference: createStringSchema('paymentReference', constants.number30),
+  marketingYear: Joi.number().integer().min(constants.year2023).max(constants.year2050).required().messages({
+    'number.base': 'Marketing year should be a type of number',
+    'number.integer': 'Marketing year should be an integer',
+    'any.required': 'The field marketing year is not present but it is required',
+    'number.min': 'Marketing year should have a minimum value of 2023',
+    'number.max': 'Marketing year should have a maximum value of 2050'
+  }),
   calculationId: numberSchema('calculationId'),
   paymentPeriod: createStringSchema('paymentPeriod', constants.number200),
   paymentAmount: createStringSchema('paymentAmount', null, monetaryPattern),

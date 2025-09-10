@@ -15,6 +15,7 @@ describe('Validation Schema', () => {
     frn: 1000000000,
     sbi: 105000000,
     paymentReference: 'PY12345678',
+    marketingYear: 2024,
     calculationId: 1,
     paymentPeriod: '2024-01',
     paymentAmount: '1000.00',
