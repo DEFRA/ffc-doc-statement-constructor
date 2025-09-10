@@ -1,12 +1,20 @@
-jest.mock('../../../app/processing/delinked-statement')
-jest.mock('../../../app/utility/get-excluded-payment-reference-by-payment-reference') // Mocking the utility function
+jest.mock('../../../app/processing/delinked-statement', () => ({
+  getVerifiedD365DelinkedStatements: jest.fn(),
+  sendDelinkedStatement: jest.fn(),
+  updateD365CompletePublishByD365Id: jest.fn(),
+  resetD365UnCompletePublishByD365Id: jest.fn(),
+  getDelinkedStatementByPaymentReference: jest.fn(),
+  validateDelinkedStatement: jest.fn()
+}))
+jest.mock('../../../app/utility/get-excluded-payment-reference-by-payment-reference')
 
 const {
   getVerifiedD365DelinkedStatements,
   sendDelinkedStatement,
   updateD365CompletePublishByD365Id,
   resetD365UnCompletePublishByD365Id,
-  getDelinkedStatementByPaymentReference
+  getDelinkedStatementByPaymentReference,
+  validateDelinkedStatement
 } = require('../../../app/processing/delinked-statement')
 
 const getExcludedPaymentReferenceByPaymentReference = require('../../../app/utility/get-excluded-payment-reference-by-payment-reference')
@@ -18,14 +26,18 @@ let retrievedD365
 describe('process statements', () => {
   beforeEach(async () => {
     const d365 = JSON.parse(JSON.stringify(require('../../mock-objects/mock-d365')))
-    retrievedD365 = [{ ...d365 }, { ...d365, paymentReference: 'P54542352' }, { ...d365, paymentReference: 'P545882352' }]
+    retrievedD365 = [
+      { ...d365, paymentReference: 'P54542352' },
+      { ...d365, paymentReference: 'P545882352' }
+    ]
 
     getVerifiedD365DelinkedStatements.mockResolvedValue(retrievedD365)
     updateD365CompletePublishByD365Id.mockReturnValue(undefined)
     resetD365UnCompletePublishByD365Id.mockResolvedValue(undefined)
-    getDelinkedStatementByPaymentReference.mockResolvedValue(undefined)
+    getDelinkedStatementByPaymentReference.mockResolvedValue({})
     sendDelinkedStatement.mockResolvedValue(undefined)
     getExcludedPaymentReferenceByPaymentReference.mockResolvedValue(false)
+    validateDelinkedStatement.mockReturnValue(undefined)
   })
 
   afterEach(() => {
@@ -45,6 +57,11 @@ describe('process statements', () => {
   test('should call getDelinkedStatementByPaymentReference', async () => {
     await processDelinkedStatements()
     expect(getDelinkedStatementByPaymentReference).toHaveBeenCalled()
+  })
+
+  test('should call validateDelinkedStatement', async () => {
+    await processDelinkedStatements()
+    expect(validateDelinkedStatement).toHaveBeenCalled()
   })
 
   test('should call sendDelinkedStatement', async () => {
@@ -116,5 +133,16 @@ describe('process statements', () => {
     await processDelinkedStatements()
 
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Payment reference P54542352 is excluded from Delinked statement processing'))
+  })
+
+  test('should handle error in validateDelinkedStatement', async () => {
+    validateDelinkedStatement.mockRejectedValue(new Error('Validation failed'))
+
+    await processDelinkedStatements()
+
+    expect(validateDelinkedStatement).toHaveBeenCalled()
+    expect(sendDelinkedStatement).not.toHaveBeenCalled()
+    expect(updateD365CompletePublishByD365Id).not.toHaveBeenCalled()
+    expect(resetD365UnCompletePublishByD365Id).toHaveBeenCalled()
   })
 })
