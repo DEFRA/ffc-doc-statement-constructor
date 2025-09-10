@@ -4,8 +4,18 @@ const maxChars = 4000
 
 const createStringSchema = (name) => stringSchema(name, maxChars)
 
-const createProgressiveReductionSchema = (name) => Joi.string().allow(null).messages({
-  'string.base': `${name} should be a type of string`
+const createMonetarySchema = (name) => Joi.string().pattern(/^\d+\.\d{2}$/).required().messages({
+  'string.base': `${name} should be a type of string`,
+  'string.empty': `${name} cannot be an empty field`,
+  'string.pattern.base': `${name} must be in monetary format with 2 decimal places`,
+  'any.required': `The field ${name} is not present but it is required`
+})
+
+const createPercentageSchema = (name) => Joi.string().pattern(/^\d{1,3}\.\d{2}$/).required().messages({
+  'string.base': `${name} should be a type of string`,
+  'string.empty': `${name} cannot be an empty field`,
+  'string.pattern.base': `${name} must be a a valid percentage with 2 decimal places`,
+  'any.required': `The field ${name} is not present but it is required`
 })
 
 const createNumberSchemaWithMessages = (name, min, max) => Joi.number().integer().min(min).max(max).required().messages({
@@ -24,40 +34,38 @@ const paymentBands = {
 }
 
 const percentageReductions = {
-  percentageReduction1: createStringSchema('percentageReduction1'),
-  percentageReduction2: createStringSchema('percentageReduction2'),
-  percentageReduction3: createStringSchema('percentageReduction3'),
-  percentageReduction4: createStringSchema('percentageReduction4')
+  percentageReduction1: createPercentageSchema('percentageReduction1'),
+  percentageReduction2: createPercentageSchema('percentageReduction2'),
+  percentageReduction3: createPercentageSchema('percentageReduction3'),
+  percentageReduction4: createPercentageSchema('percentageReduction4')
 }
 
 const progressiveReductions = {
-  progressiveReductions1: createProgressiveReductionSchema('progressiveReductions1'),
-  progressiveReductions2: createProgressiveReductionSchema('progressiveReductions2'),
-  progressiveReductions3: createProgressiveReductionSchema('progressiveReductions3'),
-  progressiveReductions4: createProgressiveReductionSchema('progressiveReductions4')
+  progressiveReductions1: createMonetarySchema('progressiveReductions1'),
+  progressiveReductions2: createMonetarySchema('progressiveReductions2'),
+  progressiveReductions3: createMonetarySchema('progressiveReductions3'),
+  progressiveReductions4: createMonetarySchema('progressiveReductions4')
 }
 
 module.exports = Joi.object({
   calculationId: numberSchema('calculationId'),
   applicationId: numberSchema('applicationId'),
-  calculationReference: numberSchema('calculationReference').optional(),
-  applicationReference: numberSchema('applicationReference').optional(),
   sbi: createNumberSchemaWithMessages('sbi', constants.minSbi, constants.maxSbi),
   frn: createNumberSchemaWithMessages('frn', constants.minFrn, constants.maxFrn),
   ...paymentBands,
   ...percentageReductions,
   ...progressiveReductions,
-  referenceAmount: createStringSchema('referenceAmount'),
-  totalProgressiveReduction: createStringSchema('totalProgressiveReduction'),
-  totalDelinkedPayment: createStringSchema('totalDelinkedPayment'),
-  paymentAmountCalculated: createStringSchema('paymentAmountCalculated'),
+  referenceAmount: createMonetarySchema('referenceAmount'),
+  totalProgressiveReduction: createMonetarySchema('totalProgressiveReduction'),
+  totalDelinkedPayment: createMonetarySchema('totalDelinkedPayment'),
+  paymentAmountCalculated: createMonetarySchema('paymentAmountCalculated'),
+  updated: Joi.date().required().messages({
+    'date.base': 'updated should be a type of date',
+    'any.required': 'The field updated is not present but it is required'
+  }),
   datePublished: Joi.date().allow(null).messages({
     'date.base': 'datePublished should be a type of date',
     'date.strict': 'datePublished should be a type of date or null'
-  }),
-  updated: Joi.date().allow(null).messages({
-    'date.base': 'updated should be a type of date',
-    'date.strict': 'updated should be a type of date or null'
   }),
   type: Joi.string().required().valid(DELINKED).messages({
     'string.base': 'type should be a type of string',

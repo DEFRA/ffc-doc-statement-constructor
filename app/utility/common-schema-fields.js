@@ -5,6 +5,7 @@ const constants = {
   maxSbi: 999999999,
   minFrn: 1000000000,
   maxFrn: 9999999999,
+  number2: 2,
   number5: 5,
   number10: 10,
   number15: 15,

@@ -10,9 +10,10 @@ module.exports = Joi.object({
     'string.max': `paymentReference should have a maximum length of ${number30}`,
     'any.required': 'The field paymentReference is not present but it is required'
   }),
-  calculationReference: Joi.number().integer().allow(null).messages({
+  calculationReference: Joi.number().integer().required().messages({
     'number.base': 'calculationReference should be a type of number',
-    'number.integer': 'calculationReference must be an integer'
+    'number.integer': 'calculationReference must be an integer',
+    'any.required': 'The field calculationReference is not present but it is required'
   }),
   paymentPeriod: Joi.string().max(number200).allow('', null).optional().messages({
     'string.base': 'paymentPeriod should be a type of string',
@@ -29,7 +30,7 @@ module.exports = Joi.object({
   datePublished: Joi.date().allow(null).messages({
     'date.base': 'datePublished should be a type of date'
   }),
-  type: Joi.string().required().allow(DAX).messages({
+  type: Joi.string().required().valid(DAX).messages({
     'string.base': 'type should be a type of string',
     'any.required': 'The field type is not present but it is required',
     'any.only': `type must be ${DAX}`
