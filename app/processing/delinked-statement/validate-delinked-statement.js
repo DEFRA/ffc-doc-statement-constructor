@@ -1,6 +1,7 @@
 const schema = require('./delinked-statement-schema')
 const { dataProcessingAlert } = require('../../utility/processing-alerts')
 const { DATA_PROCESSING_ERROR } = require('../../constants/alerts')
+const { VALIDATION } = require('../../constants/validation')
 
 const validateDelinkedStatement = async (delinkedStatement) => {
   const result = schema.validate(delinkedStatement, {
@@ -16,8 +17,9 @@ const validateDelinkedStatement = async (delinkedStatement) => {
         { originalError: result.error.message, alertError: alertErr }
       )
     })
-    throw new Error(`Delinked statement with the CalculationId: ${delinkedStatement.calculationId} does not have the required details data: ${result.error.message}`
-    )
+    const error = new Error(`Delinked statement with the CalculationId: ${delinkedStatement.calculationId} does not have the required details data: ${result.error.message}`)
+    error.category = VALIDATION
+    throw error
   }
 
   return result.value

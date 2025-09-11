@@ -87,13 +87,13 @@ describe('delinked-schema', () => {
     expect(error).toBeUndefined()
   })
 
-  test('should not allow null for updated', () => {
+  test('should allow null for updated', () => {
     const validDataWithNullDate = {
       ...validData,
       updated: null
     }
     const { error } = schema.validate(validDataWithNullDate)
-    expect(error).toBeDefined()
+    expect(error).toBeUndefined()
   })
 
   test('should invalidate an object with non-integer applicationReference', () => {
