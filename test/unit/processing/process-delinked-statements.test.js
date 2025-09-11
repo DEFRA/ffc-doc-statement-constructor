@@ -20,6 +20,7 @@ const {
 const getExcludedPaymentReferenceByPaymentReference = require('../../../app/utility/get-excluded-payment-reference-by-payment-reference')
 
 const processDelinkedStatements = require('../../../app/processing/process-delinked-payment-statements')
+const { VALIDATION } = require('../../../app/constants/validation')
 
 let retrievedD365
 
@@ -144,5 +145,31 @@ describe('process statements', () => {
     expect(sendDelinkedStatement).not.toHaveBeenCalled()
     expect(updateD365CompletePublishByD365Id).not.toHaveBeenCalled()
     expect(resetD365UnCompletePublishByD365Id).toHaveBeenCalled()
+  })
+
+  test('should call updateD365CompletePublishByD365Id when error category is VALIDATION', async () => {
+    const validationError = new Error('Validation error')
+    validationError.category = VALIDATION
+
+    getDelinkedStatementByPaymentReference.mockResolvedValue({})
+    validateDelinkedStatement.mockRejectedValue(validationError)
+
+    await processDelinkedStatements()
+
+    expect(updateD365CompletePublishByD365Id).toHaveBeenCalled()
+  })
+
+  test('should log error when resetting D365 uncomplete publish fails', async () => {
+    const processingError = new Error('Processing error')
+
+    getDelinkedStatementByPaymentReference.mockResolvedValue({})
+    sendDelinkedStatement.mockRejectedValue(processingError)
+    resetD365UnCompletePublishByD365Id.mockRejectedValue(new Error('Failed to reset D365 uncomplete publish'))
+
+    console.error = jest.fn()
+
+    await processDelinkedStatements()
+
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('Error resetting incomplete publish for D365 ID'))
   })
 })

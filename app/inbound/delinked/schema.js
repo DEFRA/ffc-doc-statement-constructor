@@ -59,9 +59,8 @@ module.exports = Joi.object({
   totalProgressiveReduction: createMonetarySchema('totalProgressiveReduction'),
   totalDelinkedPayment: createMonetarySchema('totalDelinkedPayment'),
   paymentAmountCalculated: createMonetarySchema('paymentAmountCalculated'),
-  updated: Joi.date().required().messages({
-    'date.base': 'updated should be a type of date',
-    'any.required': 'The field updated is not present but it is required'
+  updated: Joi.date().optional().allow(null).messages({
+    'date.base': 'updated should be a type of date'
   }),
   datePublished: Joi.date().allow(null).messages({
     'date.base': 'datePublished should be a type of date',
