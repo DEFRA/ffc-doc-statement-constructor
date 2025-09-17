@@ -5,12 +5,14 @@
   </changeSet>
   <changeSet author="Sam Plackett" id="2">
     <sql>
+      <![CDATA[
       UPDATE d365
       SET "startPublish" = NULL,
-        "completePublish" = NULL,
-        "lastProcessAttempt" = NULL
+          "completePublish" = NULL,
+          "lastProcessAttempt" = NULL
       WHERE "startPublish" > '2025-09-16 15:14:35.000'
-        AND "startPublish" < '2025-09-16 15:14:41.000' 
+        AND "startPublish" < '2025-09-16 15:14:41.000';
+      ]]>
     </sql>
   </changeSet>
 </databaseChangeLog>
