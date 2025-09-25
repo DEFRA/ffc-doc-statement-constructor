@@ -199,4 +199,46 @@ describe('wait for idle subscription', () => {
     expect(consoleErrorSpy).toHaveBeenNthCalledWith(2, `Error detected at: ${processName}`, alertErr)
     expect(mockCloseConnection).toHaveBeenCalled()
   })
+
+  test('should log close error when closeConnection throws', async () => {
+    const waitForIdleSubscription = require('../../../app/messaging/wait-for-idle-subscription')
+
+    const closeErr = new Error('close error')
+    mockCloseConnection.mockRejectedValue(closeErr)
+
+    await expect(waitForIdleSubscription(subscription, processName)).resolves.toBeUndefined()
+    expect(consoleErrorSpy).toHaveBeenCalledWith(closeErr)
+  })
+
+  test('should not attempt to close connection if MessageReceiver constructor throws', async () => {
+    jest.resetModules()
+    jest.clearAllMocks()
+
+    const ctorErr = new Error('ctor error')
+    jest.doMock('ffc-messaging', () => ({
+      MessageReceiver: jest.fn().mockImplementation(() => {
+        throw ctorErr
+      })
+    }))
+
+    jest.doMock('../../../app/messaging/sleep', () => mockSleep)
+    jest.doMock('ffc-alerting-utils', () => ({
+      dataProcessingAlert: mockDataProcessingAlert
+    }))
+
+    const consoleInfo = jest.spyOn(console, 'info').mockImplementation(() => {})
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {})
+
+    mockDataProcessingAlert.mockResolvedValue()
+
+    const waitForIdleSubscription = require('../../../app/messaging/wait-for-idle-subscription')
+
+    await expect(waitForIdleSubscription(subscription, processName)).rejects.toThrow('ctor error')
+
+    expect(mockCloseConnection).not.toHaveBeenCalled()
+    expect(consoleError).toHaveBeenCalledWith(ctorErr)
+
+    consoleInfo.mockRestore()
+    consoleError.mockRestore()
+  })
 })
