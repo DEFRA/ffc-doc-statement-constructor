@@ -33,5 +33,11 @@ module.exports = {
   testEnvironment: 'node',
   testPathIgnorePatterns: [],
   setupFilesAfterEnv: ['./jest.setup.js'],
-  verbose: true
+  verbose: true,
+
+  // --- Added to force resolution of linked package ---
+  moduleNameMapper: {
+    '^ffc-alerting-utils$': '<rootDir>/node_modules/ffc-alerting-utils/app/index.js'
+  },
+  moduleDirectories: ['node_modules', '<rootDir>']
 }

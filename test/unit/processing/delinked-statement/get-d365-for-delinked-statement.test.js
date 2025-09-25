@@ -12,10 +12,10 @@ jest.mock('../../../../app/data', () => ({
     Op: { lt: 'lt' }
   }
 }))
-jest.mock('../../../../app/utility/processing-alerts', () => ({
+jest.mock('ffc-alerting-utils', () => ({
   dataProcessingAlert: jest.fn()
 }))
-const { dataProcessingAlert } = require('../../../../app/utility/processing-alerts')
+const { dataProcessingAlert } = require('ffc-alerting-utils')
 const getD365ForDelinkedStatement = require('../../../../app/processing/delinked-statement/get-d365-for-delinked-statement')
 
 describe('getD365ForDelinkedStatement', () => {

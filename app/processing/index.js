@@ -6,6 +6,11 @@ const processDelinkedStatement = require('./process-delinked-payment-statements'
 const MAX_CONCURRENT_TASKS = 2
 let taskConfigurations = []
 
+// temporary code to allow npm-link to verify this is a local package until published
+const pkg = require('ffc-alerting-utils/package.json')
+console.log('Using package at:', require.resolve('ffc-alerting-utils'))
+console.log('Name:', pkg.name, 'Version:', pkg.version)
+
 const buildTaskConfigurations = () => {
   const tasks = []
 

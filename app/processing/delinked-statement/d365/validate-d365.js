@@ -1,5 +1,5 @@
 const schema = require('./schema')
-const { dataProcessingAlert } = require('../../../utility/processing-alerts')
+const { dataProcessingAlert } = require('ffc-alerting-utils')
 const { DATA_PROCESSING_ERROR } = require('../../../../app/constants/alerts')
 
 const validateD365 = (d365, paymentReference) => {

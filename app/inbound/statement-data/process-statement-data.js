@@ -1,5 +1,5 @@
 const { ORGANISATION, TOTAL, DELINKED, DAX, D365 } = require('../../constants/types')
-const { dataProcessingAlert } = require('../../utility/processing-alerts')
+const { dataProcessingAlert } = require('ffc-alerting-utils')
 const { DATA_PROCESSING_ERROR } = require('../../constants/alerts')
 
 const processOrganisation = require('../organisation/process-organisation')

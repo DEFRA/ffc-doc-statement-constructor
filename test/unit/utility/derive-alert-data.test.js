@@ -1,4 +1,4 @@
-const { deriveAlertData } = require('../../../app/utility/processing-alerts')
+const { deriveAlertData } = require('ffc-alerting-utils')
 
 describe('deriveAlertData', () => {
   test('keeps explicit non-empty message and preserves error', () => {

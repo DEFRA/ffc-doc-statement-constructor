@@ -1,8 +1,8 @@
 jest.mock('../../../../../app/processing/delinked-statement/d365/schema')
-jest.mock('../../../../../app/utility/processing-alerts', () => ({ dataProcessingAlert: jest.fn() }))
+jest.mock('ffc-alerting-utils', () => ({ dataProcessingAlert: jest.fn() }))
 
 const schema = require('../../../../../app/processing/delinked-statement/d365/schema')
-const { dataProcessingAlert } = require('../../../../../app/utility/processing-alerts')
+const { dataProcessingAlert } = require('ffc-alerting-utils')
 const { DATA_PROCESSING_ERROR } = require('../../../../../app/constants/alerts')
 
 const validateD365 = require('../../../../../app/processing/delinked-statement/d365/validate-d365')

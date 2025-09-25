@@ -8,10 +8,10 @@ const getAddressFromOrganisation = require('../../../../app/processing/delinked-
 const { DELINKED } = require('../../../../app/constants/document-types')
 const delinkedScheme = require('../../../../app/constants/delinked-scheme')
 
-jest.mock('../../../../app/utility/processing-alerts', () => ({
+jest.mock('ffc-alerting-utils', () => ({
   dataProcessingAlert: jest.fn()
 }))
-const { dataProcessingAlert } = require('../../../../app/utility/processing-alerts')
+const { dataProcessingAlert } = require('ffc-alerting-utils')
 
 jest.mock('../../../../app/processing/delinked-statement/d365')
 jest.mock('../../../../app/processing/delinked-statement/organisation')

@@ -7,7 +7,7 @@ const getDocumentTypeByCode = require('./get-document-type-by-code')
 const getAddressFromOrganisation = require('./get-address-from-organisation')
 const { DELINKED } = require('../../constants/document-types')
 const delinkedScheme = require('../../constants/delinked-scheme')
-const { dataProcessingAlert } = require('../../../app/utility/processing-alerts')
+const { dataProcessingAlert } = require('ffc-alerting-utils')
 const { DATA_PROCESSING_ERROR } = require('../../../app/constants/alerts')
 
 const alertAndThrow = async (alertPayload, throwMessage) => {

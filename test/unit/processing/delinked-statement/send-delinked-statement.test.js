@@ -1,10 +1,10 @@
 const sendDelinkedStatement = require('../../../../app/processing/delinked-statement/send-delinked-statement')
 jest.mock('../../../../app/processing/delinked-statement/publish-delinked-statement')
 const publishDelinkedStatement = require('../../../../app/processing/delinked-statement/publish-delinked-statement')
-jest.mock('../../../../app/utility/processing-alerts', () => ({
+jest.mock('ffc-alerting-utils', () => ({
   dataProcessingAlert: jest.fn()
 }))
-const { dataProcessingAlert } = require('../../../../app/utility/processing-alerts')
+const { dataProcessingAlert } = require('ffc-alerting-utils')
 describe('sendDelinkedStatement', () => {
   const statement = { paymentReference: 'D365123' }
   let consoleErrorSpy

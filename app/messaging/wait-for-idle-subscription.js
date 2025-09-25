@@ -2,7 +2,6 @@ const { MessageReceiver } = require('ffc-messaging')
 const Long = require('long')
 const config = require('../config/message')
 const sleep = require('./sleep')
-const { dataProcessingAlert } = require('../../app/utility/processing-alerts')
 const { DATA_PROCESSING_ERROR } = require('../../app/constants/alerts')
 
 const waitForIdleSubscription = async (subscription, processName) => {
@@ -22,6 +21,7 @@ const waitForIdleSubscription = async (subscription, processName) => {
   } catch (err) {
     console.error(err)
     try {
+      const { dataProcessingAlert } = require('ffc-alerting-utils')
       await dataProcessingAlert({
         process: 'waitForIdleSubscription',
         processName,
@@ -33,7 +33,13 @@ const waitForIdleSubscription = async (subscription, processName) => {
     }
     throw err
   } finally {
-    await receiver.closeConnection()
+    if (receiver && typeof receiver.closeConnection === 'function') {
+      try {
+        await receiver.closeConnection()
+      } catch (closeErr) {
+        console.error(closeErr)
+      }
+    }
   }
 }
 

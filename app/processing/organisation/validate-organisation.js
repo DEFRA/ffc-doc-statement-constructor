@@ -1,5 +1,5 @@
 const schema = require('./schema')
-const { dataProcessingAlert } = require('../../../app/utility/processing-alerts')
+const { dataProcessingAlert } = require('ffc-alerting-utils')
 const { DATA_PROCESSING_ERROR } = require('../../../app/constants/alerts')
 const validateOrganisation = (organisation, sbi, options = {}) => {
   const { delinked = false } = options
