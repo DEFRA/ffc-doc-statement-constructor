@@ -4,7 +4,6 @@ const mockMessaging = require('../../app/messaging')
 jest.mock('../../app/processing')
 const mockProcessing = require('../../app/processing')
 jest.mock('../../app/messaging/wait-for-idle-messaging')
-
 jest.mock('log-timestamp', () => jest.fn())
 
 describe('app', () => {
@@ -86,6 +85,21 @@ describe('app', () => {
     expect(processExitSpy).toHaveBeenCalledWith(1)
   })
 
+  test('should handle processing startup errors and exit with code 1', async () => {
+    const processingError = new Error('Processing startup failed')
+    mockMessaging.start.mockResolvedValueOnce()
+    mockProcessing.start.mockRejectedValueOnce(processingError)
+
+    jest.isolateModules(() => {
+      require('../../app')
+    })
+
+    await new Promise(setImmediate)
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to start application:', processingError)
+    expect(processExitSpy).toHaveBeenCalledWith(1)
+  })
+
   test('should call messaging.stop and process.exit on SIGTERM', async () => {
     const stopSpy = jest.spyOn(mockMessaging, 'stop').mockResolvedValue()
 
@@ -156,20 +170,6 @@ describe('app', () => {
     expect(processExitSpy).toHaveBeenCalledWith(0)
 
     stopSpy.mockRestore()
-  })
-
-  test('should handle processing.start errors and exit with code 1', async () => {
-    const processingError = new Error('Processing startup failed')
-    mockProcessing.start.mockRejectedValueOnce(processingError)
-
-    jest.isolateModules(() => {
-      require('../../app')
-    })
-
-    await new Promise(setImmediate)
-
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to start application:', processingError)
-    expect(processExitSpy).toHaveBeenCalledWith(1)
   })
 })
 

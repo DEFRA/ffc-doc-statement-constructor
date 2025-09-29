@@ -51,11 +51,13 @@ process.on('SIGINT', async () => {
 })
 
 const start = async () => {
-  await messaging.start()
-  await processing.start()
+  try {
+    await messaging.start()
+    await processing.start()
+  } catch (err) {
+    console.error('Failed to start application:', err)
+    process.exit(1)
+  }
 }
 
-start().catch(err => {
-  console.error('Failed to start application:', err)
-  process.exit(1)
-})
+start()

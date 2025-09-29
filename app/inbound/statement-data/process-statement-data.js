@@ -70,6 +70,17 @@ const defaultExtractor = (statementData, error) => ({
   error
 })
 
+const publishAlert = async (statementData, error) => {
+  const extractor = detailExtractors[statementData.type] || defaultExtractor
+  const alertPayload = extractor(statementData, error)
+
+  try {
+    await dataProcessingAlert(alertPayload, DATA_PROCESSING_ERROR)
+  } catch (error) {
+    console.error(`Failed to publish processing alert for type ${statementData.type}`, error)
+  }
+}
+
 const processStatementData = async (statementData) => {
   const processFunction = processMapping[statementData.type]
   if (processFunction) {
@@ -77,15 +88,7 @@ const processStatementData = async (statementData) => {
       await processFunction(statementData)
     } catch (error) {
       console.error(`Error processing statement data of type ${statementData.type}:`, error)
-
-      const extractor = detailExtractors[statementData.type] || defaultExtractor
-      const alertPayload = extractor(statementData, error)
-
-      try {
-        await dataProcessingAlert(alertPayload, DATA_PROCESSING_ERROR)
-      } catch (error) {
-        console.error(`Failed to publish processing alert for type ${statementData.type}`, error)
-      }
+      await publishAlert(statementData, error)
       throw error
     }
   } else {
