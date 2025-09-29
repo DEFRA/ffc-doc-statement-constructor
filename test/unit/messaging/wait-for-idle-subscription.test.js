@@ -188,15 +188,15 @@ describe('wait for idle subscription', () => {
     const waitForIdleSubscription = require('../../../app/messaging/wait-for-idle-subscription')
 
     const peekErr = new Error('test error')
-    const alertErr = new Error('alert error')
+    const error = new Error('alert error')
     mockPeekMessages.mockRejectedValue(peekErr)
-    mockDataProcessingAlert.mockRejectedValue(alertErr)
+    mockDataProcessingAlert.mockRejectedValue(error)
 
     await expect(waitForIdleSubscription(subscription, processName)).rejects.toThrow('test error')
 
     expect(consoleErrorSpy).toHaveBeenCalledTimes(2)
     expect(consoleErrorSpy).toHaveBeenNthCalledWith(1, peekErr)
-    expect(consoleErrorSpy).toHaveBeenNthCalledWith(2, `Error detected at: ${processName}`, alertErr)
+    expect(consoleErrorSpy).toHaveBeenNthCalledWith(2, `Error detected at: ${processName}`, error)
     expect(mockCloseConnection).toHaveBeenCalled()
   })
 

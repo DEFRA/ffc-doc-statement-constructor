@@ -90,9 +90,9 @@ describe('resetD365UnCompletePublishByDaxId', () => {
 
   test('should log both original and alert errors when alerting fails, and still rethrow preserving original', async () => {
     const originalErr = new Error('db failure 2')
-    const alertErr = new Error('alert failure')
+    const error = new Error('alert failure')
     mockUpdate.mockRejectedValue(originalErr)
-    mockDataProcessingAlert.mockRejectedValue(alertErr)
+    mockDataProcessingAlert.mockRejectedValue(error)
 
     jest.doMock(dataModulePath, () => ({ d365: { update: mockUpdate } }), { virtual: false })
 
@@ -130,7 +130,7 @@ describe('resetD365UnCompletePublishByDaxId', () => {
     expect(callArgs[0]).toEqual(`${expectedMessage}: ${originalErr.message}`)
     expect(callArgs[1]).toMatchObject({
       originalError: originalErr,
-      alertError: alertErr
+      alertError: error
     })
   })
 })

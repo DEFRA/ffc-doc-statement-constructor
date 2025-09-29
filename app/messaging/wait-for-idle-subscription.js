@@ -28,8 +28,8 @@ const waitForIdleSubscription = async (subscription, processName) => {
         error: err,
         message: `Error waiting for idle subscription on topic ${subscription.topic}`
       }, DATA_PROCESSING_ERROR)
-    } catch (alertErr) {
-      console.error(`Error detected at: ${processName}`, alertErr)
+    } catch (error) {
+      console.error(`Error detected at: ${processName}`, error)
     }
     throw err
   } finally {

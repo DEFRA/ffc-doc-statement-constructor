@@ -33,16 +33,29 @@ const messaging = require('./messaging')
 const processing = require('./processing')
 
 process.on('SIGTERM', async () => {
-  await messaging.stop()
+  try {
+    await messaging.stop()
+  } catch (err) {
+    console.error('Error during shutdown:', err)
+  }
   process.exit(0)
 })
 
 process.on('SIGINT', async () => {
-  await messaging.stop()
+  try {
+    await messaging.stop()
+  } catch (err) {
+    console.error('Error during shutdown:', err)
+  }
   process.exit(0)
 })
 
-module.exports = (async () => {
+const start = async () => {
   await messaging.start()
   await processing.start()
-})()
+}
+
+start().catch(err => {
+  console.error('Failed to start application:', err)
+  process.exit(1)
+})

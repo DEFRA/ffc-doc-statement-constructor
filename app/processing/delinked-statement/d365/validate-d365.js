@@ -15,9 +15,9 @@ const validateD365 = (d365, paymentReference) => {
       paymentReference,
       error: result.error.message,
       message: `D365 record with the payment reference: ${paymentReference} does not have the required details data`
-    }, DATA_PROCESSING_ERROR).catch((alertErr) => {
+    }, DATA_PROCESSING_ERROR).catch((error) => {
       console.error(`D365 record with the payment reference: ${paymentReference} does not have the required details data`,
-        { originalError: result.error.message, alertError: alertErr }
+        { originalError: result.error.message, alertError: error }
       )
     })
 

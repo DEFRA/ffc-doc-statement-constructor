@@ -12,9 +12,9 @@ const validateDelinkedStatement = async (delinkedStatement) => {
       process: 'validateDelinkedStatement',
       error: result.error.message,
       message: `Delinked statement with the CalculationId: ${delinkedStatement.calculationId} does not have the required data`
-    }, DATA_PROCESSING_ERROR).catch((alertErr) => {
+    }, DATA_PROCESSING_ERROR).catch((error) => {
       console.error(`Delinked statement with the CalculationId: ${delinkedStatement.calculationId} does not have the required details data:`,
-        { originalError: result.error.message, alertError: alertErr }
+        { originalError: result.error.message, alertError: error }
       )
     })
     const error = new Error(`Delinked statement with the CalculationId: ${delinkedStatement.calculationId} does not have the required details data: ${result.error.message}`)

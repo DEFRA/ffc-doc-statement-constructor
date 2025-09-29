@@ -83,8 +83,8 @@ const processStatementData = async (statementData) => {
 
       try {
         await dataProcessingAlert(alertPayload, DATA_PROCESSING_ERROR)
-      } catch (alertErr) {
-        console.error(`Failed to publish processing alert for type ${statementData.type}`, alertErr)
+      } catch (error) {
+        console.error(`Failed to publish processing alert for type ${statementData.type}`, error)
       }
       throw error
     }

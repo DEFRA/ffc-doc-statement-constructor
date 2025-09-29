@@ -12,9 +12,9 @@ const validateDelinked = (delinked, calculationId) => {
       calculationId,
       error: result.error.message,
       message: `Delinked with the CalculationId: ${calculationId} does not have the required details data`
-    }, DATA_PROCESSING_ERROR).catch((alertErr) => {
+    }, DATA_PROCESSING_ERROR).catch((error) => {
       console.error(`Delinked with the CalculationId: ${calculationId} does not have the required details data:`,
-        { originalError: result.error.message, alertError: alertErr }
+        { originalError: result.error.message, alertError: error }
       )
     })
     throw new Error(`Delinked with the CalculationId: ${calculationId} does not have the required details data: ${result.error.message}`

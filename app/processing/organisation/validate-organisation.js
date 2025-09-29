@@ -17,10 +17,10 @@ const validateOrganisation = (organisation, sbi, options = {}) => {
       sbi,
       error: errorMessage,
       message: `Organisation with the sbi: ${sbi} does not have the required details data`
-    }, DATA_PROCESSING_ERROR).catch((alertErr) => {
+    }, DATA_PROCESSING_ERROR).catch((error) => {
       console.error(
         `Organisation with the sbi: ${sbi} does not have the required details data:`,
-        { originalError: errorMessage, alertError: alertErr }
+        { originalError: errorMessage, alertError: error }
       )
     })
 
