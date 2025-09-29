@@ -50,6 +50,9 @@ describe('app alerting init', () => {
     jest.doMock('../../app/messaging', () => ({ start: jest.fn(), stop: jest.fn() }))
     jest.doMock('../../app/processing', () => ({ start: jest.fn() }))
 
+    const mockEventPublisher = jest.fn()
+    jest.doMock('ffc-pay-event-publisher', () => ({ EventPublisher: mockEventPublisher }))
+
     process.env.ALERT_TOPIC = 'pre-existing-topic'
     process.env.ALERT_SOURCE = 'pre-existing-source'
     process.env.ALERT_TYPE = 'pre-existing-type'
@@ -64,7 +67,8 @@ describe('app alerting init', () => {
     expect(mockInit).toHaveBeenCalledWith({
       topic: messageConfig.alertTopic,
       source: SOURCE,
-      defaultType: DATA_PROCESSING_ERROR
+      defaultType: DATA_PROCESSING_ERROR,
+      EventPublisherClass: mockEventPublisher // Add this line
     })
 
     expect(process.env.ALERT_TOPIC).toBe('pre-existing-topic')
