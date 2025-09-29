@@ -36,8 +36,8 @@ const waitForIdleSubscription = async (subscription, processName) => {
     if (receiver && typeof receiver.closeConnection === 'function') {
       try {
         await receiver.closeConnection()
-      } catch (closeErr) {
-        console.error(closeErr)
+      } catch (error) {
+        console.error(error)
       }
     }
   }

@@ -203,11 +203,11 @@ describe('wait for idle subscription', () => {
   test('should log close error when closeConnection throws', async () => {
     const waitForIdleSubscription = require('../../../app/messaging/wait-for-idle-subscription')
 
-    const closeErr = new Error('close error')
-    mockCloseConnection.mockRejectedValue(closeErr)
+    const error = new Error('close error')
+    mockCloseConnection.mockRejectedValue(error)
 
     await expect(waitForIdleSubscription(subscription, processName)).resolves.toBeUndefined()
-    expect(consoleErrorSpy).toHaveBeenCalledWith(closeErr)
+    expect(consoleErrorSpy).toHaveBeenCalledWith(error)
   })
 
   test('should not attempt to close connection if MessageReceiver constructor throws', async () => {
