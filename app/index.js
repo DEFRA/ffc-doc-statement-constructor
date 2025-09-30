@@ -1,15 +1,14 @@
 require('log-timestamp')
 require('./insights').setup()
+const messageConfig = require('./config/message')
+const { SOURCE } = require('./constants/source')
+const { DATA_PROCESSING_ERROR } = require('./constants/alerts')
+const { EventPublisher } = require('ffc-pay-event-publisher')
 
 try {
   const alerting = require('ffc-alerting-utils')
 
   if (alerting.init) {
-    const messageConfig = require('./config/message')
-    const { SOURCE } = require('./constants/source')
-    const { DATA_PROCESSING_ERROR } = require('./constants/alerts')
-    const { EventPublisher } = require('ffc-pay-event-publisher')
-
     alerting.init({
       topic: messageConfig.alertTopic,
       source: SOURCE,
@@ -17,10 +16,6 @@ try {
       EventPublisherClass: EventPublisher
     })
   } else {
-    const messageConfig = require('./config/message')
-    const { SOURCE } = require('./constants/source')
-    const { DATA_PROCESSING_ERROR } = require('./constants/alerts')
-
     process.env.ALERT_TOPIC = messageConfig.alertTopic
     process.env.ALERT_SOURCE = SOURCE
     process.env.ALERT_TYPE = DATA_PROCESSING_ERROR

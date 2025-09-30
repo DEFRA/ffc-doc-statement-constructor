@@ -1,5 +1,5 @@
-const publishDelinkedStatement = require('./publish-delinked-statement')
 const { dataProcessingAlert } = require('ffc-alerting-utils')
+const publishDelinkedStatement = require('./publish-delinked-statement')
 const { DATA_PROCESSING_ERROR } = require('../../../app/constants/alerts')
 
 const sendDelinkedStatement = async (delinkedStatement) => {

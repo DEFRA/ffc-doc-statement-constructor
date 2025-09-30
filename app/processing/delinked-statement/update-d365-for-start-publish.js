@@ -1,5 +1,5 @@
-const updateD365StartPublishByD365Id = require('./update-d365-start-publish-by-d365-id')
 const { dataProcessingAlert } = require('ffc-alerting-utils')
+const updateD365StartPublishByD365Id = require('./update-d365-start-publish-by-d365-id')
 const { DATA_PROCESSING_ERROR } = require('../../../app/constants/alerts')
 
 const updateD365ForStartPublish = async (d365, transaction) => {

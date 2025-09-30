@@ -1,5 +1,5 @@
-const db = require('../../data')
 const { dataProcessingAlert } = require('ffc-alerting-utils')
+const db = require('../../data')
 const { DATA_PROCESSING_ERROR } = require('../../../app/constants/alerts')
 
 const resetD365UnCompletePublishByDaxId = async (d365Id) => {

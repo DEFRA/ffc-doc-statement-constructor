@@ -1,5 +1,5 @@
-const schema = require('./delinked-statement-schema')
 const { dataProcessingAlert } = require('ffc-alerting-utils')
+const schema = require('./delinked-statement-schema')
 const { DATA_PROCESSING_ERROR } = require('../../constants/alerts')
 const { VALIDATION } = require('../../constants/validation')
 
