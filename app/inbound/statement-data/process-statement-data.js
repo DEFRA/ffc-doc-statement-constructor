@@ -1,5 +1,5 @@
+const { dataProcessingAlert } = require('ffc-alerting-utils')
 const { ORGANISATION, TOTAL, DELINKED, DAX, D365 } = require('../../constants/types')
-const { dataProcessingAlert } = require('../../utility/processing-alerts')
 const { DATA_PROCESSING_ERROR } = require('../../constants/alerts')
 
 const processOrganisation = require('../organisation/process-organisation')
@@ -70,6 +70,19 @@ const defaultExtractor = (statementData, error) => ({
   error
 })
 
+const publishAlert = async (statementData, processingError) => {
+  const extractor = detailExtractors[statementData.type] || defaultExtractor
+  const alertPayload = extractor(statementData, processingError)
+
+  await (async () => {
+    try {
+      await dataProcessingAlert(alertPayload, DATA_PROCESSING_ERROR)
+    } catch (error) {
+      console.error(`Failed to publish processing alert for type ${statementData.type}`, error)
+    }
+  })()
+}
+
 const processStatementData = async (statementData) => {
   const processFunction = processMapping[statementData.type]
   if (processFunction) {
@@ -77,15 +90,7 @@ const processStatementData = async (statementData) => {
       await processFunction(statementData)
     } catch (error) {
       console.error(`Error processing statement data of type ${statementData.type}:`, error)
-
-      const extractor = detailExtractors[statementData.type] || defaultExtractor
-      const alertPayload = extractor(statementData, error)
-
-      try {
-        await dataProcessingAlert(alertPayload, DATA_PROCESSING_ERROR)
-      } catch (alertErr) {
-        console.error(`Failed to publish processing alert for type ${statementData.type}`, alertErr)
-      }
+      await publishAlert(statementData, error)
       throw error
     }
   } else {
