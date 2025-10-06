@@ -1,6 +1,6 @@
+const { dataProcessingAlert } = require('ffc-alerting-utils')
 const db = require('../../data')
 const config = require('../../config').processingConfig
-const { dataProcessingAlert } = require('../../../app/utility/processing-alerts')
 const { DATA_PROCESSING_ERROR } = require('../../../app/constants/alerts')
 
 const getD365ForDelinkedStatement = async (transaction) => {

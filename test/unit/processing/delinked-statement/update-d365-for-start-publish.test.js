@@ -1,9 +1,9 @@
 jest.mock('../../../../app/processing/delinked-statement/update-d365-start-publish-by-d365-id')
 const updateD365StartPublishByD365Id = require('../../../../app/processing/delinked-statement/update-d365-start-publish-by-d365-id')
-jest.mock('../../../../app/utility/processing-alerts', () => ({
+jest.mock('ffc-alerting-utils', () => ({
   dataProcessingAlert: jest.fn()
 }))
-const { dataProcessingAlert } = require('../../../../app/utility/processing-alerts')
+const { dataProcessingAlert } = require('ffc-alerting-utils')
 const updateD365ForStartPublish = require('../../../../app/processing/delinked-statement/update-d365-for-start-publish')
 
 describe('updateD365ForStartPublish', () => {

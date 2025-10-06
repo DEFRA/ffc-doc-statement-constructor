@@ -1,3 +1,4 @@
+const { dataProcessingAlert } = require('ffc-alerting-utils')
 const getD365 = require('./d365')
 const getOrganisation = require('./organisation')
 const getDelinkedCalculation = require('./delinkedCalculation')
@@ -7,7 +8,6 @@ const getDocumentTypeByCode = require('./get-document-type-by-code')
 const getAddressFromOrganisation = require('./get-address-from-organisation')
 const { DELINKED } = require('../../constants/document-types')
 const delinkedScheme = require('../../constants/delinked-scheme')
-const { dataProcessingAlert } = require('../../../app/utility/processing-alerts')
 const { DATA_PROCESSING_ERROR } = require('../../../app/constants/alerts')
 
 const alertAndThrow = async (alertPayload, throwMessage) => {
