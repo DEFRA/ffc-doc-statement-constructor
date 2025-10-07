@@ -1,6 +1,6 @@
 const { DAX, D365, ORGANISATION, DELINKED, TOTAL } = require('../../../app/constants/types')
 
-jest.mock('../../../app/utility/processing-alerts', () => {
+jest.mock('ffc-alerting-utils', () => {
   return {
     dataProcessingAlert: jest.fn()
   }
@@ -11,7 +11,7 @@ jest.mock('../../../app/inbound/organisation/process-organisation', () => jest.f
 jest.mock('../../../app/inbound/delinked/process-delinked', () => jest.fn())
 jest.mock('../../../app/inbound/total/process-total', () => jest.fn())
 
-const { dataProcessingAlert } = require('../../../app/utility/processing-alerts')
+const { dataProcessingAlert } = require('ffc-alerting-utils')
 const processDax = require('../../../app/inbound/dax/process-dax')
 const processD365 = require('../../../app/inbound/d365/process-d365')
 const processOrganisation = require('../../../app/inbound/organisation/process-organisation')

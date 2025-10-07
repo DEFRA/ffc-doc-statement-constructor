@@ -1,5 +1,5 @@
+const { dataProcessingAlert } = require('ffc-alerting-utils')
 const db = require('../../data')
-const { dataProcessingAlert } = require('../../../app/utility/processing-alerts')
 const { DATA_PROCESSING_ERROR } = require('../../../app/constants/alerts')
 
 const resetD365UnCompletePublishByDaxId = async (d365Id) => {
@@ -18,9 +18,9 @@ const resetD365UnCompletePublishByDaxId = async (d365Id) => {
         error: err,
         message: `Error resetting uncomplete publish for D365 ID ${d365Id}`
       }, DATA_PROCESSING_ERROR)
-    } catch (alertErr) {
+    } catch (error) {
       console.error(`Error resetting uncomplete publish for D365 ID ${d365Id}: ${err.message}`,
-        { originalError: err, alertError: alertErr }
+        { originalError: err, alertError: error }
       )
     }
     throw new Error(`Error resetting uncomplete publish for D365 ID ${d365Id}: ${err.message}`,

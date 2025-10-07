@@ -1,8 +1,8 @@
 jest.mock('../../../../../app/processing/delinked-statement/delinkedCalculation/schema')
-jest.mock('../../../../../app/utility/processing-alerts', () => ({ dataProcessingAlert: jest.fn() }))
+jest.mock('ffc-alerting-utils', () => ({ dataProcessingAlert: jest.fn() }))
 
 const schema = require('../../../../../app/processing/delinked-statement/delinkedCalculation/schema')
-const { dataProcessingAlert } = require('../../../../../app/utility/processing-alerts')
+const { dataProcessingAlert } = require('ffc-alerting-utils')
 const { DATA_PROCESSING_ERROR } = require('../../../../../app/constants/alerts')
 
 const validateDelinked = require('../../../../../app/processing/delinked-statement/delinkedCalculation/validate-delinked')
