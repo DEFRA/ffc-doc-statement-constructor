@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+const documentTypeDB = (sequelize, DataTypes) => {
   const documentType = sequelize.define('documentType', {
     documentTypeId: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     code: DataTypes.STRING,
@@ -12,3 +12,5 @@ module.exports = (sequelize, DataTypes) => {
   })
   return documentType
 }
+
+module.exports = documentTypeDB

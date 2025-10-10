@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+const delinkedCalculationDB = (sequelize, DataTypes) => {
   const zeroValue = 0
   const maxFRN = 16
   const maxSBI = 38
@@ -46,3 +46,5 @@ module.exports = (sequelize, DataTypes) => {
 
   return delinkedCalculation
 }
+
+module.exports = delinkedCalculationDB

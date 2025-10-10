@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+const actionDB = (sequelize, DataTypes) => {
   const number2 = 2
   const number5 = 5
   const number6 = 6
@@ -37,3 +37,5 @@ module.exports = (sequelize, DataTypes) => {
   }
   return action
 }
+
+module.exports = actionDB

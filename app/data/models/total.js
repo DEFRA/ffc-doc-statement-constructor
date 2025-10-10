@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+const totalDB = (sequelize, DataTypes) => {
   const number2 = 2
   const number15 = 15
   const number20 = 20
@@ -41,3 +41,5 @@ module.exports = (sequelize, DataTypes) => {
   }
   return total
 }
+
+module.exports = totalDB

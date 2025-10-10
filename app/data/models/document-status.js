@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+const documentStatusDB = (sequelize, DataTypes) => {
   const documentStatus = sequelize.define('document', {
     documentId: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     documentTypeId: DataTypes.INTEGER,
@@ -17,3 +17,5 @@ module.exports = (sequelize, DataTypes) => {
   }
   return documentStatus
 }
+
+module.exports = documentStatusDB

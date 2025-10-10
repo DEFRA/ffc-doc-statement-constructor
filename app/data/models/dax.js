@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+const daxDB = (sequelize, DataTypes) => {
   const number30 = 30
   const number200 = 200
   const dax = sequelize.define('dax', {
@@ -26,3 +26,5 @@ module.exports = (sequelize, DataTypes) => {
   }
   return dax
 }
+
+module.exports = daxDB
