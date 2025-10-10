@@ -33,10 +33,6 @@ jest.mock('../../../app/processing/process-delinked-payment-statements')
 const processDelinkedStatement = require('../../../app/processing/process-delinked-payment-statements')
 processDelinkedStatement.mockResolvedValue()
 
-jest.mock('../../../app/messaging/wait-for-idle-messaging')
-const waitForIdleMessaging = require('../../../app/messaging/wait-for-idle-messaging')
-waitForIdleMessaging.mockResolvedValue()
-
 const processing = require('../../../app/processing')
 
 describe('processing', () => {
@@ -65,7 +61,6 @@ describe('processing', () => {
         // Execute the task processing part only
         const tasks = processing.taskConfigurations.map(config =>
           () => processing.processTask(
-            config.subscriptions,
             config.processFunction,
             config.name
           )
@@ -79,15 +74,6 @@ describe('processing', () => {
       // Restore original function
       processing.processWithInterval = originalProcessWithInterval
 
-      // Verify
-      expect(waitForIdleMessaging).toHaveBeenCalledWith(
-        expect.arrayContaining(['test-subscription']),
-        'SFI23 Quarterly Statement'
-      )
-      expect(waitForIdleMessaging).toHaveBeenCalledWith(
-        expect.arrayContaining(['test-subscription']),
-        'Delinked Payment Statement'
-      )
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
       expect(processDelinkedStatement).toHaveBeenCalled()
     })
@@ -98,7 +84,6 @@ describe('processing', () => {
       processingConfig.delinkedStatementProcessingActive = false
 
       // Clear mocks
-      waitForIdleMessaging.mockClear()
       processSfi23QuarterlyStatement.mockClear()
       processDelinkedStatement.mockClear()
 
@@ -107,7 +92,6 @@ describe('processing', () => {
       processing.processWithInterval = jest.fn().mockImplementation(async () => {
         const tasks = processing.taskConfigurations.map(config =>
           () => processing.processTask(
-            config.subscriptions,
             config.processFunction,
             config.name
           )
@@ -122,10 +106,6 @@ describe('processing', () => {
       processing.processWithInterval = originalProcessWithInterval
 
       // Verify
-      expect(waitForIdleMessaging).toHaveBeenCalledWith(
-        expect.arrayContaining(['test-subscription']),
-        'SFI23 Quarterly Statement'
-      )
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
       expect(processDelinkedStatement).not.toHaveBeenCalled()
       expect(console.log).toHaveBeenCalledWith('Delinked Payment Statement processing is disabled')
@@ -134,23 +114,20 @@ describe('processing', () => {
 
   describe('processTask', () => {
     test('should execute the process function with correct parameters', async () => {
-      const processTask = async (subscriptions, processFunction, processName) => {
-        await waitForIdleMessaging(subscriptions, processName)
+      const processTask = async (processFunction, processName) => {
         await processFunction()
         return { success: true, name: processName }
       }
 
-      const result = await processTask(['test-subscription'], processSfi23QuarterlyStatement, 'Test Process')
+      const result = await processTask(processSfi23QuarterlyStatement, 'Test Process')
 
-      expect(waitForIdleMessaging).toHaveBeenCalledWith(['test-subscription'], 'Test Process')
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
       expect(result).toEqual({ success: true, name: 'Test Process' })
     })
 
     test('should handle errors and return failure result', async () => {
-      const processTask = async (subscriptions, processFunction, processName) => {
+      const processTask = async (processFunction, processName) => {
         try {
-          await waitForIdleMessaging(subscriptions, processName)
           await processFunction()
           return { success: true, name: processName }
         } catch (error) {
@@ -162,7 +139,7 @@ describe('processing', () => {
       const mockError = new Error('Processing failed')
       processSfi23QuarterlyStatement.mockRejectedValueOnce(mockError)
 
-      const result = await processTask(['test-subscription'], processSfi23QuarterlyStatement, 'Test Process')
+      const result = await processTask(processSfi23QuarterlyStatement, 'Test Process')
 
       expect(result).toEqual({
         success: false,
@@ -213,7 +190,6 @@ describe('processing', () => {
       await processing.start()
 
       expect(setTimeout).toHaveBeenCalled()
-      expect(waitForIdleMessaging).toHaveBeenCalled()
     })
 
     test('should log starting message', async () => {
@@ -227,7 +203,6 @@ describe('processing', () => {
       processingConfig.delinkedStatementProcessingActive = true
 
       await processing.start()
-      expect(waitForIdleMessaging).toHaveBeenCalled()
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
       expect(processDelinkedStatement).toHaveBeenCalled()
       expect(setTimeout).toHaveBeenCalled()
@@ -243,7 +218,6 @@ describe('processing', () => {
     test('should process SFI statements only', async () => {
       await processing.start()
 
-      expect(waitForIdleMessaging).toHaveBeenCalled()
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
       expect(processDelinkedStatement).not.toHaveBeenCalled()
       expect(setTimeout).toHaveBeenCalled()
@@ -265,7 +239,6 @@ describe('processing', () => {
     test('should not process any statements but still set timeout', async () => {
       await processing.start()
 
-      expect(waitForIdleMessaging).not.toHaveBeenCalled()
       expect(processSfi23QuarterlyStatement).not.toHaveBeenCalled()
       expect(processDelinkedStatement).not.toHaveBeenCalled()
       expect(setTimeout).toHaveBeenCalled()
@@ -281,7 +254,6 @@ describe('processing', () => {
       processing.processWithInterval = jest.fn().mockImplementation(async () => {
         const tasks = processing.taskConfigurations.map(config =>
           () => processing.processTask(
-            config.subscriptions,
             config.processFunction,
             config.name
           )

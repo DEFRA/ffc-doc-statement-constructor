@@ -10,11 +10,5 @@ module.exports = (sequelize, DataTypes) => {
     freezeTableName: true,
     timestamps: false
   })
-  documentType.associate = function (models) {
-    documentType.hasMany(models.documentStatus, {
-      foreignKey: 'documentTypeId',
-      as: 'documentStatuses'
-    })
-  }
   return documentType
 }

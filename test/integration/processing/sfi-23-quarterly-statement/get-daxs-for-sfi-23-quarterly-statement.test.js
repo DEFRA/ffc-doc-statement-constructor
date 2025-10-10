@@ -18,7 +18,6 @@ describe('process get calculation object', () => {
   })
 
   beforeEach(async () => {
-    const schemes = JSON.parse(JSON.stringify(require('../../../../app/constants/schemes')))
     const organisation = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-organisation')))
     const total = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-total')))
     const dax = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-dax')))
@@ -31,7 +30,6 @@ describe('process get calculation object', () => {
       { ...dax, calculationId: calculationReference, paymentReference: payReferenceFour, startPublish: null }
     ]
 
-    await db.scheme.bulkCreate(schemes)
     await db.organisation.create(organisation)
     await db.total.create({ ...total, calculationId: calculationReference, claimId: total.claimReference })
   })

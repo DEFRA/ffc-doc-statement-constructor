@@ -1,6 +1,4 @@
 const { processingConfig } = require('../config')
-const messageConfig = require('../config/message')
-const waitForIdleMessaging = require('../messaging/wait-for-idle-messaging')
 const processSfi23QuarterlyStatement = require('./process-sfi-23-quarterly-statements')
 const processDelinkedStatement = require('./process-delinked-payment-statements')
 const MAX_CONCURRENT_TASKS = 2
@@ -11,7 +9,6 @@ const buildTaskConfigurations = () => {
 
   if (processingConfig.sfi23QuarterlyStatementProcessingActive) {
     tasks.push({
-      subscriptions: [messageConfig.statementDataSubscription],
       processFunction: processSfi23QuarterlyStatement,
       name: 'SFI23 Quarterly Statement'
     })
@@ -19,7 +16,6 @@ const buildTaskConfigurations = () => {
 
   if (processingConfig.delinkedStatementProcessingActive) {
     tasks.push({
-      subscriptions: [messageConfig.statementDataSubscription],
       processFunction: processDelinkedStatement,
       name: 'Delinked Payment Statement'
     })
@@ -29,9 +25,8 @@ const buildTaskConfigurations = () => {
 
   return tasks
 }
-const processTask = async (subscriptions, processFunction, processName) => {
+const processTask = async (processFunction, processName) => {
   try {
-    await waitForIdleMessaging(subscriptions, processName)
     await processFunction()
     return { success: true, name: processName }
   } catch (error) {
@@ -56,7 +51,7 @@ const processWithInterval = async () => {
   const startTime = Date.now()
   const nextRunTime = startTime + processingConfig.settlementProcessingInterval
   const tasks = taskConfigurations.map(config =>
-    () => processTask(config.subscriptions, config.processFunction, config.name)
+    () => processTask(config.processFunction, config.name)
   )
 
   try {
