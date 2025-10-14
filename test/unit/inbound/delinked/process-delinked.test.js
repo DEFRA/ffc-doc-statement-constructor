@@ -33,6 +33,7 @@ const saveDelinked = require('../../../../app/inbound/delinked/save-delinked')
 
 jest.mock('../../../../app/inbound/delinked/validate-delinked')
 const validateDelinked = require('../../../../app/inbound/delinked/validate-delinked')
+const { DELINKED } = require('../../../../app/constants/types')
 
 describe('processDelinked', () => {
   beforeEach(() => {
@@ -139,6 +140,7 @@ describe('processDelinked', () => {
 
     expect(dataProcessingAlert).toHaveBeenCalledWith({
       ...mockDelinked1,
+      dataType: DELINKED,
       message: `A duplicate record was received for calculation ID ${mockDelinked1.calculationId}`
     }, DUPLICATE_RECORD)
   })

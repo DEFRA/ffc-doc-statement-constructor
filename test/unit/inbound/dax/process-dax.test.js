@@ -37,6 +37,7 @@ jest.mock('../../../../app/inbound/dax/get-dax-by-calculation-id-and-payment-ref
 
 const { dataProcessingAlert } = require('ffc-alerting-utils')
 const { DUPLICATE_RECORD } = require('../../../../app/constants/alerts')
+const { DAX } = require('../../../../app/constants/types')
 
 describe('processDax', () => {
   let transaction
@@ -79,6 +80,7 @@ describe('processDax', () => {
 
     expect(dataProcessingAlert).toHaveBeenCalledWith({
       ...dax,
+      dataType: DAX,
       message: 'A duplicate record was received for payment reference PY1000001 and calculation 12345'
     }, DUPLICATE_RECORD)
   })

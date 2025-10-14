@@ -20,6 +20,7 @@ afterAll(() => {
 jest.mock('ffc-alerting-utils')
 const { dataProcessingAlert } = require('ffc-alerting-utils')
 const { DUPLICATE_RECORD } = require('../../../../app/constants/alerts')
+const { TOTAL } = require('../../../../app/constants/types')
 
 jest.mock('../../../../app/data', () => {
   return {
@@ -76,6 +77,7 @@ describe('processTotal', () => {
 
     expect(dataProcessingAlert).toHaveBeenCalledWith({
       ...total,
+      dataType: TOTAL,
       message: `A duplicate record was received for calculation ID ${total.calculationReference}`
     }, DUPLICATE_RECORD)
   })

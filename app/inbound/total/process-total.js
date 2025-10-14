@@ -7,6 +7,7 @@ const saveActions = require('./save-actions')
 const validateTotal = require('./validate-total')
 const { retryOnFkError } = require('../../utility/retry-fk-error')
 const { DUPLICATE_RECORD } = require('../../constants/alerts')
+const { TOTAL } = require('../../constants/types')
 
 const processTotal = async (total) => {
   await retryOnFkError(async () => {
@@ -17,6 +18,7 @@ const processTotal = async (total) => {
         console.info(`Duplicate calculationId received, skipping ${existingTotal.calculationId}`)
         await dataProcessingAlert({
           ...total,
+          dataType: TOTAL,
           message: `A duplicate record was received for calculation ID ${existingTotal.calculationId}`
         }, DUPLICATE_RECORD)
         await transaction.rollback()
