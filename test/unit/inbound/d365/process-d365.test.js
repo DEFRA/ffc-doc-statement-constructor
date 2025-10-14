@@ -17,16 +17,19 @@ jest.mock('../../../../app/data', () => {
   }
 })
 
+jest.mock('ffc-alerting-utils')
 jest.mock('../../../../app/inbound/d365/save-d365')
 jest.mock('../../../../app/inbound/d365/schema')
 jest.mock('../../../../app/inbound/d365/validate-d365')
 jest.mock('../../../../app/inbound/d365/get-d365-by-calculation-id-and-payment-reference')
 
+const { dataProcessingAlert } = require('ffc-alerting-utils')
 const db = require('../../../../app/data')
 const processD365 = require('../../../../app/inbound/d365/process-d365')
 const saveD365 = require('../../../../app/inbound/d365/save-d365')
 const validateD365 = require('../../../../app/inbound/d365/validate-d365')
 const getD365ByPaymentReference = require('../../../../app/inbound/d365/get-d365-by-calculation-id-and-payment-reference')
+const { DUPLICATE_RECORD } = require('../../../../app/constants/alerts')
 
 beforeAll(() => {
   jest.spyOn(retryUtil, 'sleep').mockImplementation(() => Promise.resolve())
@@ -56,6 +59,18 @@ describe('processD365', () => {
 
     expect(console.info).toHaveBeenCalledWith('Duplicate D365 paymentReference received, skipping payment reference PY1000001 for calculation 12345')
     expect(db.sequelize.transaction).not.toHaveBeenCalled()
+  })
+
+  test('should trigger alert if duplicate payment reference identified', async () => {
+    const d365 = { paymentReference: 'PY1000001', calculationReference: 12345 }
+    getD365ByPaymentReference.mockResolvedValue(d365)
+
+    await processD365(d365)
+
+    expect(dataProcessingAlert).toHaveBeenCalledWith({
+      ...d365,
+      message: 'A duplicate record was received for payment reference PY1000001 and calculation 12345'
+    }, DUPLICATE_RECORD)
   })
 
   test('should validate, save and commit transaction when new paymentReference is received', async () => {

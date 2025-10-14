@@ -1,14 +1,20 @@
+const { dataProcessingAlert } = require('ffc-alerting-utils')
 const db = require('../../data')
 const savePlaceholderOrganisation = require('./save-placeholder-organisation')
 const getDelinkedByCalculationId = require('./get-delinked-by-calculation-id')
 const saveDelinked = require('./save-delinked')
 const validateDelinked = require('./validate-delinked')
+const { DUPLICATE_RECORD } = require('../../constants/alerts')
 
 const processDelinked = async (delinked) => {
   try {
     const existingDelinked = await getDelinkedByCalculationId(delinked.calculationReference)
     if (existingDelinked) {
       console.info(`Duplicate delinked received, skipping ${existingDelinked.calculationId}`)
+      await dataProcessingAlert({
+        ...delinked,
+        message: `A duplicate record was received for calculation ID ${existingDelinked.calculationId}`
+      }, DUPLICATE_RECORD)
       return
     }
 

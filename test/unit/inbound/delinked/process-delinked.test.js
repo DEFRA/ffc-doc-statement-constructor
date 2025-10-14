@@ -8,6 +8,10 @@ const mockTransaction = {
 const processDelinked = require('../../../../app/inbound/delinked/process-delinked')
 const { mockDelinked1 } = require('../../../mock-objects/mock-delinked')
 
+jest.mock('ffc-alerting-utils')
+const { dataProcessingAlert } = require('ffc-alerting-utils')
+const { DUPLICATE_RECORD } = require('../../../../app/constants/alerts')
+
 jest.mock('../../../../app/data', () => {
   return {
     sequelize: {
@@ -126,6 +130,17 @@ describe('processDelinked', () => {
 
     expect(console.info).toHaveBeenCalledWith(`Duplicate delinked received, skipping ${mockDelinked1.calculationId}`)
     expect(result).toBeUndefined()
+  })
+
+  test('should trigger alert if duplicate calc ID identified', async () => {
+    getDelinkedByCalculationId.mockResolvedValue(mockDelinked1)
+
+    await processDelinked(mockDelinked1)
+
+    expect(dataProcessingAlert).toHaveBeenCalledWith({
+      ...mockDelinked1,
+      message: `A duplicate record was received for calculation ID ${mockDelinked1.calculationId}`
+    }, DUPLICATE_RECORD)
   })
 
   test('should not call savePlaceholderOrganisation when a previous delinked exists', async () => {
