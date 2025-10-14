@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+const organisationDB = (sequelize, DataTypes) => {
   const organisation = sequelize.define('organisation', {
     sbi: { type: DataTypes.INTEGER, primaryKey: true },
     addressLine1: DataTypes.STRING,
@@ -19,3 +19,5 @@ module.exports = (sequelize, DataTypes) => {
   })
   return organisation
 }
+
+module.exports = organisationDB

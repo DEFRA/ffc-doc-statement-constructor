@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+const d365DB = (sequelize, DataTypes) => {
   const paymentReferenceChars = 30
   const paymentPeriodLength = 200
   const marketingYearMin = 2023
@@ -30,3 +30,5 @@ module.exports = (sequelize, DataTypes) => {
 
   return d365
 }
+
+module.exports = d365DB

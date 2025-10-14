@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+const schemeDB = (sequelize, DataTypes) => {
   const scheme = sequelize.define('scheme', {
     schemeId: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     name: DataTypes.STRING,
@@ -9,15 +9,7 @@ module.exports = (sequelize, DataTypes) => {
     freezeTableName: true,
     timestamps: false
   })
-  scheme.associate = function (models) {
-    scheme.hasMany(models.paymentRequest, {
-      foreignKey: 'schemeId',
-      as: 'paymentRequests'
-    })
-    scheme.hasMany(models.documentStatus, {
-      foreignKey: 'schemeId',
-      as: 'documentStatuses'
-    })
-  }
   return scheme
 }
+
+module.exports = schemeDB

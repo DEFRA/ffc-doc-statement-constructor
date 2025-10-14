@@ -3,7 +3,6 @@ const mockMessaging = require('../../app/messaging')
 
 jest.mock('../../app/processing')
 const mockProcessing = require('../../app/processing')
-jest.mock('../../app/messaging/wait-for-idle-messaging')
 jest.mock('log-timestamp', () => jest.fn())
 
 describe('app', () => {

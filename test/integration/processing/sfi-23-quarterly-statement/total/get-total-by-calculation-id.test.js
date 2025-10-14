@@ -16,7 +16,6 @@ describe('process get calculation object', () => {
   })
 
   beforeEach(async () => {
-    const schemes = JSON.parse(JSON.stringify(require('../../../../../app/constants/schemes')))
     const organisation = JSON.parse(JSON.stringify(require('../../../../mock-objects/mock-organisation')))
     const total = JSON.parse(JSON.stringify(require('../../../../mock-objects/mock-total')))
 
@@ -39,7 +38,6 @@ describe('process get calculation object', () => {
       totalPayments: '9987.65'
     }
 
-    await db.scheme.bulkCreate(schemes)
     await db.organisation.create(organisation)
     await db.total.bulkCreate(totals)
   })
