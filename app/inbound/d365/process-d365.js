@@ -27,7 +27,8 @@ const processD365 = async (d365) => {
       await dataProcessingAlert({
         process: 'processD365',
         ...d365,
-        message: `A duplicate record was received for payment reference ${existingD365.paymentReference} and calculation ${existingD365.calculationId}`
+        message: `A duplicate record was received for payment reference ${existingD365.paymentReference} and calculation ${existingD365.calculationId}`,
+        type: DUPLICATE_RECORD
       }, DUPLICATE_RECORD)
       return
     }

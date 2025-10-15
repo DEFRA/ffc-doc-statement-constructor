@@ -16,7 +16,8 @@ const processDax = async (dax) => {
         await dataProcessingAlert({
           process: 'processDax',
           ...dax,
-          message: `A duplicate record was received for payment reference ${existingDax.paymentReference} and calculation ${existingDax.calculationReference}`
+          message: `A duplicate record was received for payment reference ${existingDax.paymentReference} and calculation ${existingDax.calculationReference}`,
+          type: DUPLICATE_RECORD
         }, DUPLICATE_RECORD)
         await transaction.rollback()
       } else {

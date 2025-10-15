@@ -76,7 +76,8 @@ describe('processD365', () => {
     expect(dataProcessingAlert).toHaveBeenCalledWith({
       process: 'processD365',
       ...d365,
-      message: 'A duplicate record was received for payment reference PY1000001 and calculation 12345'
+      message: 'A duplicate record was received for payment reference PY1000001 and calculation 12345',
+      type: DUPLICATE_RECORD
     }, DUPLICATE_RECORD)
   })
 

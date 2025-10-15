@@ -14,7 +14,8 @@ const processDelinked = async (delinked) => {
       await dataProcessingAlert({
         process: 'processDelinked',
         ...delinked,
-        message: `A duplicate record was received for calculation ID ${existingDelinked.calculationId}`
+        message: `A duplicate record was received for calculation ID ${existingDelinked.calculationId}`,
+        type: DUPLICATE_RECORD
       }, DUPLICATE_RECORD)
       return
     }

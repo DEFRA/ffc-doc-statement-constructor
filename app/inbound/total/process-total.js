@@ -18,7 +18,8 @@ const processTotal = async (total) => {
         await dataProcessingAlert({
           process: 'processTotal',
           ...total,
-          message: `A duplicate record was received for calculation ID ${existingTotal.calculationId}`
+          message: `A duplicate record was received for calculation ID ${existingTotal.calculationId}`,
+          type: DUPLICATE_RECORD
         }, DUPLICATE_RECORD)
         await transaction.rollback()
       } else {
