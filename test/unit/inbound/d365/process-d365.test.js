@@ -52,7 +52,10 @@ describe('processD365', () => {
 
   test('should skip processing and log info when duplicate paymentReference exists', async () => {
     const d365 = { paymentReference: 'PY1000001', calculationReference: 12345 }
-    getD365ByPaymentReference.mockResolvedValue(d365)
+    getD365ByPaymentReference.mockResolvedValue({
+      ...d365,
+      calculationId: 12345
+    })
     console.info = jest.fn()
 
     await processD365(d365)
@@ -63,13 +66,16 @@ describe('processD365', () => {
 
   test('should trigger alert if duplicate payment reference identified', async () => {
     const d365 = { paymentReference: 'PY1000001', calculationReference: 12345 }
-    getD365ByPaymentReference.mockResolvedValue(d365)
+    getD365ByPaymentReference.mockResolvedValue({
+      ...d365,
+      calculationId: 12345
+    })
 
     await processD365(d365)
 
     expect(dataProcessingAlert).toHaveBeenCalledWith({
+      process: 'processD365',
       ...d365,
-      dataType: D365,
       message: 'A duplicate record was received for payment reference PY1000001 and calculation 12345'
     }, DUPLICATE_RECORD)
   })

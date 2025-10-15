@@ -5,7 +5,6 @@ const validateDax = require('./validate-dax')
 const getDaxByCalculationIdAndPaymentReference = require('./get-dax-by-calculation-id-and-payment-reference')
 const { retryOnFkError } = require('../../utility/retry-fk-error')
 const { DUPLICATE_RECORD } = require('../../constants/alerts')
-const { DAX } = require('../../constants/types')
 
 const processDax = async (dax) => {
   await retryOnFkError(async () => {
@@ -15,8 +14,8 @@ const processDax = async (dax) => {
       if (existingDax) {
         console.info(`Duplicate Dax record received, skipping payment reference ${existingDax.paymentReference} for calculation ${existingDax.calculationReference}`)
         await dataProcessingAlert({
+          process: 'processDax',
           ...dax,
-          dataType: DAX,
           message: `A duplicate record was received for payment reference ${existingDax.paymentReference} and calculation ${existingDax.calculationReference}`
         }, DUPLICATE_RECORD)
         await transaction.rollback()

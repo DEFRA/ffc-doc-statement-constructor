@@ -5,7 +5,6 @@ const getDelinkedByCalculationId = require('./get-delinked-by-calculation-id')
 const saveDelinked = require('./save-delinked')
 const validateDelinked = require('./validate-delinked')
 const { DUPLICATE_RECORD } = require('../../constants/alerts')
-const { DELINKED } = require('../../constants/types')
 
 const processDelinked = async (delinked) => {
   try {
@@ -13,8 +12,8 @@ const processDelinked = async (delinked) => {
     if (existingDelinked) {
       console.info(`Duplicate delinked received, skipping ${existingDelinked.calculationId}`)
       await dataProcessingAlert({
+        process: 'processDelinked',
         ...delinked,
-        dataType: DELINKED,
         message: `A duplicate record was received for calculation ID ${existingDelinked.calculationId}`
       }, DUPLICATE_RECORD)
       return

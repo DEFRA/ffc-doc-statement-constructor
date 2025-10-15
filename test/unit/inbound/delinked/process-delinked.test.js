@@ -139,8 +139,8 @@ describe('processDelinked', () => {
     await processDelinked(mockDelinked1)
 
     expect(dataProcessingAlert).toHaveBeenCalledWith({
+      process: 'processDelinked',
       ...mockDelinked1,
-      dataType: DELINKED,
       message: `A duplicate record was received for calculation ID ${mockDelinked1.calculationId}`
     }, DUPLICATE_RECORD)
   })

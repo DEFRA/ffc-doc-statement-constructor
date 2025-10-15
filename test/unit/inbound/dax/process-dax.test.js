@@ -79,8 +79,8 @@ describe('processDax', () => {
     await processDax(dax)
 
     expect(dataProcessingAlert).toHaveBeenCalledWith({
+      process: 'processDax',
       ...dax,
-      dataType: DAX,
       message: 'A duplicate record was received for payment reference PY1000001 and calculation 12345'
     }, DUPLICATE_RECORD)
   })

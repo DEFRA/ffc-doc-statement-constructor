@@ -76,8 +76,8 @@ describe('processTotal', () => {
     await processTotal(total)
 
     expect(dataProcessingAlert).toHaveBeenCalledWith({
+      process: 'processTotal',
       ...total,
-      dataType: TOTAL,
       message: `A duplicate record was received for calculation ID ${total.calculationReference}`
     }, DUPLICATE_RECORD)
   })

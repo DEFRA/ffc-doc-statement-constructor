@@ -23,11 +23,11 @@ const processD365 = async (d365) => {
 
     const existingD365 = await getD365ByCalculationIdAndPaymentReference(d365)
     if (existingD365) {
-      console.info(`Duplicate D365 paymentReference received, skipping payment reference ${existingD365.paymentReference} for calculation ${existingD365.calculationReference}`)
+      console.info(`Duplicate D365 paymentReference received, skipping payment reference ${existingD365.paymentReference} for calculation ${existingD365.calculationId}`)
       await dataProcessingAlert({
+        process: 'processD365',
         ...d365,
-        dataType: D365,
-        message: `A duplicate record was received for payment reference ${existingD365.paymentReference} and calculation ${existingD365.calculationReference}`
+        message: `A duplicate record was received for payment reference ${existingD365.paymentReference} and calculation ${existingD365.calculationId}`
       }, DUPLICATE_RECORD)
       return
     }
