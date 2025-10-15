@@ -33,7 +33,6 @@ const saveDelinked = require('../../../../app/inbound/delinked/save-delinked')
 
 jest.mock('../../../../app/inbound/delinked/validate-delinked')
 const validateDelinked = require('../../../../app/inbound/delinked/validate-delinked')
-const { DELINKED } = require('../../../../app/constants/types')
 
 describe('processDelinked', () => {
   beforeEach(() => {

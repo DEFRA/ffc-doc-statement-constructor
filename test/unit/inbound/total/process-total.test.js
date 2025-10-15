@@ -20,7 +20,6 @@ afterAll(() => {
 jest.mock('ffc-alerting-utils')
 const { dataProcessingAlert } = require('ffc-alerting-utils')
 const { DUPLICATE_RECORD } = require('../../../../app/constants/alerts')
-const { TOTAL } = require('../../../../app/constants/types')
 
 jest.mock('../../../../app/data', () => {
   return {
