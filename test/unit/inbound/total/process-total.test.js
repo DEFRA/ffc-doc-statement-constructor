@@ -17,6 +17,10 @@ afterAll(() => {
   retryUtil.sleep.mockRestore()
 })
 
+jest.mock('ffc-alerting-utils')
+const { dataProcessingAlert } = require('ffc-alerting-utils')
+const { DUPLICATE_RECORD } = require('../../../../app/constants/alerts')
+
 jest.mock('../../../../app/data', () => {
   return {
     sequelize: {
@@ -59,6 +63,23 @@ describe('processTotal', () => {
 
     expect(console.info).toHaveBeenCalledWith(`Duplicate calculationId received, skipping ${total.calculationReference}`)
     expect(transaction.rollback).toHaveBeenCalled()
+  })
+
+  test('should trigger alert if duplicate calc ID identified', async () => {
+    const total = { calculationReference: 1, sbi: '123', actions: [] }
+    getTotalByCalculationId.mockResolvedValue({
+      ...total,
+      calculationId: total.calculationReference
+    })
+
+    await processTotal(total)
+
+    expect(dataProcessingAlert).toHaveBeenCalledWith({
+      process: 'processTotal',
+      ...total,
+      message: `A duplicate record was received for calculation ID ${total.calculationReference}`,
+      type: DUPLICATE_RECORD
+    }, DUPLICATE_RECORD)
   })
 
   test('should validate, save, and commit transaction when calculationReference does not exist', async () => {

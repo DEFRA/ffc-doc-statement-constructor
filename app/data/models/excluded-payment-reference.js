@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+const excludedPaymentReferenceDB = (sequelize, DataTypes) => {
   const excludedPaymentReference = sequelize.define('excludedPaymentReference', {
     excludedPaymentReferenceId: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     frn: DataTypes.BIGINT,
@@ -11,3 +11,5 @@ module.exports = (sequelize, DataTypes) => {
   })
   return excludedPaymentReference
 }
+
+module.exports = excludedPaymentReferenceDB
