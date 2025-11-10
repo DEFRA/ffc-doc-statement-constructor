@@ -1,5 +1,4 @@
 const db = require('../../../../../app/data')
-
 const getActionsByCalculationReference = require('../../../../../app/processing/sfi-23-quarterly-statement/action-groups/get-actions-by-calculation-reference')
 
 const calculationIdOne = 11235452
@@ -7,12 +6,9 @@ const calculationIdTwo = 76726627
 
 let actions
 
-describe('process get calculation object', () => {
+describe('getActionsByCalculationReference', () => {
   beforeAll(async () => {
-    await db.sequelize.truncate({
-      cascade: true,
-      restartIdentity: true
-    })
+    await db.sequelize.truncate({ cascade: true, restartIdentity: true })
   })
 
   beforeEach(async () => {
@@ -24,6 +20,7 @@ describe('process get calculation object', () => {
       { ...total, calculationId: calculationIdOne, claimId: total.claimReference },
       { ...total, calculationId: calculationIdTwo, claimId: total.claimReference }
     ]
+
     actions = [
       { ...action, actionId: 1, calculationId: calculationIdOne },
       { ...action, actionId: 2, calculationId: calculationIdOne },
@@ -38,18 +35,21 @@ describe('process get calculation object', () => {
   })
 
   afterEach(async () => {
-    await db.sequelize.truncate({
-      cascade: true,
-      restartIdentity: true
-    })
+    await db.sequelize.truncate({ cascade: true, restartIdentity: true })
   })
 
   afterAll(async () => {
     await db.sequelize.close()
   })
 
-  test('should return all actions in action db table that have provided calculationReference as calculationId', async () => {
-    const retrievedActions = await getActionsByCalculationReference(calculationIdOne)
-    expect(retrievedActions.length).toBe(3)
-  })
+  test.each([
+    [calculationIdOne, 3],
+    [calculationIdTwo, 2]
+  ])(
+    'should return all actions for calculation reference %s',
+    async (calculationId, expectedCount) => {
+      const retrievedActions = await getActionsByCalculationReference(calculationId)
+      expect(retrievedActions).toHaveLength(expectedCount)
+    }
+  )
 })
