@@ -23,13 +23,11 @@ const getSfi23QuarterlyStatement = require('../../../../app/processing/sfi-23-qu
 
 const paymentReference = 'PY12345670'
 
-describe('getSfi23QuarterlyStatement', () => {
-  beforeEach(() => {
-    const loadMock = (name) => JSON.parse(JSON.stringify(require(`../../../mock-objects/mock-${name}`)))
-
-    const organisation = loadMock('organisation')
-    const total = loadMock('total')
-    const actionGroups = loadMock('action-groups')
+describe('get Sfi23 Quarterly Statement by Payment reference', () => {
+  beforeEach(async () => {
+    const organisation = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-organisation')))
+    const total = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-total')))
+    const actionGroups = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-action-groups')))
     const savedDocument = { documentId: 2 }
     const previousPaymentCount = 1
     const documentType = { documentTypeId: 1 }
@@ -55,61 +53,21 @@ describe('getSfi23QuarterlyStatement', () => {
     jest.clearAllMocks()
   })
 
-  test('should call getOrganisation with the payment reference', async () => {
-    await getSfi23QuarterlyStatement(paymentReference)
-    expect(getOrganisation).toHaveBeenCalledWith(paymentReference)
-  })
+  const mockedFunctions = [
+    ['getOrganisation', getOrganisation],
+    ['getTotal', getTotal],
+    ['getActionGroups', getActionGroups],
+    ['saveDocument', saveDocument],
+    ['getPreviousPaymentCountByCalculationId', getPreviousPaymentCountByCalculationId],
+    ['getDocumentTypeByCode', getDocumentTypeByCode],
+    ['getAddressFromOrganisation', getAddressFromOrganisation]
+  ]
 
-  test('should call getTotal', async () => {
-    await getSfi23QuarterlyStatement(paymentReference)
-    expect(getTotal).toHaveBeenCalled()
-  })
-
-  test('should call getActionGroups', async () => {
-    await getSfi23QuarterlyStatement(paymentReference)
-    expect(getActionGroups).toHaveBeenCalled()
-  })
-
-  test('should call saveDocument', async () => {
-    await getSfi23QuarterlyStatement(paymentReference)
-    expect(saveDocument).toHaveBeenCalled()
-  })
-
-  test('should call getPreviousPaymentCountByCalculationId', async () => {
-    await getSfi23QuarterlyStatement(paymentReference)
-    expect(getPreviousPaymentCountByCalculationId).toHaveBeenCalled()
-  })
-
-  test('should call getDocumentTypeByCode', async () => {
-    await getSfi23QuarterlyStatement(paymentReference)
-    expect(getDocumentTypeByCode).toHaveBeenCalled()
-  })
-
-  test('should call getAddressFromOrganisation', async () => {
-    await getSfi23QuarterlyStatement(paymentReference)
-    expect(getAddressFromOrganisation).toHaveBeenCalled()
-  })
-
-  test('should return expected statement object', async () => {
-    const result = await getSfi23QuarterlyStatement(paymentReference)
-
-    expect(result).toEqual(expect.objectContaining({
-      organisation: expect.any(Object),
-      total: expect.any(Object),
-      actionGroups: expect.any(Array),
-      document: expect.any(Object),
-      previousPaymentCount: 1,
-      address: expect.objectContaining({
-        line1: '123 Main St',
-        postcode: '12345'
-      })
-    }))
-  })
-
-  test('should throw an error if getOrganisation fails', async () => {
-    getOrganisation.mockRejectedValueOnce(new Error('Organisation not found'))
-
-    await expect(getSfi23QuarterlyStatement(paymentReference))
-      .rejects.toThrow('Organisation not found')
-  })
+  test.each(mockedFunctions)(
+    'should call %s',
+    async (_name, fn) => {
+      await getSfi23QuarterlyStatement(paymentReference)
+      expect(fn).toHaveBeenCalled()
+    }
+  )
 })

@@ -1,14 +1,13 @@
-const db = require('../../../../app/data')
-const getDaxsForSfi23QuarterlyStatement = require('../../../../app/processing/sfi-23-quarterly-statement/get-daxs-for-sfi-23-quarterly-statement')
+const db = require('../../../../../app/data')
 
-const payReferenceOne = 'PY11235452'
-const payReferenceTwo = 'PY76726627'
-const payReferenceThree = 'IN76726627'
-const payReferenceFour = 'PY76726000'
+const getTotalByCalculationId = require('../../../../../app/processing/sfi-23-quarterly-statement/total/get-total-by-calculation-id')
 
-let retrievedDax
+const calculationIdOne = 11235452
+const calculationIdTwo = 76726627
 
-describe('getDaxsForSfi23QuarterlyStatement', () => {
+let retrievedTotal
+
+describe('process get calculation object', () => {
   beforeAll(async () => {
     await db.sequelize.truncate({
       cascade: true,
@@ -17,24 +16,30 @@ describe('getDaxsForSfi23QuarterlyStatement', () => {
   })
 
   beforeEach(async () => {
-    const organisation = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-organisation')))
-    const total = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-total')))
-    const dax = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-dax')))
-    const calculationReference = total.calculationReference
+    const organisation = JSON.parse(JSON.stringify(require('../../../../mock-objects/mock-organisation')))
+    const total = JSON.parse(JSON.stringify(require('../../../../mock-objects/mock-total')))
 
-    retrievedDax = [
-      { ...dax, calculationId: calculationReference, paymentReference: payReferenceOne, startPublish: null },
-      { ...dax, calculationId: calculationReference, paymentReference: payReferenceTwo, startPublish: null },
-      { ...dax, calculationId: calculationReference, paymentReference: payReferenceThree, startPublish: null },
-      { ...dax, calculationId: calculationReference, paymentReference: payReferenceFour, startPublish: null }
+    const totals = [
+      { ...total, calculationId: calculationIdOne, claimId: total.claimReference },
+      { ...total, calculationId: calculationIdTwo, claimId: total.claimReference }
     ]
+    retrievedTotal = {
+      agreementEnd: new Date('2022-01-01T00:00:00.000Z'),
+      agreementNumber: 123456789,
+      agreementStart: new Date('2022-12-31T00:00:00.000Z'),
+      calculationDate: new Date('2022-01-27T00:00:00.000Z'),
+      calculationReference: 11235452,
+      claimReference: 123456789,
+      invoiceNumber: 'INVOICE123456',
+      sbi: 105321000,
+      schemeCode: 'SFIA',
+      totalActionPayments: '1234.56',
+      totalAdditionalPayments: '1234.56',
+      totalPayments: '9987.65'
+    }
 
     await db.organisation.create(organisation)
-    await db.total.create({
-      ...total,
-      calculationId: calculationReference,
-      claimId: total.claimReference
-    })
+    await db.total.bulkCreate(totals)
   })
 
   afterEach(async () => {
@@ -48,38 +53,8 @@ describe('getDaxsForSfi23QuarterlyStatement', () => {
     await db.sequelize.close()
   })
 
-  test('should return all dax records with startPublish equal to null', async () => {
-    await db.dax.bulkCreate(retrievedDax)
-    const transaction = await db.sequelize.transaction()
-
-    const result = await getDaxsForSfi23QuarterlyStatement(transaction)
-    await transaction.commit()
-
-    expect(result).toHaveLength(4)
-    expect(result.every(d => d.startPublish === null)).toBe(true)
-  })
-
-  test('should return an empty array when there are no dax records with startPublish equal to null', async () => {
-    // create dax entries that all have a startPublish date
-    const dax = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-dax')))
-    const calculationReference = dax.calculationId ?? 11235452
-    const publishedDax = [
-      { ...dax, calculationId: calculationReference, paymentReference: payReferenceOne, startPublish: new Date() }
-    ]
-    await db.dax.bulkCreate(publishedDax)
-
-    const transaction = await db.sequelize.transaction()
-    const result = await getDaxsForSfi23QuarterlyStatement(transaction)
-    await transaction.commit()
-
-    expect(result).toEqual([])
-  })
-
-  test('should not throw when there are no dax records at all', async () => {
-    const transaction = await db.sequelize.transaction()
-    const result = await getDaxsForSfi23QuarterlyStatement(transaction)
-    await transaction.commit()
-
-    expect(result).toEqual([])
+  test('Should return total object when there is corresponding total with provided calculationId', async () => {
+    const result = await getTotalByCalculationId(calculationIdOne)
+    expect(result).toStrictEqual(retrievedTotal)
   })
 })

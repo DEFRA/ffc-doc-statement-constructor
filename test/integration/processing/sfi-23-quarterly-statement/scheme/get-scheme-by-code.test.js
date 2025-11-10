@@ -13,20 +13,23 @@ describe('getSchemeByCode', () => {
     await db.sequelize.close()
   })
 
-  test('should return the scheme with the provided code', async () => {
+  test('should return the scheme with the provided name', async () => {
+    const name = 'Scheme 1'
     const scheme = {
       name: 'Scheme 1',
       code: 'ABC123'
     }
     await db.scheme.create(scheme)
 
-    const result = await getSchemeByCode('ABC123')
+    const result = await getSchemeByCode(name)
 
-    expect(result).toMatchObject(scheme)
+    expect(result).toEqual(scheme)
   })
 
   test('should return null when no scheme is found with the provided code', async () => {
-    const result = await getSchemeByCode('XYZ789')
+    const name = 'XYZ789'
+
+    const result = await getSchemeByCode(name)
 
     expect(result).toBeNull()
   })

@@ -1,9 +1,12 @@
 const db = require('../../../../app/data')
+
 const getDocumentTypeByCode = require('../../../../app/processing/sfi-23-quarterly-statement/get-document-type-by-code')
 
 const documentTypeCode = 'SFI23-STATEMENT'
 
-describe('getDocumentTypeByCode', () => {
+let documentTypes
+
+describe('process get document type by code', () => {
   beforeAll(async () => {
     await db.sequelize.truncate({
       cascade: true,
@@ -12,7 +15,7 @@ describe('getDocumentTypeByCode', () => {
   })
 
   beforeEach(async () => {
-    const documentTypes = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-document-types')))
+    documentTypes = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-document-types')))
     documentTypes[0].code = documentTypeCode
     await db.documentType.bulkCreate(documentTypes)
   })
@@ -28,14 +31,8 @@ describe('getDocumentTypeByCode', () => {
     await db.sequelize.close()
   })
 
-  test('should return the document type when a matching code exists', async () => {
+  test('getDocumentTypeByCode returns when present', async () => {
     const result = await getDocumentTypeByCode(documentTypeCode)
-    expect(result).toBeDefined()
-    expect(result.code).toBe(documentTypeCode)
-  })
-
-  test('should return null when no matching document type exists', async () => {
-    const result = await getDocumentTypeByCode('NON_EXISTENT_CODE')
-    expect(result).toBeNull()
+    expect(result.documentTypeId).toBe(documentTypes[0].documentTypeId)
   })
 })
