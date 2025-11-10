@@ -1,6 +1,7 @@
 process.env.RETRY_FK_MAX_RETRIES = '4'
 process.env.RETRY_FK_BASE_DELAY_MS = '10'
 process.env.RETRY_FK_MAX_TOTAL_DELAY_MS = '1000'
+
 const db = require('../../../../app/data')
 const processDax = require('../../../../app/inbound/dax/process-dax')
 const saveDax = require('../../../../app/inbound/dax/save-dax')
@@ -8,28 +9,17 @@ const validateDax = require('../../../../app/inbound/dax/validate-dax')
 const getDaxByCalculationIdAndPaymentReference = require('../../../../app/inbound/dax/get-dax-by-calculation-id-and-payment-reference')
 const retryUtil = require('../../../../app/utility/retry-fk-error')
 
-beforeAll(() => {
-  jest.spyOn(retryUtil, 'sleep').mockImplementation(() => Promise.resolve())
-})
-afterAll(() => {
-  retryUtil.sleep.mockRestore()
-})
-
 jest.mock('ffc-alerting-utils')
-jest.mock('../../../../app/data', () => {
-  return {
-    sequelize: {
-      transaction: jest.fn()
-    },
-    Sequelize: {
-      ForeignKeyConstraintError: class extends Error {
-        constructor (msg) {
-          super(typeof msg === 'string' ? msg : (msg && msg.message) || 'FK error')
-        }
+jest.mock('../../../../app/data', () => ({
+  sequelize: { transaction: jest.fn() },
+  Sequelize: {
+    ForeignKeyConstraintError: class extends Error {
+      constructor (msg) {
+        super(typeof msg === 'string' ? msg : (msg && msg.message) || 'FK error')
       }
     }
   }
-})
+}))
 jest.mock('../../../../app/inbound/dax/save-dax')
 jest.mock('../../../../app/inbound/dax/schema')
 jest.mock('../../../../app/inbound/dax/validate-dax')
@@ -37,6 +27,14 @@ jest.mock('../../../../app/inbound/dax/get-dax-by-calculation-id-and-payment-ref
 
 const { dataProcessingAlert } = require('ffc-alerting-utils')
 const { DUPLICATE_RECORD } = require('../../../../app/constants/alerts')
+
+beforeAll(() => {
+  jest.spyOn(retryUtil, 'sleep').mockImplementation(() => Promise.resolve())
+})
+
+afterAll(() => {
+  retryUtil.sleep.mockRestore()
+})
 
 describe('processDax', () => {
   let transaction
@@ -50,45 +48,42 @@ describe('processDax', () => {
   afterEach(() => {
     if (console.info && console.info.mockRestore) console.info.mockRestore()
     if (console.warn && console.warn.mockRestore) console.warn.mockRestore()
-    if (console.error && console.error.mockRestore) console.error.mockRestore()
   })
 
-  test('should rollback transaction and log info when dax with same paymentReference exists', async () => {
+  test('should skip processing and rollback when duplicate Dax exists', async () => {
     const dax = { calculationReference: 1, paymentReference: '123' }
-    getDaxByCalculationIdAndPaymentReference.mockResolvedValue({
-      ...dax,
-      calculationId: dax.calculationReference
-    })
+    getDaxByCalculationIdAndPaymentReference.mockResolvedValue({ ...dax, calculationId: dax.calculationReference })
     console.info = jest.fn()
 
     await processDax(dax)
 
-    expect(console.info).toHaveBeenCalledWith(`Duplicate Dax record received, skipping payment reference ${dax.paymentReference} for calculation ${dax.calculationReference}`)
+    expect(console.info).toHaveBeenCalledWith(
+      `Duplicate Dax record received, skipping payment reference ${dax.paymentReference} for calculation ${dax.calculationReference}`
+    )
     expect(transaction.rollback).toHaveBeenCalled()
   })
 
-  test('should trigger alert if duplicate payment reference identified', async () => {
+  test('should trigger alert for duplicate Dax', async () => {
     const dax = { calculationReference: 12345, paymentReference: 'PY1000001' }
-    getDaxByCalculationIdAndPaymentReference.mockResolvedValue({
-      ...dax,
-      calculationId: dax.calculationReference
-    })
-    console.info = jest.fn()
+    getDaxByCalculationIdAndPaymentReference.mockResolvedValue({ ...dax, calculationId: dax.calculationReference })
 
     await processDax(dax)
 
-    expect(dataProcessingAlert).toHaveBeenCalledWith({
-      process: 'processDax',
-      ...dax,
-      message: 'A duplicate record was received for payment reference PY1000001 and calculation 12345',
-      type: DUPLICATE_RECORD
-    }, DUPLICATE_RECORD)
+    expect(dataProcessingAlert).toHaveBeenCalledWith(
+      {
+        process: 'processDax',
+        ...dax,
+        message: 'A duplicate record was received for payment reference PY1000001 and calculation 12345',
+        type: DUPLICATE_RECORD
+      },
+      DUPLICATE_RECORD
+    )
   })
 
-  test('should validate, save and commit transaction when dax with same paymentReference does not exist', async () => {
+  test('should validate, save, and commit when new Dax is received', async () => {
     const dax = { paymentReference: '123' }
     getDaxByCalculationIdAndPaymentReference.mockResolvedValue(null)
-    validateDax.mockImplementation(() => { })
+    validateDax.mockImplementation(() => {})
     saveDax.mockResolvedValue()
 
     await processDax(dax)
@@ -98,10 +93,10 @@ describe('processDax', () => {
     expect(transaction.commit).toHaveBeenCalled()
   })
 
-  test('should retry on ForeignKeyConstraintError and succeed on later attempt', async () => {
+  test('should retry on ForeignKeyConstraintError and succeed', async () => {
     const dax = { calculationReference: 'retry123', paymentReference: '123' }
     getDaxByCalculationIdAndPaymentReference.mockResolvedValue(null)
-    validateDax.mockImplementation(() => { })
+    validateDax.mockImplementation(() => {})
     const fkError = new db.Sequelize.ForeignKeyConstraintError('FK error')
     saveDax
       .mockRejectedValueOnce(fkError)
@@ -118,7 +113,7 @@ describe('processDax', () => {
     expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('FK error for Dax'))
   })
 
-  test('should rollback transaction when an error occurs', async () => {
+  test('should rollback transaction on general error', async () => {
     const dax = { paymentReference: '123' }
     getDaxByCalculationIdAndPaymentReference.mockRejectedValue(new Error('Test error'))
 

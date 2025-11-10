@@ -19,7 +19,7 @@ let delinkedData
 let daxData
 let d365Data
 
-describe('process statement data', () => {
+describe('processStatementData', () => {
   beforeEach(() => {
     organisationData = JSON.parse(JSON.stringify(require('../../mock-objects/mock-organisation')))
     totalData = JSON.parse(JSON.stringify(require('../../mock-objects/mock-total')))
