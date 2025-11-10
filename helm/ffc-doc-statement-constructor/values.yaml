@@ -36,8 +36,6 @@ container:
   statementTopicAddress: ffc-doc-statements
   alertingTopicAddress: ffc-doc-alert
   statementProcessingInterval: 60000
-  statementConstructionActive: false
-  scheduleConstructionActive: false
   sfi23QuarterlyStatementProcessingActive: true
   delinkedStatementProcessingActive: true
   idleCheckBatchSize: 250
