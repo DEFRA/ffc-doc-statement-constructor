@@ -1,47 +1,39 @@
-jest.mock('../../../../app/data')
 const db = require('../../../../app/data')
+const getExcludedPaymentReferenceByPaymentReference = require('../../../../app/utility/get-excluded-payment-reference-by-payment-reference')
 
-jest.mock('../../../../app/processing/sfi-23-quarterly-statement/get-daxs-for-sfi-23-quarterly-statement')
-const getDaxsForSfi23QuarterlyStatement = require('../../../../app/processing/sfi-23-quarterly-statement/get-daxs-for-sfi-23-quarterly-statement')
+let excludedPaymentReferences
 
-jest.mock('../../../../app/processing/sfi-23-quarterly-statement/update-daxs-for-start-publish')
-const updateDaxsForStartPublish = require('../../../../app/processing/sfi-23-quarterly-statement/update-daxs-for-start-publish')
-
-const getVerifiedDaxsSfi23QuarterlyStatements = require('../../../../app/processing/sfi-23-quarterly-statement/get-verified-daxs-sfi-23-quarterly-statements')
-
-describe('getVerifiedDaxsSfi23QuarterlyStatements', () => {
-  let transaction
-
-  beforeEach(() => {
-    transaction = {
-      commit: jest.fn(),
-      rollback: jest.fn()
-    }
-    db.sequelize.transaction.mockResolvedValue(transaction)
-    getDaxsForSfi23QuarterlyStatement.mockResolvedValue(['dax1', 'dax2'])
+describe('getExcludedPaymentReferenceByPaymentReference', () => {
+  beforeAll(async () => {
+    await db.sequelize.truncate({
+      cascade: true,
+      restartIdentity: true
+    })
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
+  beforeEach(async () => {
+    excludedPaymentReferences = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-excluded-payment-reference')))
+    await db.excludedPaymentReference.bulkCreate(excludedPaymentReferences)
   })
 
-  test('should call getDaxsForSfi23QuarterlyStatement', async () => {
-    await getVerifiedDaxsSfi23QuarterlyStatements()
-    expect(getDaxsForSfi23QuarterlyStatement).toHaveBeenCalledWith(transaction)
+  afterEach(async () => {
+    await db.sequelize.truncate({
+      cascade: true,
+      restartIdentity: true
+    })
   })
 
-  test('should call updateDaxsForStartPublish', async () => {
-    await getVerifiedDaxsSfi23QuarterlyStatements()
-    expect(updateDaxsForStartPublish).toHaveBeenCalledWith(['dax1', 'dax2'], transaction)
+  afterAll(async () => {
+    await db.sequelize.close()
   })
 
-  test('should call transaction.commit', async () => {
-    await getVerifiedDaxsSfi23QuarterlyStatements()
-    expect(transaction.commit).toHaveBeenCalled()
+  test('should return true when payment reference is present', async () => {
+    const result = await getExcludedPaymentReferenceByPaymentReference(excludedPaymentReferences[0].paymentReference)
+    expect(result).toBe(true)
   })
 
-  test('should return the daxs', async () => {
-    const result = await getVerifiedDaxsSfi23QuarterlyStatements()
-    expect(result).toEqual(['dax1', 'dax2'])
+  test('should return false when payment reference is not present', async () => {
+    const result = await getExcludedPaymentReferenceByPaymentReference('NONEXISTENT123')
+    expect(result).toBe(false)
   })
 })

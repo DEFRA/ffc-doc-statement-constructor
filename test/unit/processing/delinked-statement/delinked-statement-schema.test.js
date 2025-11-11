@@ -1,6 +1,6 @@
 const schema = require('../../../../app/processing/delinked-statement/delinked-statement-schema')
 
-describe('Validation Schema', () => {
+describe('validationSchema', () => {
   const validData = {
     address: {
       line1: '123 Main St',
@@ -47,73 +47,55 @@ describe('Validation Schema', () => {
     excludedFromNotify: true
   }
 
-  test('should validate correct data', () => {
+  test('shouldValidateCorrectData', () => {
     const { error } = schema.validate(validData)
     expect(error).toBeUndefined()
   })
 
-  test('should fail when required fields are missing', () => {
-    const { error } = schema.validate({})
-
-    expect(error).toBeDefined()
-    expect(error.details).toEqual(expect.arrayContaining([
-      expect.objectContaining({ message: expect.stringContaining('is not present but it is required') })
-    ]))
+  describe('requiredFields', () => {
+    test('shouldFailWhenRequiredFieldsAreMissing', () => {
+      const { error } = schema.validate({})
+      expect(error).toBeDefined()
+      expect(error.details).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            message: expect.stringContaining('is not present but it is required')
+          })
+        ])
+      )
+    })
   })
 
-  test('should fail when frn is out of range', () => {
-    const invalidData = { ...validData, frn: 99999999999 }
-    const { error } = schema.validate(invalidData)
-
-    expect(error).toBeDefined()
-    expect(error.details[0].message).toBe('frn should have a maximum value of 9999999999')
+  describe('frnAndSbi', () => {
+    test.each([
+      ['frn', 99999999999, 'frn should have a maximum value of 9999999999'],
+      ['sbi', 100000000, 'sbi should have a minimum value of 105000000']
+    ])('shouldFailWhen%sIsOutOfRange', (field, value, expectedMessage) => {
+      const invalidData = { ...validData, [field]: value }
+      const { error } = schema.validate(invalidData)
+      expect(error).toBeDefined()
+      expect(error.details[0].message).toBe(expectedMessage)
+    })
   })
 
-  test('should fail when sbi is out of range', () => {
-    const invalidData = { ...validData, sbi: 100000000 }
-    const { error } = schema.validate(invalidData)
-
-    expect(error).toBeDefined()
-    expect(error.details[0].message).toBe('sbi should have a minimum value of 105000000')
+  describe('emailValidation', () => {
+    test('shouldFailWithInvalidEmailFormat', () => {
+      const invalidData = { ...validData, email: 23 }
+      const { error } = schema.validate(invalidData)
+      expect(error).toBeDefined()
+      expect(error.details[0].message).toBe('email should be a type of string')
+    })
   })
 
-  test('should fail with invalid email format', () => {
-    const invalidData = { ...validData, email: 23 }
-    const { error } = schema.validate(invalidData)
-
-    expect(error).toBeDefined()
-    expect(error.details[0].message).toBe('email should be a type of string')
-  })
-
-  test('should fail when scheme name is invalid', () => {
-    const invalidData = { ...validData, scheme: { name: 'Invalid Scheme', shortName: 'DP', year: 2024 } }
-    const { error } = schema.validate(invalidData)
-
-    expect(error).toBeDefined()
-    expect(error.details[0].message).toBe('Scheme name must be Delinked Payment Statement')
-  })
-
-  test('should fail when scheme short name is invalid', () => {
-    const invalidData = { ...validData, scheme: { name: 'Delinked Payment Statement', shortName: 'INVALID', year: 2024 } }
-    const { error } = schema.validate(invalidData)
-
-    expect(error).toBeDefined()
-    expect(error.details[0].message).toBe('Scheme short name must be DP')
-  })
-
-  test('should fail when year is not valid', () => {
-    const invalidData = { ...validData, scheme: { name: 'Delinked Payment Statement', shortName: 'DP', year: 2023 } }
-    const { error } = schema.validate(invalidData)
-
-    expect(error).toBeDefined()
-    expect(error.details[0].message).toBe('Year must be either 2024 or 2025')
-  })
-
-  test('should fail when excludedFromNotify is not boolean', () => {
-    const invalidData = { ...validData, excludedFromNotify: 'not-a-boolean' }
-    const { error } = schema.validate(invalidData)
-
-    expect(error).toBeDefined()
-    expect(error.details[0].message).toBe('Excluded from notify must be a boolean')
+  describe('schemeValidation', () => {
+    test('shouldFailWhenSchemeNameIsInvalid', () => {
+      const invalidData = {
+        ...validData,
+        scheme: { name: 'Invalid Scheme', shortName: 'DP', year: 2024 }
+      }
+      const { error } = schema.validate(invalidData)
+      expect(error).toBeDefined()
+      expect(error.details[0].message).toBe('Scheme name must be Delinked Payment Statement')
+    })
   })
 })

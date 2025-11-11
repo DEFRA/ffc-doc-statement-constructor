@@ -7,27 +7,29 @@ jest.mock('../../../../../app/processing/delinked-statement/d365/validate-d365')
 const validateD365 = require('../../../../../app/processing/delinked-statement/d365/validate-d365')
 
 describe('getD365', () => {
+  const paymentReference = 'ABC123'
+  const d365 = { id: 1 }
+  const validatedD365 = { id: 1, validated: true }
+
   afterEach(() => {
     jest.clearAllMocks()
   })
 
-  test('should call getD365ByPaymentReference with the correct payment reference', async () => {
-    const paymentReference = 'ABC123'
+  test('calls getD365ByPaymentReference with correct payment reference', async () => {
+    getD365ByPaymentReference.mockResolvedValue(d365)
     await getD365(paymentReference)
     expect(getD365ByPaymentReference).toHaveBeenCalledWith(paymentReference)
   })
 
-  test('should call validateD365 with the returned d365 and payment reference', async () => {
-    const paymentReference = 'ABC123'
-    const d365 = { /* mocked dax object */ }
+  test('calls validateD365 with D365 object and payment reference', async () => {
     getD365ByPaymentReference.mockResolvedValue(d365)
+    validateD365.mockReturnValue(validatedD365)
     await getD365(paymentReference)
     expect(validateD365).toHaveBeenCalledWith(d365, paymentReference)
   })
 
-  test('should return the validated d365', async () => {
-    const paymentReference = 'ABC123'
-    const validatedD365 = { /* mocked validated dax object */ }
+  test('returns validated D365 object', async () => {
+    getD365ByPaymentReference.mockResolvedValue(d365)
     validateD365.mockReturnValue(validatedD365)
     const result = await getD365(paymentReference)
     expect(result).toBe(validatedD365)

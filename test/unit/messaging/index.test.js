@@ -20,21 +20,19 @@ describe('messaging', () => {
     jest.clearAllMocks()
   })
 
-  test('starts message receivers when paymentLinkActive is true', async () => {
-    config.paymentLinkActive = true
+  test.each([
+    [true, 1, 'starts message receivers when paymentLinkActive is true'],
+    [false, 1, 'starts only statement data receiver when paymentLinkActive is false']
+  ])('%s', async (paymentLinkActive, expectedCalls, _description) => {
+    config.paymentLinkActive = paymentLinkActive
 
     await messageService.start()
 
-    expect(MessageReceiver).toHaveBeenCalledTimes(1)
-    expect(MessageReceiver).toHaveBeenCalledWith(config.statementDataSubscription, expect.any(Function), throughputOptions)
-  })
-
-  test('starts only statement data receiver when paymentLinkActive is false', async () => {
-    config.paymentLinkActive = false
-
-    await messageService.start()
-
-    expect(MessageReceiver).toHaveBeenCalledTimes(1)
-    expect(MessageReceiver).toHaveBeenCalledWith(config.statementDataSubscription, expect.any(Function), throughputOptions)
+    expect(MessageReceiver).toHaveBeenCalledTimes(expectedCalls)
+    expect(MessageReceiver).toHaveBeenCalledWith(
+      config.statementDataSubscription,
+      expect.any(Function),
+      throughputOptions
+    )
   })
 })

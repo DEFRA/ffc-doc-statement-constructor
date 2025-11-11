@@ -1,8 +1,6 @@
 jest.mock('ffc-messaging')
-
 jest.mock('../../../app/inbound/statement-data/process-statement-data')
 const processStatementData = require('../../../app/inbound/statement-data/process-statement-data')
-
 const processStatementDataMessage = require('../../../app/messaging/process-statement-data-message')
 
 let receiver
@@ -11,7 +9,7 @@ let message
 
 describe('process statement data message', () => {
   beforeEach(() => {
-    processStatementData.mockReturnValue(undefined)
+    processStatementData.mockResolvedValue(undefined)
 
     organisation = JSON.parse(JSON.stringify(require('../../mock-objects/mock-organisation')))
 
@@ -27,69 +25,40 @@ describe('process statement data message', () => {
     jest.clearAllMocks()
   })
 
-  test('should call processStatementData when nothing throws', async () => {
-    await processStatementDataMessage(message, receiver)
-    expect(processStatementData).toHaveBeenCalled()
-  })
-
-  test('should call processStatementData once when nothing throws', async () => {
-    await processStatementDataMessage(message, receiver)
-    expect(processStatementData).toHaveBeenCalledTimes(1)
-  })
-
-  test('should call processStatementData with organisation when nothing throws', async () => {
-    await processStatementDataMessage(message, receiver)
-    expect(processStatementData).toHaveBeenCalledWith(organisation)
-  })
-
-  test('should not throw when processStatementData throws', async () => {
-    processStatementData.mockRejectedValue(new Error('Database save issue'))
-
-    const wrapper = async () => {
+  describe('when processStatementData succeeds', () => {
+    test.each([
+      ['calls processStatementData', () => expect(processStatementData).toHaveBeenCalled()],
+      ['calls processStatementData once', () => expect(processStatementData).toHaveBeenCalledTimes(1)],
+      ['calls processStatementData with organisation', () => expect(processStatementData).toHaveBeenCalledWith(organisation)],
+      ['calls receiver.completeMessage', () => expect(receiver.completeMessage).toHaveBeenCalled()],
+      ['calls receiver.completeMessage once', () => expect(receiver.completeMessage).toHaveBeenCalledTimes(1)],
+      ['calls receiver.completeMessage with message', () => expect(receiver.completeMessage).toHaveBeenCalledWith(message)]
+    ])('%s', async (_desc, assertion) => {
       await processStatementDataMessage(message, receiver)
-    }
-
-    expect(wrapper).not.toThrow()
+      assertion()
+    })
   })
 
-  test('should call receiver.completeMessage when nothing throws', async () => {
-    await processStatementDataMessage(message, receiver)
-    expect(receiver.completeMessage).toHaveBeenCalled()
+  describe('when processStatementData throws', () => {
+    beforeEach(() => {
+      processStatementData.mockRejectedValue(new Error('Transaction failed'))
+    })
+
+    test.each([
+      ['does not throw', async () => {
+        const wrapper = async () => await processStatementDataMessage(message, receiver)
+        await expect(wrapper()).resolves.not.toThrow()
+      }],
+      ['does not call receiver.completeMessage', async () => {
+        try { await processStatementDataMessage(message, receiver) } catch {}
+        expect(receiver.completeMessage).not.toHaveBeenCalled()
+      }]
+    ])('%s', async (_desc, fn) => fn())
   })
 
-  test('should call receiver.completeMessage once when nothing throws', async () => {
-    await processStatementDataMessage(message, receiver)
-    expect(receiver.completeMessage).toHaveBeenCalledTimes(1)
-  })
-
-  test('should call receiver.completeMessage with message when nothing throws', async () => {
-    await processStatementDataMessage(message, receiver)
-    expect(receiver.completeMessage).toHaveBeenCalledWith(message)
-  })
-
-  test('should not call receiver.completeMessage when processStatementData throws', async () => {
-    processStatementData.mockRejectedValue(new Error('Transaction failed'))
-    try { await processStatementDataMessage(message, receiver) } catch { }
-    expect(receiver.completeMessage).not.toHaveBeenCalled()
-  })
-
-  test('should not throw when processStatementData throws', async () => {
-    processStatementData.mockRejectedValue(new Error('Transaction failed'))
-
-    const wrapper = async () => {
-      await processStatementDataMessage(message, receiver)
-    }
-
-    expect(wrapper).not.toThrow()
-  })
-
-  test('should not throw when receiver.completeMessage throws', async () => {
+  test('does not throw when receiver.completeMessage throws', async () => {
     receiver.completeMessage.mockRejectedValue(new Error('Azure difficulties'))
-
-    const wrapper = async () => {
-      await processStatementDataMessage(message, receiver)
-    }
-
-    expect(wrapper).not.toThrow()
+    const wrapper = async () => await processStatementDataMessage(message, receiver)
+    await expect(wrapper()).resolves.not.toThrow()
   })
 })

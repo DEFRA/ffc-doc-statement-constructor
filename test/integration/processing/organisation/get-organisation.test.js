@@ -1,17 +1,13 @@
 const db = require('../../../../app/data')
-
 const getOrganisation = require('../../../../app/processing/organisation')
 
 let organisation
 let retrievedOrganisation
 let sbi
 
-describe('process get calculation object', () => {
+describe('getOrganisation', () => {
   beforeAll(async () => {
-    await db.sequelize.truncate({
-      cascade: true,
-      restartIdentity: true
-    })
+    await db.sequelize.truncate({ cascade: true, restartIdentity: true })
   })
 
   beforeEach(async () => {
@@ -29,14 +25,12 @@ describe('process get calculation object', () => {
       frn: organisation.frn,
       sbi: organisation.sbi
     }
+
     sbi = organisation.sbi
   })
 
   afterEach(async () => {
-    await db.sequelize.truncate({
-      cascade: true,
-      restartIdentity: true
-    })
+    await db.sequelize.truncate({ cascade: true, restartIdentity: true })
   })
 
   afterAll(async () => {
@@ -44,36 +38,18 @@ describe('process get calculation object', () => {
   })
 
   test('should throw error when no existing organisation data', async () => {
-    const wrapper = async () => {
-      await getOrganisation(sbi)
-    }
-
-    expect(wrapper).rejects.toThrow()
+    await expect(getOrganisation(sbi)).rejects.toThrow()
   })
 
-  test('should throw error when no existing organisation data', async () => {
-    const wrapper = async () => {
-      await getOrganisation(sbi)
-    }
-
-    expect(wrapper).rejects.toThrow()
-  })
-
-  test('should not throw error when there is existing organisation data with sbi, and other valid data', async () => {
+  test('should resolve successfully when organisation data exists for sbi', async () => {
     await db.organisation.create(retrievedOrganisation)
-
-    const wrapper = async () => {
-      await getOrganisation(sbi)
-    }
-
-    expect(wrapper()).resolves.not.toThrow()
+    await expect(getOrganisation(sbi)).resolves.not.toThrow()
   })
 
-  test('should return mapped organisation when there is existing organisation data with sbi, and other valid data', async () => {
+  test('should return correctly mapped organisation object', async () => {
     await db.organisation.create(retrievedOrganisation)
 
     const result = await getOrganisation(sbi)
-
     expect(result).toStrictEqual({
       line1: retrievedOrganisation.addressLine1,
       line2: retrievedOrganisation.addressLine2,
@@ -88,58 +64,29 @@ describe('process get calculation object', () => {
     })
   })
 
-  test('should throw error when there is existing organisation data with sbi but no frn', async () => {
-    retrievedOrganisation.frn = null
-    await db.organisation.create(retrievedOrganisation)
+  test.each([
+    ['frn', null, true],
+    ['postcode', null, false],
+    ['emailAddress', null, false],
+    ['sbi', 10500000, true]
+  ])(
+    'should %s %s %s error when organisation data is invalid',
+    async (field, invalidValue, shouldThrow) => {
+      retrievedOrganisation[field] = invalidValue
+      await db.organisation.create(retrievedOrganisation)
 
-    const wrapper = async () => {
-      await getOrganisation(sbi)
+      const wrapper = async () => getOrganisation(retrievedOrganisation.sbi)
+      if (shouldThrow) {
+        await expect(wrapper()).rejects.toThrow()
+      } else {
+        await expect(wrapper()).resolves.not.toThrow()
+      }
     }
+  )
 
-    expect(wrapper).rejects.toThrow()
-  })
-
-  test('should not throw error when there is existing organisation data with sbi but no postcode', async () => {
-    retrievedOrganisation.postcode = null
-    await db.organisation.create(retrievedOrganisation)
-
-    const wrapper = async () => {
-      await getOrganisation(sbi)
-    }
-
-    await expect(wrapper()).resolves.not.toThrow()
-  })
-
-  test('should not throw error when there is existing organisation data with sbi but no emailAddress', async () => {
-    retrievedOrganisation.emailAddress = null
-    await db.organisation.create(retrievedOrganisation)
-
-    const wrapper = async () => {
-      await getOrganisation(sbi)
-    }
-
-    await expect(wrapper()).resolves.not.toThrow()
-  })
-
-  test('should throw error when there is existing organisation data with sbi but sbi less than 105000000', async () => {
-    retrievedOrganisation.sbi = 10500000
-    await db.organisation.create(retrievedOrganisation)
-
-    const wrapper = async () => {
-      await getOrganisation(retrievedOrganisation.sbi)
-    }
-
-    expect(wrapper).rejects.toThrow()
-  })
-
-  test('should throw error when there is data in organisation table but no corresponding record with provided sbi', async () => {
+  test('should throw error when no matching record exists for provided sbi', async () => {
     await db.organisation.create(retrievedOrganisation)
     sbi = 124534678
-
-    const wrapper = async () => {
-      await getOrganisation(sbi)
-    }
-
-    expect(wrapper).rejects.toThrow()
+    await expect(getOrganisation(sbi)).rejects.toThrow()
   })
 })

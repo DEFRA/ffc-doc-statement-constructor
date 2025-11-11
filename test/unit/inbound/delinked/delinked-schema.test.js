@@ -29,17 +29,17 @@ describe('delinked-schema', () => {
     type: DELINKED
   }
 
-  test('should validate a valid object', () => {
+  test('valid object passes validation', () => {
     const { error } = schema.validate(validData)
     expect(error).toBeUndefined()
   })
 
-  test('should invalidate an object with missing required fields', () => {
+  test('object missing required fields fails validation', () => {
     const { error } = schema.validate({})
     expect(error).toBeDefined()
   })
 
-  test('should invalidate an object with incorrect types', () => {
+  test('object with incorrect types fails validation', () => {
     const invalidData = {
       ...validData,
       applicationReference: 'notANumber',
@@ -53,7 +53,7 @@ describe('delinked-schema', () => {
     expect(error).toBeDefined()
   })
 
-  test('should invalidate an object with out of range numbers', () => {
+  test('object with out-of-range numbers fails validation', () => {
     const invalidData = {
       ...validData,
       sbi: constants.minSbi - 1,
@@ -63,7 +63,7 @@ describe('delinked-schema', () => {
     expect(error).toBeDefined()
   })
 
-  test('should invalidate an object with missing required string fields', () => {
+  test('missing required string fields fails validation', () => {
     const invalidData = {
       ...validData,
       paymentBand1: undefined,
@@ -78,29 +78,17 @@ describe('delinked-schema', () => {
     expect(error).toBeDefined()
   })
 
-  test('should allow null for datePublished', () => {
-    const validDataWithNullDate = {
-      ...validData,
-      datePublished: null
-    }
-    const { error } = schema.validate(validDataWithNullDate)
+  test.each([
+    ['datePublished', null],
+    ['updated', null]
+  ])('should allow null for %s', (field, value) => {
+    const dataWithNull = { ...validData, [field]: value }
+    const { error } = schema.validate(dataWithNull)
     expect(error).toBeUndefined()
   })
 
-  test('should allow null for updated', () => {
-    const validDataWithNullDate = {
-      ...validData,
-      updated: null
-    }
-    const { error } = schema.validate(validDataWithNullDate)
-    expect(error).toBeUndefined()
-  })
-
-  test('should invalidate an object with non-integer applicationReference', () => {
-    const invalidData = {
-      ...validData,
-      applicationReference: 123.45
-    }
+  test('non-integer applicationReference fails validation', () => {
+    const invalidData = { ...validData, applicationReference: 123.45 }
     const { error } = schema.validate(invalidData)
     expect(error).toBeDefined()
   })

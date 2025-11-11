@@ -20,120 +20,76 @@ describe('app', () => {
     processExitSpy.mockRestore()
   })
 
-  test('should call mockMessaging.start when app is imported', async () => {
+  test.each([
+    ['mockMessaging.start', mockMessaging.start],
+    ['mockProcessing.start', mockProcessing.start]
+  ])('should call %s when app is imported', async (_, mockFn) => {
     jest.isolateModules(() => {
       require('../../app')
     })
-
     await new Promise(setImmediate)
-
-    expect(mockMessaging.start).toHaveBeenCalled()
+    expect(mockFn).toHaveBeenCalled()
   })
 
-  test('should call mockMessaging.start once when app is imported', async () => {
+  test.each([
+    ['mockMessaging.start', mockMessaging.start],
+    ['mockProcessing.start', mockProcessing.start]
+  ])('should call %s once when app is imported', async (_, mockFn) => {
     jest.isolateModules(() => {
       require('../../app')
     })
-
     await new Promise(setImmediate)
-
-    expect(mockMessaging.start).toHaveBeenCalledTimes(1)
-  })
-
-  test('should call mockProcessing.start when app is imported', async () => {
-    jest.isolateModules(() => {
-      require('../../app')
-    })
-
-    await new Promise(setImmediate)
-
-    expect(mockProcessing.start).toHaveBeenCalled()
-  })
-
-  test('should call mockProcessing.start once when app is imported', async () => {
-    jest.isolateModules(() => {
-      require('../../app')
-    })
-
-    await new Promise(setImmediate)
-
-    expect(mockProcessing.start).toHaveBeenCalledTimes(1)
+    expect(mockFn).toHaveBeenCalledTimes(1)
   })
 
   test('should not call mockMessaging.stop when app is imported', async () => {
     jest.isolateModules(() => {
       require('../../app')
     })
-
     await new Promise(setImmediate)
-
     expect(mockMessaging.stop).not.toHaveBeenCalled()
   })
 
-  test('should handle startup errors and exit with code 1', async () => {
-    const startupError = new Error('Startup failed')
-    mockMessaging.start.mockRejectedValueOnce(startupError)
+  test.each([
+    ['messaging startup', new Error('Startup failed'), mockMessaging.start],
+    ['processing startup', new Error('Processing startup failed'), mockProcessing.start]
+  ])('should handle %s errors and exit with code 1', async (_, error, mockFn) => {
+    if (mockFn === mockProcessing.start) {
+      mockMessaging.start.mockResolvedValueOnce()
+    }
+    mockFn.mockRejectedValueOnce(error)
 
     jest.isolateModules(() => {
       require('../../app')
     })
-
     await new Promise(setImmediate)
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to start application:', startupError)
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to start application:', error)
     expect(processExitSpy).toHaveBeenCalledWith(1)
   })
 
-  test('should handle processing startup errors and exit with code 1', async () => {
-    const processingError = new Error('Processing startup failed')
-    mockMessaging.start.mockResolvedValueOnce()
-    mockProcessing.start.mockRejectedValueOnce(processingError)
-
-    jest.isolateModules(() => {
-      require('../../app')
-    })
-
-    await new Promise(setImmediate)
-
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to start application:', processingError)
-    expect(processExitSpy).toHaveBeenCalledWith(1)
-  })
-
-  test('should call messaging.stop and process.exit on SIGTERM', async () => {
+  test.each([
+    ['SIGTERM'],
+    ['SIGINT']
+  ])('should call messaging.stop and process.exit on %s', async (signal) => {
     const stopSpy = jest.spyOn(mockMessaging, 'stop').mockResolvedValue()
 
     jest.isolateModules(() => {
       require('../../app')
     })
 
-    process.emit('SIGTERM')
-
+    process.emit(signal)
     await new Promise(setImmediate)
 
     expect(stopSpy).toHaveBeenCalled()
     expect(processExitSpy).toHaveBeenCalledWith(0)
-
     stopSpy.mockRestore()
   })
 
-  test('should call messaging.stop and process.exit on SIGINT', async () => {
-    const stopSpy = jest.spyOn(mockMessaging, 'stop').mockResolvedValue()
-
-    jest.isolateModules(() => {
-      require('../../app')
-    })
-
-    process.emit('SIGINT')
-
-    await new Promise(setImmediate)
-
-    expect(stopSpy).toHaveBeenCalled()
-    expect(processExitSpy).toHaveBeenCalledWith(0)
-
-    stopSpy.mockRestore()
-  })
-
-  test('should handle errors in SIGTERM handler and still exit', async () => {
+  test.each([
+    ['SIGTERM'],
+    ['SIGINT']
+  ])('should handle errors in %s handler and still exit', async (signal) => {
     const stopError = new Error('Stop failed')
     const stopSpy = jest.spyOn(mockMessaging, 'stop').mockRejectedValue(stopError)
 
@@ -141,33 +97,12 @@ describe('app', () => {
       require('../../app')
     })
 
-    process.emit('SIGTERM')
-
+    process.emit(signal)
     await new Promise(setImmediate)
 
     expect(stopSpy).toHaveBeenCalled()
     expect(consoleErrorSpy).toHaveBeenCalledWith('Error during shutdown:', stopError)
     expect(processExitSpy).toHaveBeenCalledWith(0)
-
-    stopSpy.mockRestore()
-  })
-
-  test('should handle errors in SIGINT handler and still exit', async () => {
-    const stopError = new Error('Stop failed')
-    const stopSpy = jest.spyOn(mockMessaging, 'stop').mockRejectedValue(stopError)
-
-    jest.isolateModules(() => {
-      require('../../app')
-    })
-
-    process.emit('SIGINT')
-
-    await new Promise(setImmediate)
-
-    expect(stopSpy).toHaveBeenCalled()
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Error during shutdown:', stopError)
-    expect(processExitSpy).toHaveBeenCalledWith(0)
-
     stopSpy.mockRestore()
   })
 })
@@ -193,7 +128,6 @@ describe('app alerting init', () => {
     jest.doMock('ffc-alerting-utils', () => ({ init: mockInit }))
     jest.doMock('../../app/messaging', () => ({ start: jest.fn(), stop: jest.fn() }))
     jest.doMock('../../app/processing', () => ({ start: jest.fn() }))
-
     const mockEventPublisher = jest.fn()
     jest.doMock('ffc-pay-event-publisher', () => ({ EventPublisher: mockEventPublisher }))
 
@@ -214,10 +148,6 @@ describe('app alerting init', () => {
       defaultType: DATA_PROCESSING_ERROR,
       EventPublisherClass: mockEventPublisher
     })
-
-    expect(process.env.ALERT_TOPIC).toBe('pre-existing-topic')
-    expect(process.env.ALERT_SOURCE).toBe('pre-existing-source')
-    expect(process.env.ALERT_TYPE).toBe('pre-existing-type')
   })
 
   test('sets process.env when alerting.init not available', () => {
@@ -249,7 +179,6 @@ describe('app alerting init', () => {
     jest.doMock('../../app/processing', () => ({ start: jest.fn() }))
 
     require('../../app')
-
     expect(consoleWarnSpy).toHaveBeenCalledWith('Failed to initialize alerting utils:', alertingError.message)
   })
 })

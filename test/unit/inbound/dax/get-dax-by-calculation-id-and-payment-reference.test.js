@@ -25,14 +25,14 @@ describe('getDaxByCalculationIdAndPaymentReference', () => {
     })
   })
 
-  test('returns the result from db.dax.findOne', async () => {
+  test('returns the record when found', async () => {
     const expected = { id: 1, calculationId: 123, paymentReference: 'PY12345' }
     db.dax.findOne.mockResolvedValue(expected)
     const result = await getDaxByCalculationIdAndPaymentReference(dax, transaction)
     expect(result).toBe(expected)
   })
 
-  test('returns null if db.dax.findOne returns null', async () => {
+  test('returns null when no record is found', async () => {
     db.dax.findOne.mockResolvedValue(null)
     const result = await getDaxByCalculationIdAndPaymentReference(dax, transaction)
     expect(result).toBeNull()

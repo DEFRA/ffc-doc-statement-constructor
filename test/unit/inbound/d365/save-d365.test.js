@@ -1,4 +1,4 @@
-const saveD365 = require('../../../../app/inbound/d365/save-d365') // Update the path to match your project
+const saveD365 = require('../../../../app/inbound/d365/save-d365') // Update path if needed
 const db = require('../../../../app/data')
 
 jest.mock('../../../../app/data', () => ({
@@ -14,27 +14,18 @@ describe('saveD365', () => {
     jest.clearAllMocks()
   })
 
-  test('throws an error if paymentAmount is missing', async () => {
-    const badInput = {
-      transactionDate: '2024-01-01',
-      paymentReference: 'ABC123'
+  // Test missing required fields using test.each to reduce repetition
+  test.each([
+    [{ transactionDate: '2024-01-01', paymentReference: 'ABC123' }, 'paymentAmount'],
+    [{ paymentAmount: 100, paymentReference: 'DEF456' }, 'transactionDate']
+  ])(
+    'throws an error if %s is missing',
+    async (badInput, missingField) => {
+      await expect(saveD365(badInput, mockTransaction)).rejects.toThrow(
+        'D365 record missing required fields'
+      )
     }
-
-    await expect(saveD365(badInput, mockTransaction)).rejects.toThrow(
-      'D365 record missing required fields'
-    )
-  })
-
-  test('throws an error if transactionDate is missing', async () => {
-    const badInput = {
-      paymentAmount: 100,
-      paymentReference: 'DEF456'
-    }
-
-    await expect(saveD365(badInput, mockTransaction)).rejects.toThrow(
-      'D365 record missing required fields'
-    )
-  })
+  )
 
   test('calls db.d365.create with correct arguments if required fields are present', async () => {
     const goodInput = {

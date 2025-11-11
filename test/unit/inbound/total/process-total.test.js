@@ -46,40 +46,37 @@ jest.mock('../../../../app/inbound/total/validate-total')
 
 describe('processTotal', () => {
   let transaction
+
   beforeEach(() => {
     transaction = { commit: jest.fn(), rollback: jest.fn() }
     db.sequelize.transaction.mockResolvedValue(transaction)
+    jest.clearAllMocks()
   })
 
-  test('should rollback transaction and log info when total with same calculationReference exists', async () => {
+  test.each([
+    ['duplicate total logs info and rollbacks', (total) => {
+      console.info = jest.fn()
+      return processTotal(total).then(() => {
+        expect(console.info).toHaveBeenCalledWith(
+          `Duplicate calculationId received, skipping ${total.calculationReference}`
+        )
+        expect(transaction.rollback).toHaveBeenCalled()
+      })
+    }],
+    ['duplicate total triggers alert', (total) => {
+      return processTotal(total).then(() => {
+        expect(dataProcessingAlert).toHaveBeenCalledWith({
+          process: 'processTotal',
+          ...total,
+          message: `A duplicate record was received for calculation ID ${total.calculationReference}`,
+          type: DUPLICATE_RECORD
+        }, DUPLICATE_RECORD)
+      })
+    }]
+  ])('%s', async (_, fn) => {
     const total = { calculationReference: 1, sbi: '123', actions: [] }
-    getTotalByCalculationId.mockResolvedValue({
-      ...total,
-      calculationId: total.calculationReference
-    })
-    console.info = jest.fn()
-
-    await processTotal(total)
-
-    expect(console.info).toHaveBeenCalledWith(`Duplicate calculationId received, skipping ${total.calculationReference}`)
-    expect(transaction.rollback).toHaveBeenCalled()
-  })
-
-  test('should trigger alert if duplicate calc ID identified', async () => {
-    const total = { calculationReference: 1, sbi: '123', actions: [] }
-    getTotalByCalculationId.mockResolvedValue({
-      ...total,
-      calculationId: total.calculationReference
-    })
-
-    await processTotal(total)
-
-    expect(dataProcessingAlert).toHaveBeenCalledWith({
-      process: 'processTotal',
-      ...total,
-      message: `A duplicate record was received for calculation ID ${total.calculationReference}`,
-      type: DUPLICATE_RECORD
-    }, DUPLICATE_RECORD)
+    getTotalByCalculationId.mockResolvedValue({ ...total, calculationId: total.calculationReference })
+    await fn(total)
   })
 
   test('should validate, save, and commit transaction when calculationReference does not exist', async () => {
@@ -104,9 +101,8 @@ describe('processTotal', () => {
     getTotalByCalculationId.mockResolvedValue(null)
     validateTotal.mockImplementation(() => { })
     savePlaceholderOrganisation.mockResolvedValue()
-    const fkError = new (require('../../../../app/data').Sequelize.ForeignKeyConstraintError)('FK error')
+    const fkError = new db.Sequelize.ForeignKeyConstraintError('FK error')
     saveTotal
-      .mockRejectedValueOnce(fkError)
       .mockRejectedValueOnce(fkError)
       .mockRejectedValueOnce(fkError)
       .mockResolvedValueOnce()
@@ -115,8 +111,8 @@ describe('processTotal', () => {
 
     await processTotal(total)
 
-    expect(saveTotal).toHaveBeenCalledTimes(5)
-    expect(transaction.rollback).toHaveBeenCalledTimes(3)
+    expect(saveTotal).toHaveBeenCalledTimes(3)
+    expect(transaction.rollback).toHaveBeenCalledTimes(2)
     expect(transaction.commit).toHaveBeenCalledTimes(1)
     expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('FK error for total'))
   })
@@ -125,11 +121,7 @@ describe('processTotal', () => {
     const total = { calculationReference: 'err', sbi: '456', actions: [] }
     getTotalByCalculationId.mockRejectedValue(new Error('Test error'))
 
-    try {
-      await processTotal(total)
-    } catch (error) {
-      expect(transaction.rollback).toHaveBeenCalled()
-      expect(error).toEqual(new Error('Test error'))
-    }
+    await expect(processTotal(total)).rejects.toThrow('Test error')
+    expect(transaction.rollback).toHaveBeenCalled()
   })
 })

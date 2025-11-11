@@ -10,8 +10,11 @@ describe('getDelinkedByCalculationId', () => {
     jest.clearAllMocks()
   })
 
-  test('should return { calculationId } if count > 0', async () => {
-    db.delinkedCalculation.count.mockResolvedValue(1)
+  test.each([
+    [1, { calculationId: 'abc123' }],
+    [0, null]
+  ])('returns correct result when count is %i', async (count, expected) => {
+    db.delinkedCalculation.count.mockResolvedValue(count)
 
     const result = await getDelinkedByCalculationId('abc123', mockTransaction)
 
@@ -20,25 +23,13 @@ describe('getDelinkedByCalculationId', () => {
       where: { calculationId: 'abc123' },
       limit: 1
     })
-    expect(result).toEqual({ calculationId: 'abc123' })
+    expect(result).toEqual(expected)
   })
 
-  test('should return null if count is 0', async () => {
-    db.delinkedCalculation.count.mockResolvedValue(0)
-
-    const result = await getDelinkedByCalculationId('abc123', mockTransaction)
-
-    expect(db.delinkedCalculation.count).toHaveBeenCalledWith({
-      transaction: mockTransaction,
-      where: { calculationId: 'abc123' },
-      limit: 1
-    })
-    expect(result).toBeNull()
-  })
-
-  test('should throw if db.delinkedCalculation.count throws', async () => {
+  test('throws if db.delinkedCalculation.count throws', async () => {
     db.delinkedCalculation.count.mockRejectedValue(new Error('DB error'))
 
-    await expect(getDelinkedByCalculationId('abc123', mockTransaction)).rejects.toThrow('DB error')
+    await expect(getDelinkedByCalculationId('abc123', mockTransaction))
+      .rejects.toThrow('DB error')
   })
 })
