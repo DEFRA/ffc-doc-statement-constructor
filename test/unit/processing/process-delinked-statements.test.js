@@ -6,6 +6,7 @@ jest.mock('../../../app/processing/delinked-statement', () => ({
   getDelinkedStatementByPaymentReference: jest.fn(),
   validateDelinkedStatement: jest.fn()
 }))
+
 jest.mock('../../../app/utility/get-excluded-payment-reference-by-payment-reference')
 
 const {
@@ -24,7 +25,16 @@ const { VALIDATION } = require('../../../app/constants/validation')
 
 let retrievedD365
 
-describe('process statements', () => {
+const mocks = {
+  getExcludedPaymentReferenceByPaymentReference,
+  getDelinkedStatementByPaymentReference,
+  validateDelinkedStatement,
+  sendDelinkedStatement,
+  updateD365CompletePublishByD365Id,
+  resetD365UnCompletePublishByD365Id
+}
+
+describe('process-delinked-payment-statements', () => {
   beforeEach(async () => {
     const d365 = JSON.parse(JSON.stringify(require('../../mock-objects/mock-d365')))
     retrievedD365 = [
@@ -33,143 +43,83 @@ describe('process statements', () => {
     ]
 
     getVerifiedD365DelinkedStatements.mockResolvedValue(retrievedD365)
-    updateD365CompletePublishByD365Id.mockReturnValue(undefined)
+    updateD365CompletePublishByD365Id.mockResolvedValue(undefined)
     resetD365UnCompletePublishByD365Id.mockResolvedValue(undefined)
     getDelinkedStatementByPaymentReference.mockResolvedValue({})
     sendDelinkedStatement.mockResolvedValue(undefined)
     getExcludedPaymentReferenceByPaymentReference.mockResolvedValue(false)
-    validateDelinkedStatement.mockReturnValue(undefined)
+    validateDelinkedStatement.mockResolvedValue(undefined)
   })
 
   afterEach(() => {
     jest.clearAllMocks()
   })
 
+  // --- Basic flow tests ---
   test('should call getVerifiedD365DelinkedStatements', async () => {
     await processDelinkedStatements()
-    expect(getVerifiedD365DelinkedStatements).toHaveBeenCalled()
+    expect(getVerifiedD365DelinkedStatements).toHaveBeenCalledTimes(1)
   })
 
-  test('should call getExcludedPaymentReferenceByPaymentReference for each payment reference', async () => {
+  test.each([
+    ['getExcludedPaymentReferenceByPaymentReference'],
+    ['getDelinkedStatementByPaymentReference'],
+    ['validateDelinkedStatement'],
+    ['sendDelinkedStatement'],
+    ['updateD365CompletePublishByD365Id']
+  ])('should call %s once per D365 record', async (mockName) => {
     await processDelinkedStatements()
-    expect(getExcludedPaymentReferenceByPaymentReference).toHaveBeenCalledTimes(retrievedD365.length)
+    expect(mocks[mockName]).toHaveBeenCalledTimes(retrievedD365.length)
   })
 
-  test('should call getDelinkedStatementByPaymentReference', async () => {
+  // --- Error handling tests ---
+  test.each([
+    ['sendDelinkedStatement', new Error('Failed to send delinked statement')],
+    ['getDelinkedStatementByPaymentReference', new Error('Failed to get delinked statement')],
+    ['updateD365CompletePublishByD365Id', new Error('Failed to update D365 complete publish')]
+  ])('should handle error in %s gracefully', async (mockName, mockError) => {
+    mocks[mockName].mockRejectedValue(mockError)
     await processDelinkedStatements()
-    expect(getDelinkedStatementByPaymentReference).toHaveBeenCalled()
-  })
-
-  test('should call validateDelinkedStatement', async () => {
-    await processDelinkedStatements()
-    expect(validateDelinkedStatement).toHaveBeenCalled()
-  })
-
-  test('should call sendDelinkedStatement', async () => {
-    await processDelinkedStatements()
-    expect(sendDelinkedStatement).toHaveBeenCalled()
-  })
-
-  test('should call updateD365CompletePublishByD365Id', async () => {
-    await processDelinkedStatements()
-    expect(updateD365CompletePublishByD365Id).toHaveBeenCalled()
-  })
-
-  test('should call resetD365UnCompletePublishByD365Id when sendDelinkedStatement fails', async () => {
-    sendDelinkedStatement.mockRejectedValue(new Error('Failed to send delinked statement'))
-
-    await processDelinkedStatements()
-    expect(resetD365UnCompletePublishByD365Id).toHaveBeenCalled()
-  })
-
-  test('should handle error in getDelinkedStatementByPaymentReference', async () => {
-    getDelinkedStatementByPaymentReference.mockRejectedValue(new Error('Failed to get delinked statement'))
-
-    await processDelinkedStatements()
-
-    expect(getDelinkedStatementByPaymentReference).toHaveBeenCalled()
-    expect(sendDelinkedStatement).not.toHaveBeenCalled()
-    expect(updateD365CompletePublishByD365Id).not.toHaveBeenCalled()
-    expect(resetD365UnCompletePublishByD365Id).toHaveBeenCalled()
-  })
-
-  test('should handle error in sendDelinkedStatement', async () => {
-    sendDelinkedStatement.mockRejectedValue(new Error('Failed to send delinked statement'))
-
-    await processDelinkedStatements()
-
-    expect(getDelinkedStatementByPaymentReference).toHaveBeenCalled()
-    expect(sendDelinkedStatement).toHaveBeenCalled()
-    expect(updateD365CompletePublishByD365Id).not.toHaveBeenCalled()
-    expect(resetD365UnCompletePublishByD365Id).toHaveBeenCalled()
-  })
-
-  test('should handle error in updateD365CompletePublishByD365Id', async () => {
-    updateD365CompletePublishByD365Id.mockRejectedValue(new Error('Failed to update D365 complete publish'))
-
-    await processDelinkedStatements()
-
-    expect(getDelinkedStatementByPaymentReference).toHaveBeenCalled()
-    expect(sendDelinkedStatement).toHaveBeenCalled()
-    expect(updateD365CompletePublishByD365Id).toHaveBeenCalled()
-    expect(resetD365UnCompletePublishByD365Id).toHaveBeenCalled()
-  })
-
-  test('should handle error in resetD365UnCompletePublishByD365Id', async () => {
-    updateD365CompletePublishByD365Id.mockRejectedValue(new Error('Failed to update D365 complete publish'))
-    resetD365UnCompletePublishByD365Id.mockRejectedValue(new Error('Failed to reset D365 uncomplete publish'))
-
-    await processDelinkedStatements()
-
-    expect(getDelinkedStatementByPaymentReference).toHaveBeenCalled()
-    expect(sendDelinkedStatement).toHaveBeenCalled()
-    expect(updateD365CompletePublishByD365Id).toHaveBeenCalled()
+    expect(mocks[mockName]).toHaveBeenCalled()
+    await new Promise(resolve => setImmediate(resolve))
     expect(resetD365UnCompletePublishByD365Id).toHaveBeenCalled()
   })
 
   test('should log when payment reference is excluded', async () => {
     getExcludedPaymentReferenceByPaymentReference.mockResolvedValue(true)
     console.log = jest.fn()
-
     await processDelinkedStatements()
-
-    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Payment reference P54542352 is excluded from Delinked statement processing'))
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining('Payment reference P54542352 is excluded from Delinked statement processing')
+    )
   })
 
   test('should handle error in validateDelinkedStatement', async () => {
     validateDelinkedStatement.mockRejectedValue(new Error('Validation failed'))
-
     await processDelinkedStatements()
-
     expect(validateDelinkedStatement).toHaveBeenCalled()
     expect(sendDelinkedStatement).not.toHaveBeenCalled()
     expect(updateD365CompletePublishByD365Id).not.toHaveBeenCalled()
+    await new Promise(resolve => setImmediate(resolve))
     expect(resetD365UnCompletePublishByD365Id).toHaveBeenCalled()
   })
 
   test('should call updateD365CompletePublishByD365Id when error category is VALIDATION', async () => {
     const validationError = new Error('Validation error')
     validationError.category = VALIDATION
-
-    getDelinkedStatementByPaymentReference.mockResolvedValue({})
     validateDelinkedStatement.mockRejectedValue(validationError)
-
     await processDelinkedStatements()
-
     expect(updateD365CompletePublishByD365Id).toHaveBeenCalled()
   })
 
   test('should log error when resetting D365 uncomplete publish fails', async () => {
     const processingError = new Error('Processing error')
-
-    getDelinkedStatementByPaymentReference.mockResolvedValue({})
     sendDelinkedStatement.mockRejectedValue(processingError)
     resetD365UnCompletePublishByD365Id.mockRejectedValue(new Error('Failed to reset D365 uncomplete publish'))
-
     console.error = jest.fn()
-
     await processDelinkedStatements()
-
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('Error resetting incomplete publish for D365 ID'))
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining('Error resetting incomplete publish for D365 ID')
+    )
   })
 })

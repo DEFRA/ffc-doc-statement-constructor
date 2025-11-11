@@ -8,32 +8,29 @@ const validateDelinked = require('../../../../../app/processing/delinked-stateme
 
 describe('getDelinked', () => {
   const calculationId = '12345'
-  const delinked = 100
+  const delinkedMock = { id: 1, value: 100 }
 
   beforeEach(() => {
-    getDelinkedByCalculationId.mockResolvedValue(delinked)
-    validateDelinked.mockReturnValue(delinked)
+    getDelinkedByCalculationId.mockResolvedValue(delinkedMock)
+    validateDelinked.mockReturnValue(delinkedMock)
   })
 
   afterEach(() => {
     jest.clearAllMocks()
   })
 
-  test('should call getDelinkedByCalculationId with the correct calculationId', async () => {
+  test('calls getDelinkedByCalculationId with the correct calculationId', async () => {
     await getDelinked(calculationId)
-
     expect(getDelinkedByCalculationId).toHaveBeenCalledWith(calculationId)
   })
 
-  test('should call validateDelinked with the correct delinked and calculationId', async () => {
+  test('calls validateDelinked with the delinked record and calculationId', async () => {
     await getDelinked(calculationId)
-
-    expect(validateDelinked).toHaveBeenCalledWith(delinked, calculationId)
+    expect(validateDelinked).toHaveBeenCalledWith(delinkedMock, calculationId)
   })
 
-  test('should return the validated delinked', async () => {
+  test('returns the validated delinked object', async () => {
     const result = await getDelinked(calculationId)
-
-    expect(result).toBe(delinked)
+    expect(result).toBe(delinkedMock)
   })
 })
