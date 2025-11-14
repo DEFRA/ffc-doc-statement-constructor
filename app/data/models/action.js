@@ -9,20 +9,20 @@ const actionDB = (sequelize, DataTypes) => {
   const number100 = 100
 
   const action = sequelize.define('action', {
-    actionId: { type: DataTypes.INTEGER, primaryKey: true },
-    calculationId: DataTypes.INTEGER,
-    fundingCode: DataTypes.STRING(number5),
-    groupName: DataTypes.STRING(number100),
-    actionCode: DataTypes.STRING(number5),
-    actionName: DataTypes.STRING(number100),
-    rate: DataTypes.STRING(number50),
-    landArea: DataTypes.DECIMAL(number18, number6),
-    uom: DataTypes.STRING(number10),
-    annualValue: DataTypes.STRING(number50),
-    quarterlyValue: DataTypes.DECIMAL(number15, number2),
-    overDeclarationPenalty: DataTypes.DECIMAL(number15, number2),
-    quarterlyPaymentAmount: DataTypes.DECIMAL(number15, number2),
-    datePublished: { type: DataTypes.DATE, allowNull: true }
+    actionId: { type: DataTypes.INTEGER, primaryKey: true, comment: 'To be removed. RPA have just confirmed that SFI-23 and SFI-EO statements will not be issued, which has now introduced some technical debt to remove this.' },
+    calculationId: { type: DataTypes.INTEGER, comment: 'To be removed. RPA have just confirmed that SFI-23 and SFI-EO statements will not be issued, which has now introduced some technical debt to remove this.' },
+    fundingCode: { type: DataTypes.STRING(number5), comment: 'To be removed. RPA have just confirmed that SFI-23 and SFI-EO statements will not be issued, which has now introduced some technical debt to remove this.' },
+    groupName: { type: DataTypes.STRING(number100), comment: 'To be removed. RPA have just confirmed that SFI-23 and SFI-EO statements will not be issued, which has now introduced some technical debt to remove this.' },
+    actionCode: { type: DataTypes.STRING(number5), comment: 'To be removed. RPA have just confirmed that SFI-23 and SFI-EO statements will not be issued, which has now introduced some technical debt to remove this.' },
+    actionName: { type: DataTypes.STRING(number100), comment: 'To be removed. RPA have just confirmed that SFI-23 and SFI-EO statements will not be issued, which has now introduced some technical debt to remove this.' },
+    rate: { type: DataTypes.STRING(number50), comment: 'To be removed. RPA have just confirmed that SFI-23 and SFI-EO statements will not be issued, which has now introduced some technical debt to remove this.' },
+    landArea: { type: DataTypes.DECIMAL(number18, number6), comment: 'To be removed. RPA have just confirmed that SFI-23 and SFI-EO statements will not be issued, which has now introduced some technical debt to remove this.' },
+    uom: { type: DataTypes.STRING(number10), comment: 'To be removed. RPA have just confirmed that SFI-23 and SFI-EO statements will not be issued, which has now introduced some technical debt to remove this.' },
+    annualValue: { type: DataTypes.STRING(number50), comment: 'To be removed. RPA have just confirmed that SFI-23 and SFI-EO statements will not be issued, which has now introduced some technical debt to remove this.' },
+    quarterlyValue: { type: DataTypes.DECIMAL(number15, number2), comment: 'To be removed. RPA have just confirmed that SFI-23 and SFI-EO statements will not be issued, which has now introduced some technical debt to remove this.' },
+    overDeclarationPenalty: { type: DataTypes.DECIMAL(number15, number2), comment: 'To be removed. RPA have just confirmed that SFI-23 and SFI-EO statements will not be issued, which has now introduced some technical debt to remove this.' },
+    quarterlyPaymentAmount: { type: DataTypes.DECIMAL(number15, number2), comment: 'To be removed. RPA have just confirmed that SFI-23 and SFI-EO statements will not be issued, which has now introduced some technical debt to remove this.' },
+    datePublished: { type: DataTypes.DATE, allowNull: true, comment: 'To be removed. RPA have just confirmed that SFI-23 and SFI-EO statements will not be issued, which has now introduced some technical debt to remove this.' }
   },
   {
     tableName: 'actions',
