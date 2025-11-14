@@ -9,3 +9,5 @@ resources:
         - name: ffc-doc-statement-constructor
     - name: ffc-doc-statements
       role: sender
+    - name: ffc-doc-alerting
+      role: sender

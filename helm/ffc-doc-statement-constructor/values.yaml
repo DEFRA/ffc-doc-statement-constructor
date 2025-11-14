@@ -34,7 +34,7 @@ container:
   dataTopicAddress: ffc-doc-statement-data
   dataSubscriptionAddress: ffc-doc-statement-constructor
   statementTopicAddress: ffc-doc-statements
-  alertingTopicAddress: ffc-doc-alert
+  alertTopicAddress: ffc-doc-alerting
   statementProcessingInterval: 60000
   sfi23QuarterlyStatementProcessingActive: true
   delinkedStatementProcessingActive: true
