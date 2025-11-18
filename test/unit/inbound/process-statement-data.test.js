@@ -21,11 +21,11 @@ let d365Data
 
 describe('processStatementData', () => {
   beforeEach(() => {
-    organisationData = JSON.parse(JSON.stringify(require('../../mock-objects/mock-organisation')))
-    totalData = JSON.parse(JSON.stringify(require('../../mock-objects/mock-total')))
-    delinkedData = JSON.parse(JSON.stringify(require('../../mock-objects/mock-delinked')))
-    daxData = JSON.parse(JSON.stringify(require('../../mock-objects/mock-dax')))
-    d365Data = JSON.parse(JSON.stringify(require('../../mock-objects/mock-d365')))
+    organisationData = structuredClone(require('../../mock-objects/mock-organisation'))
+    totalData = structuredClone(require('../../mock-objects/mock-total'))
+    delinkedData = structuredClone(require('../../mock-objects/mock-delinked'))
+    daxData = structuredClone(require('../../mock-objects/mock-dax'))
+    d365Data = structuredClone(require('../../mock-objects/mock-d365'))
 
     processOrganisation.mockResolvedValue(undefined)
     processDelinked.mockResolvedValue(undefined)

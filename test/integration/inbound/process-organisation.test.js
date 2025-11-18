@@ -9,7 +9,7 @@ describe('processOrganisation', () => {
   })
 
   beforeEach(async () => {
-    organisation = JSON.parse(JSON.stringify(require('../../mock-objects/mock-organisation')))
+    organisation = structuredClone(require('../../mock-objects/mock-organisation'))
   })
 
   afterEach(async () => {

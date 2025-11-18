@@ -36,7 +36,7 @@ const mocks = {
 
 describe('process-delinked-payment-statements', () => {
   beforeEach(async () => {
-    const d365 = JSON.parse(JSON.stringify(require('../../mock-objects/mock-d365')))
+    const d365 = structuredClone(require('../../mock-objects/mock-d365'))
     retrievedD365 = [
       { ...d365, paymentReference: 'P54542352' },
       { ...d365, paymentReference: 'P545882352' }

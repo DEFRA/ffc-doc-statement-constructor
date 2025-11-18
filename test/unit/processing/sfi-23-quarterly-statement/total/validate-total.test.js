@@ -6,7 +6,7 @@ let retrievedTotal
 
 describe('validate total', () => {
   beforeEach(() => {
-    retrievedTotal = JSON.parse(JSON.stringify(require('../../../../mock-objects/mock-total')))
+    retrievedTotal = structuredClone(require('../../../../mock-objects/mock-total'))
     schema.validate.mockReturnValue({ value: retrievedTotal })
   })
 

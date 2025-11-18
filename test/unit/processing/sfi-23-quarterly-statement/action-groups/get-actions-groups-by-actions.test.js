@@ -12,7 +12,7 @@ describe('process get calculation object', () => {
   })
 
   beforeEach(async () => {
-    const action = JSON.parse(JSON.stringify(require('../../../../mock-objects/mock-action')))
+    const action = structuredClone(require('../../../../mock-objects/mock-action'))
 
     actions = [
       { ...action, groupName: groupTwo },

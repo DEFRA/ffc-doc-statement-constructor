@@ -12,9 +12,9 @@ describe('getActionsByCalculationReference', () => {
   })
 
   beforeEach(async () => {
-    const organisation = JSON.parse(JSON.stringify(require('../../../../mock-objects/mock-organisation')))
-    const total = JSON.parse(JSON.stringify(require('../../../../mock-objects/mock-total')))
-    const action = JSON.parse(JSON.stringify(require('../../../../mock-objects/mock-action')))
+    const organisation = structuredClone(require('../../../../mock-objects/mock-organisation'))
+    const total = structuredClone(require('../../../../mock-objects/mock-total'))
+    const action = structuredClone(require('../../../../mock-objects/mock-action'))
 
     const totals = [
       { ...total, calculationId: calculationIdOne, claimId: total.claimReference },

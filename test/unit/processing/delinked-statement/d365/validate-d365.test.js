@@ -10,7 +10,7 @@ let retrievedD365
 
 describe('validateD365', () => {
   beforeEach(() => {
-    retrievedD365 = JSON.parse(JSON.stringify(require('../../../../mock-objects/mock-d365')))
+    retrievedD365 = structuredClone(require('../../../../mock-objects/mock-d365'))
     schema.validate.mockReturnValue({ value: retrievedD365 })
     dataProcessingAlert.mockReset()
   })

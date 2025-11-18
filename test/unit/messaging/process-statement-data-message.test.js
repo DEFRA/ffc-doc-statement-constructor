@@ -11,7 +11,7 @@ describe('process statement data message', () => {
   beforeEach(() => {
     processStatementData.mockResolvedValue(undefined)
 
-    organisation = JSON.parse(JSON.stringify(require('../../mock-objects/mock-organisation')))
+    organisation = structuredClone(require('../../mock-objects/mock-organisation'))
 
     receiver = {
       completeMessage: jest.fn(),

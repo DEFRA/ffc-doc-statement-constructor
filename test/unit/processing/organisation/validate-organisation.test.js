@@ -13,7 +13,7 @@ describe('validate Organisation', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    retrievedOrganisation = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-organisation')))
+    retrievedOrganisation = structuredClone(require('../../../mock-objects/mock-organisation'))
     schema.validate.mockReturnValue({ value: retrievedOrganisation })
     dataProcessingAlert.mockReset()
   })

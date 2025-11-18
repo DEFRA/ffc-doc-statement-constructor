@@ -18,9 +18,9 @@ describe('process get calculation object', () => {
   })
 
   beforeEach(async () => {
-    const organisation = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-organisation')))
-    const total = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-total')))
-    const dax = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-dax')))
+    const organisation = structuredClone(require('../../../mock-objects/mock-organisation'))
+    const total = structuredClone(require('../../../mock-objects/mock-total'))
+    const dax = structuredClone(require('../../../mock-objects/mock-dax'))
     const calculationReference = total.calculationReference
 
     retrievedDax = [

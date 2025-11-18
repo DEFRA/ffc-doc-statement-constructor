@@ -6,7 +6,7 @@ let retrievedDax
 
 describe('validate dax', () => {
   beforeEach(() => {
-    retrievedDax = JSON.parse(JSON.stringify(require('../../../../mock-objects/mock-dax')))
+    retrievedDax = structuredClone(require('../../../../mock-objects/mock-dax'))
     schema.validate.mockReturnValue({ value: retrievedDax })
   })
 

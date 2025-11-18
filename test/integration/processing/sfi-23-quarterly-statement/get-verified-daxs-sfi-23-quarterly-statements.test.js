@@ -12,7 +12,7 @@ describe('getExcludedPaymentReferenceByPaymentReference', () => {
   })
 
   beforeEach(async () => {
-    excludedPaymentReferences = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-excluded-payment-reference')))
+    excludedPaymentReferences = structuredClone(require('../../../mock-objects/mock-excluded-payment-reference'))
     await db.excludedPaymentReference.bulkCreate(excludedPaymentReferences)
   })
 

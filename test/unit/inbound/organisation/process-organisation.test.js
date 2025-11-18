@@ -20,7 +20,7 @@ let organisation
 
 describe('processOrganisation', () => {
   beforeEach(() => {
-    organisation = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-organisation')))
+    organisation = structuredClone(require('../../../mock-objects/mock-organisation'))
     saveOrganisation.mockResolvedValue(undefined)
     jest.clearAllMocks()
   })

@@ -5,7 +5,7 @@ jest.mock('../../../../app/inbound/delinked/schema')
 
 describe('validateDelinked', () => {
   const calculationId = 'calculationId1'
-  const validDelinked = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-delinked')))
+  const validDelinked = structuredClone(require('../../../mock-objects/mock-delinked'))
 
   afterEach(() => {
     jest.clearAllMocks()

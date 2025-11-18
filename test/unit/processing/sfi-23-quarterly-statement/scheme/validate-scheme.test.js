@@ -6,7 +6,7 @@ let retrievedScheme
 
 describe('validate scheme', () => {
   beforeEach(() => {
-    retrievedScheme = JSON.parse(JSON.stringify(require('../../../../mock-objects/mock-scheme')))
+    retrievedScheme = structuredClone(require('../../../../mock-objects/mock-scheme'))
     schema.validate.mockReturnValue({ value: retrievedScheme })
   })
 

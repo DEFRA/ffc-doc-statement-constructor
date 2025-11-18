@@ -6,7 +6,7 @@ let retrievedActions
 
 describe('validate actions', () => {
   beforeEach(() => {
-    retrievedActions = JSON.parse(JSON.stringify(require('../../../../mock-objects/mock-actions')))
+    retrievedActions = structuredClone(require('../../../../mock-objects/mock-actions'))
     schema.validate.mockReturnValue({ value: retrievedActions })
   })
 

@@ -5,7 +5,7 @@ let mappedOrganisation
 
 describe('map organisation information for building a statement object', () => {
   beforeEach(() => {
-    retrievedOrganisation = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-organisation')))
+    retrievedOrganisation = structuredClone(require('../../../mock-objects/mock-organisation'))
 
     mappedOrganisation = {
       line1: retrievedOrganisation.addressLine1,

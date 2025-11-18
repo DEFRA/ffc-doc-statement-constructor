@@ -18,7 +18,7 @@ describe('send message', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
-    statement = JSON.parse(JSON.stringify(require('../../mock-objects/mock-statement')))
+    statement = structuredClone(require('../../mock-objects/mock-statement'))
     type = 'uk.gov.doc.statement'
     config = { source: 'ffc-doc-statement-constructor' }
     options = {}

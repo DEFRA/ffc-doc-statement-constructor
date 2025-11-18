@@ -11,7 +11,7 @@ describe('getOrganisation', () => {
   })
 
   beforeEach(async () => {
-    organisation = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-organisation')))
+    organisation = structuredClone(require('../../../mock-objects/mock-organisation'))
 
     retrievedOrganisation = {
       addressLine1: organisation.addressLine1,
