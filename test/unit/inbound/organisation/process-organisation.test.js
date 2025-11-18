@@ -1,13 +1,10 @@
 const mockCommit = jest.fn()
 const mockRollback = jest.fn()
-const mockTransaction = {
-  commit: mockCommit,
-  rollback: mockRollback
-}
+const mockTransaction = { commit: mockCommit, rollback: mockRollback }
 
 jest.mock('../../../../app/data', () => ({
   sequelize: {
-    transaction: jest.fn().mockResolvedValue(mockTransaction)
+    transaction: jest.fn().mockResolvedValue({ ...mockTransaction })
   }
 }))
 
@@ -18,37 +15,80 @@ const processOrganisation = require('../../../../app/inbound/organisation')
 
 let organisation
 
-describe('processOrganisation', () => {
+describe('process organisation', () => {
   beforeEach(() => {
-    organisation = structuredClone(require('../../../mock-objects/mock-organisation'))
+    // require the original mock object
+    const original = require('../../../mock-objects/mock-organisation')
+
+    // manual shallow clone to preserve Date objects
+    organisation = { ...original }
+
     saveOrganisation.mockResolvedValue(undefined)
     jest.clearAllMocks()
   })
 
-  test('successfully processes a valid organisation', async () => {
-    await processOrganisation(organisation)
+  const run = () => processOrganisation(organisation)
 
+  // ----- Successful processing -----
+  test('calls saveOrganisation with organisation and transaction', async () => {
+    await run()
     expect(saveOrganisation).toHaveBeenCalledWith(organisation, mockTransaction)
     expect(saveOrganisation).toHaveBeenCalledTimes(1)
-    expect(mockTransaction.commit).toHaveBeenCalledTimes(1)
-    expect(mockTransaction.rollback).not.toHaveBeenCalled()
   })
 
-  test('rolls back transaction and throws when saveOrganisation fails', async () => {
-    const error = new Error('Database save down issue')
-    saveOrganisation.mockRejectedValue(error)
-
-    await expect(processOrganisation(organisation)).rejects.toThrow('Database save down issue')
-    expect(mockTransaction.rollback).toHaveBeenCalledTimes(1)
-    expect(mockTransaction.commit).not.toHaveBeenCalled()
+  test('commits transaction once on success', async () => {
+    await run()
+    expect(mockCommit).toHaveBeenCalledTimes(1)
+    expect(mockRollback).not.toHaveBeenCalled()
   })
 
-  test('rolls back transaction and throws when commit fails', async () => {
-    const commitError = new Error('Sequelize transaction commit issue')
-    mockTransaction.commit.mockRejectedValue(commitError)
+  // ----- saveOrganisation fails -----
+  describe('when saveOrganisation throws', () => {
+    const msg = 'Database save down issue'
 
-    await expect(processOrganisation(organisation)).rejects.toThrow('Sequelize transaction commit issue')
-    expect(mockTransaction.rollback).toHaveBeenCalledTimes(1)
-    expect(saveOrganisation).toHaveBeenCalledWith(organisation, mockTransaction)
+    beforeEach(() => {
+      saveOrganisation.mockRejectedValue(new Error(msg))
+    })
+
+    test.each([
+      ['throws generic', undefined],
+      ['throws Error object', Error],
+      ['throws specific message', new RegExp(`^${msg}$`)]
+    ])('%s', async (_, matcher) => {
+      const call = run()
+      matcher
+        ? await expect(call).rejects.toThrow(matcher)
+        : await expect(call).rejects.toThrow()
+    })
+
+    test('rolls back transaction', async () => {
+      try { await run() } catch {}
+      expect(mockRollback).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  // ----- commit fails -----
+  describe('when transaction.commit throws', () => {
+    const msg = 'Sequelize transaction commit issue'
+
+    beforeEach(() => {
+      mockCommit.mockRejectedValue(new Error(msg))
+    })
+
+    test.each([
+      ['throws generic', undefined],
+      ['throws Error object', Error],
+      ['throws specific message', new RegExp(`^${msg}$`)]
+    ])('%s', async (_, matcher) => {
+      const call = run()
+      matcher
+        ? await expect(call).rejects.toThrow(matcher)
+        : await expect(call).rejects.toThrow()
+    })
+
+    test('rolls back transaction', async () => {
+      try { await run() } catch {}
+      expect(mockRollback).toHaveBeenCalledTimes(1)
+    })
   })
 })

@@ -3,60 +3,61 @@ const processOrganisation = require('../../../app/inbound/organisation')
 
 let organisation
 
-describe('processOrganisation', () => {
+describe('process organisation', () => {
+  const find = () => db.organisation.findOne({ where: { sbi: organisation.sbi } })
+
+  const truncate = () =>
+    db.sequelize.truncate({ cascade: true, restartIdentity: true })
+
   beforeAll(async () => {
-    await db.sequelize.truncate({ cascade: true, restartIdentity: true })
+    await truncate()
   })
 
   beforeEach(async () => {
-    organisation = structuredClone(require('../../mock-objects/mock-organisation'))
+    // clone the mock while keeping Dates intact
+    const original = require('../../mock-objects/mock-organisation')
+    organisation = { ...original } // shallow clone preserves Date
   })
 
   afterEach(async () => {
-    await db.sequelize.truncate({ cascade: true, restartIdentity: true })
+    await truncate()
   })
 
   afterAll(async () => {
     await db.sequelize.close()
   })
 
-  test('should save an organisation record when given valid organisation data', async () => {
+  test('saves an organisation record', async () => {
     await processOrganisation(organisation)
-    const result = await db.organisation.findOne({ where: { sbi: organisation.sbi } })
-    expect(result).not.toBeNull()
+    expect(await find()).not.toBeNull()
   })
 
-  test('should only save one record per organisation.sbi', async () => {
+  test('saves only 1 organisation for the same sbi', async () => {
     await processOrganisation(organisation)
     const count = await db.organisation.count({ where: { sbi: organisation.sbi } })
     expect(count).toBe(1)
   })
 
-  test.each([
+  const fieldTests = [
     ['addressLine1'],
     ['addressLine2'],
     ['addressLine3'],
     ['city'],
     ['county'],
     ['emailAddress'],
+    ['frn', val => String(val)],
     ['name'],
     ['postcode'],
-    ['sbi']
-  ])('should save %s correctly from organisation object', async (field) => {
-    await processOrganisation(organisation)
-    const result = await db.organisation.findOne({ where: { sbi: organisation.sbi } })
-    expect(result[field]).toBe(organisation[field])
-  })
+    ['sbi'],
+    ['updated', val => new Date(val)]
+  ]
 
-  test('should save frn as a string value', async () => {
-    await processOrganisation(organisation)
-    const result = await db.organisation.findOne({ where: { sbi: organisation.sbi } })
-    expect(result.frn).toBe(String(organisation.frn))
-  })
-
-  test('should save updated field as a valid Date', async () => {
-    await processOrganisation(organisation)
-    const result = await db.organisation.findOne({ where: { sbi: organisation.sbi } })
-    expect(result.updated).toStrictEqual(new Date(organisation.updated))
-  })
+  test.each(fieldTests)(
+    'saves %s correctly',
+    async (field, transform = v => v) => {
+      await processOrganisation(organisation)
+      const result = await find()
+      expect(result[field]).toStrictEqual(transform(organisation[field]))
+    }
+  )
 })
