@@ -1,45 +1,50 @@
-const actionDB = (sequelize, DataTypes) => {
-  const number2 = 2
-  const number5 = 5
-  const number6 = 6
-  const number10 = 10
-  const number15 = 15
-  const number18 = 18
-  const number50 = 50
-  const number100 = 100
+const delinkedCalculationDB = (sequelize, DataTypes) => {
+  const zeroValue = 0
+  const maxFRN = 16
+  const maxSBI = 38
 
-  const comment = 'To be removed. RPA have just confirmed that SFI-23 and SFI-EO statements will not be issued, which has now introduced some technical debt to remove this.'
-
-  const action = sequelize.define('action', {
-    actionId: { type: DataTypes.INTEGER, primaryKey: true, comment },
-    calculationId: { type: DataTypes.INTEGER, comment },
-    fundingCode: { type: DataTypes.STRING(number5), comment },
-    groupName: { type: DataTypes.STRING(number100), comment },
-    actionCode: { type: DataTypes.STRING(number5), comment },
-    actionName: { type: DataTypes.STRING(number100), comment },
-    rate: { type: DataTypes.STRING(number50), comment },
-    landArea: { type: DataTypes.DECIMAL(number18, number6), comment },
-    uom: { type: DataTypes.STRING(number10), comment },
-    annualValue: { type: DataTypes.STRING(number50), comment },
-    quarterlyValue: { type: DataTypes.DECIMAL(number15, number2), comment },
-    overDeclarationPenalty: { type: DataTypes.DECIMAL(number15, number2), comment },
-    quarterlyPaymentAmount: { type: DataTypes.DECIMAL(number15, number2), comment },
-    datePublished: { type: DataTypes.DATE, allowNull: true, comment }
+  const delinkedCalculation = sequelize.define('delinkedCalculation', {
+    calculationId: { type: DataTypes.INTEGER(), primaryKey: true, allowNull: false, comment: 'Example Output: 987654321 Source: DWH | SitiAgri Used on Statement? No, Primary Key and used in logic to join data' },
+    applicationId: { type: DataTypes.INTEGER(), allowNull: false, comment: 'Example Output: 1234567 Source: DWH | SitiAgri Used on Statement? No, used in logic to join data' },
+    sbi: { type: DataTypes.NUMBER(maxSBI, zeroValue), allowNull: false, comment: 'Example Output: 123456789 Source: DWH | SitiAgri Used on Statement? Yes, Opening details of the statement. Customer identifier, standard format on all systems.' },
+    frn: { type: DataTypes.STRING(maxFRN), allowNull: false, comment: 'Example Output: 1234567890 Source: DWH | SitiAgri Used on Statement? Yes, filename. Customer identifier, standard format on all systems' },
+    paymentBand1: { type: DataTypes.STRING, allowNull: false, comment: 'Example Output: 30000 Source: DWH | SitiAgri Used on Statement? Yes, Progressive reduction calculation table. Used to show how progressive reductions are calculated.' },
+    paymentBand2: { type: DataTypes.STRING, allowNull: false, comment: 'Example Output: 50000 Source: DWH | SitiAgri Used on Statement? Yes, Progressive reduction calculation table. Used to show how progressive reductions are calculated.' },
+    paymentBand3: { type: DataTypes.STRING, allowNull: false, comment: 'Example Output: 150000 Source: DWH | SitiAgri Used on Statement? Yes, Progressive reduction calculation table. Used to show how progressive reductions are calculated.' },
+    paymentBand4: { type: DataTypes.STRING, allowNull: false, comment: 'Example Output: 9999.99 Source: DWH | SitiAgri Used on Statement? Yes, Progressive reduction calculation table. Used to show how progressive reductions are calculated.' },
+    percentageReduction1: { type: DataTypes.STRING, allowNull: false, comment: 'Example Output: 50 Source: DWH | SitiAgri Used on Statement? Yes, Progressive reduction calculation table. Used to show how progressive reductions are calculated.' },
+    percentageReduction2: { type: DataTypes.STRING, allowNull: false, comment: 'Example Output: 55 Source: DWH | SitiAgri Used on Statement? Yes, Progressive reduction calculation table. Used to show how progressive reductions are calculated.' },
+    percentageReduction3: { type: DataTypes.STRING, allowNull: false, comment: 'Example Output: 65 Source: DWH | SitiAgri Used on Statement? Yes, Progressive reduction calculation table. Used to show how progressive reductions are calculated.' },
+    percentageReduction4: { type: DataTypes.STRING, allowNull: false, comment: 'Example Output: 70 Source: DWH | SitiAgri Used on Statement? Yes, Progressive reduction calculation table. Used to show how progressive reductions are calculated.' },
+    progressiveReductions1: { type: DataTypes.STRING, allowNull: true, comment: 'Example Output: 15000 Source: DWH | SitiAgri Used on Statement? Yes, Progressive reduction calculation table. Used to show how progressive reductions are calculated.' },
+    progressiveReductions2: { type: DataTypes.STRING, allowNull: true, comment: 'Example Output: 11000 Source: DWH | SitiAgri Used on Statement? Yes, Progressive reduction calculation table. Used to show how progressive reductions are calculated.' },
+    progressiveReductions3: { type: DataTypes.STRING, allowNull: true, comment: 'Example Output: 65000 Source: DWH | SitiAgri Used on Statement? Yes, Progressive reduction calculation table. Used to show how progressive reductions are calculated.' },
+    progressiveReductions4: { type: DataTypes.STRING, allowNull: true, comment: 'Example Output: 35000 Source: DWH | SitiAgri Used on Statement? Yes, Progressive reduction calculation table. Used to show how progressive reductions are calculated.' },
+    referenceAmount: { type: DataTypes.STRING, allowNull: true, comment: 'Example Output: 200000 Source: DWH | SitiAgri Used on Statement? Yes, Payment mount calculation table. Used to show how the payment was calculated.' },
+    totalProgressiveReduction: { type: DataTypes.STRING, allowNull: true, comment: 'Example Output: 126000 Source: DWH | SitiAgri Used on Statement? Yes, Payment mount calculation table. Used to show how the payment was calculated.' },
+    totalDelinkedPayment: { type: DataTypes.STRING, allowNull: true, comment: 'Example Output: 75000 Source: DWH | SitiAgri Used on Statement? Yes, Payment mount calculation table. Used to show how the payment was calculated.' },
+    paymentAmountCalculated: { type: DataTypes.STRING, allowNull: false, comment: 'Example Output: 37500 Source: Documents | Calculated Used on Statement? Yes, Payment mount calculation table. Used to show how the payment was calculated.' },
+    datePublished: { type: DataTypes.DATE, allowNull: true, comment: 'Example Output: 2025-05-12 15:08:08.776 Source: DWH | SitiAgri Used on Statement? No, used in logic to determine if a statement has been generated' },
+    updated: { type: DataTypes.DATE, allowNull: true, comment: 'Example Output: 2025-05-12 15:08:08.776 Source: DWH | SitiAgri Used on Statement? No, used in logic to show when data changes have been made' }
   },
   {
-    tableName: 'actions',
+    tableName: 'delinkedCalculation',
     freezeTableName: true,
     timestamps: false
   })
 
-  action.associate = function (models) {
-    action.belongsTo(models.total, {
+  delinkedCalculation.associate = function (models) {
+    delinkedCalculation.hasMany(models.d365, {
       foreignKey: 'calculationId',
-      as: 'actions'
+      as: 'delinkedCalculation'
+    })
+    delinkedCalculation.belongsTo(models.organisation, {
+      foreignKey: 'sbi',
+      as: 'organisations'
     })
   }
 
-  return action
+  return delinkedCalculation
 }
 
-module.exports = actionDB
+module.exports = delinkedCalculationDB
