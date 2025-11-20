@@ -1,28 +1,29 @@
 const schema = require('../../../../app/inbound/organisation/schema')
 const { ORGANISATION } = require('../../../../app/constants/types')
 
-describe('Schema Validation', () => {
-  test('should validate a correct object', () => {
-    const obj = {
-      sbi: 105000001,
-      addressLine1: 'Address 1',
-      addressLine2: 'Address 2',
-      addressLine3: 'Address 3',
-      city: 'City',
-      county: 'County',
-      emailAddress: 'test@example.com',
-      frn: 1000000001,
-      name: 'Name',
-      postcode: 'AB1 2CD',
-      type: ORGANISATION,
-      updated: new Date()
-    }
-    const { error } = schema.validate(obj)
+describe('Organisation schema validation', () => {
+  const validOrganisation = {
+    sbi: 105000001,
+    addressLine1: 'Address 1',
+    addressLine2: 'Address 2',
+    addressLine3: 'Address 3',
+    city: 'City',
+    county: 'County',
+    emailAddress: 'test@example.com',
+    frn: 1000000001,
+    name: 'Name',
+    postcode: 'AB1 2CD',
+    type: ORGANISATION,
+    updated: new Date()
+  }
+
+  test('valid organisation should pass validation', () => {
+    const { error } = schema.validate(validOrganisation)
     expect(error).toBeUndefined()
   })
 
-  test('should fail validation for an incorrect object', () => {
-    const obj = {
+  test('invalid organisation should fail validation', () => {
+    const invalidOrganisation = {
       sbi: 'invalid',
       addressLine1: 123,
       addressLine2: 123,
@@ -36,7 +37,8 @@ describe('Schema Validation', () => {
       type: 'invalid',
       updated: 'invalid'
     }
-    const { error } = schema.validate(obj)
+
+    const { error } = schema.validate(invalidOrganisation)
     expect(error).toBeDefined()
   })
 })

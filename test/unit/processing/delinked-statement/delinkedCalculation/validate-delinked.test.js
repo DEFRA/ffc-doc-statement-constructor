@@ -11,7 +11,7 @@ let retrievedDelinked
 
 describe('validate delinked', () => {
   beforeEach(() => {
-    retrievedDelinked = JSON.parse(JSON.stringify(require('../../../../mock-objects/mock-delinked')))
+    retrievedDelinked = structuredClone(require('../../../../mock-objects/mock-delinked'))
     schema.validate.mockReturnValue({ value: retrievedDelinked })
     dataProcessingAlert.mockReset()
   })

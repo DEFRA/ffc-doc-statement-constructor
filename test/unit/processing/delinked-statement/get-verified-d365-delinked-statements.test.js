@@ -16,49 +16,66 @@ describe('getVerifiedD365DelinkedStatements', () => {
       rollback: jest.fn()
     }
     db.sequelize.transaction.mockResolvedValue(transaction)
-  })
-
-  afterEach(() => {
     jest.clearAllMocks()
   })
 
-  test('should return d365 data on successful execution', async () => {
-    const d365Mock = [{ id: 1, name: 'D365 Data' }]
-    getD365ForDelinkedStatement.mockResolvedValue(d365Mock)
-    updateD365ForStartPublish.mockResolvedValue()
+  test.each([
+    {
+      name: 'returns d365 data on successful execution',
+      d365Mock: [{ id: 1, name: 'D365 Data' }],
+      getD365Error: false,
+      updateError: false,
+      expectedResult: [{ id: 1, name: 'D365 Data' }],
+      shouldRollback: false
+    },
+    {
+      name: 'rollbacks and returns empty array if getD365ForDelinkedStatement fails',
+      d365Mock: [],
+      getD365Error: true,
+      updateError: false,
+      expectedResult: [],
+      shouldRollback: true
+    },
+    {
+      name: 'rollbacks and returns empty array if updateD365ForStartPublish fails',
+      d365Mock: [{ id: 1, name: 'D365 Data' }],
+      getD365Error: false,
+      updateError: true,
+      expectedResult: [],
+      shouldRollback: true
+    }
+  ])('$name', async ({ d365Mock, getD365Error, updateError, expectedResult, shouldRollback }) => {
+    if (getD365Error) {
+      getD365ForDelinkedStatement.mockRejectedValue(new Error('Failed to get D365 data'))
+    } else {
+      getD365ForDelinkedStatement.mockResolvedValue(d365Mock)
+    }
+
+    if (updateError) {
+      updateD365ForStartPublish.mockRejectedValue(new Error('Failed to update D365 data'))
+    } else {
+      updateD365ForStartPublish.mockResolvedValue()
+    }
 
     const result = await getVerifiedD365DelinkedStatements()
 
     expect(db.sequelize.transaction).toHaveBeenCalled()
     expect(getD365ForDelinkedStatement).toHaveBeenCalledWith(transaction)
-    expect(updateD365ForStartPublish).toHaveBeenCalledWith(d365Mock, transaction)
-    expect(transaction.commit).toHaveBeenCalled()
-    expect(result).toEqual(d365Mock)
-  })
 
-  test('should rollback transaction and return empty array if getD365ForDelinkedStatement fails', async () => {
-    getD365ForDelinkedStatement.mockRejectedValue(new Error('Failed to get D365 data'))
+    if (!getD365Error) {
+      expect(updateD365ForStartPublish).toHaveBeenCalledWith(d365Mock, transaction)
+    } else {
+      expect(updateD365ForStartPublish).not.toHaveBeenCalled()
+    }
 
-    const result = await getVerifiedD365DelinkedStatements()
+    if (shouldRollback) {
+      expect(transaction.rollback).toHaveBeenCalled()
+      expect(transaction.commit).not.toHaveBeenCalled()
+    } else {
+      expect(transaction.commit).toHaveBeenCalled()
+      expect(transaction.rollback).not.toHaveBeenCalled()
+    }
 
-    expect(db.sequelize.transaction).toHaveBeenCalled()
-    expect(getD365ForDelinkedStatement).toHaveBeenCalledWith(transaction)
-    expect(updateD365ForStartPublish).not.toHaveBeenCalled()
-    expect(transaction.rollback).toHaveBeenCalled()
-    expect(result).toEqual([])
-  })
-
-  test('should rollback transaction and return empty array if updateD365ForStartPublish fails', async () => {
-    const d365Mock = [{ id: 1, name: 'D365 Data' }]
-    getD365ForDelinkedStatement.mockResolvedValue(d365Mock)
-    updateD365ForStartPublish.mockRejectedValue(new Error('Failed to update D365 data'))
-
-    const result = await getVerifiedD365DelinkedStatements()
-
-    expect(db.sequelize.transaction).toHaveBeenCalled()
-    expect(getD365ForDelinkedStatement).toHaveBeenCalledWith(transaction)
-    expect(updateD365ForStartPublish).toHaveBeenCalledWith(d365Mock, transaction)
-    expect(transaction.rollback).toHaveBeenCalled()
-    expect(result).toEqual([])
+    expect(result).toEqual(expectedResult)
   })
 })

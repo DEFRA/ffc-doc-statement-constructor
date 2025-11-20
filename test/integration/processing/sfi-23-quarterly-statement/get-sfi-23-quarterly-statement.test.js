@@ -25,9 +25,9 @@ const paymentReference = 'PY12345670'
 
 describe('get Sfi23 Quarterly Statement by Payment reference', () => {
   beforeEach(async () => {
-    const organisation = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-organisation')))
-    const total = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-total')))
-    const actionGroups = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-action-groups')))
+    const organisation = structuredClone(require('../../../mock-objects/mock-organisation'))
+    const total = structuredClone(require('../../../mock-objects/mock-total'))
+    const actionGroups = structuredClone(require('../../../mock-objects/mock-action-groups'))
     const savedDocument = { documentId: 2 }
     const previousPaymentCount = 1
     const documentType = { documentTypeId: 1 }
@@ -53,38 +53,21 @@ describe('get Sfi23 Quarterly Statement by Payment reference', () => {
     jest.clearAllMocks()
   })
 
-  test('should call getOrganisation', async () => {
-    await getSfi23QuarterlyStatement(paymentReference)
-    expect(getOrganisation).toHaveBeenCalled()
-  })
+  const mockedFunctions = [
+    ['getOrganisation', getOrganisation],
+    ['getTotal', getTotal],
+    ['getActionGroups', getActionGroups],
+    ['saveDocument', saveDocument],
+    ['getPreviousPaymentCountByCalculationId', getPreviousPaymentCountByCalculationId],
+    ['getDocumentTypeByCode', getDocumentTypeByCode],
+    ['getAddressFromOrganisation', getAddressFromOrganisation]
+  ]
 
-  test('should call getTotal', async () => {
-    await getSfi23QuarterlyStatement(paymentReference)
-    expect(getTotal).toHaveBeenCalled()
-  })
-
-  test('should call getActionGroups', async () => {
-    await getSfi23QuarterlyStatement(paymentReference)
-    expect(getActionGroups).toHaveBeenCalled()
-  })
-
-  test('should call saveDocument', async () => {
-    await getSfi23QuarterlyStatement(paymentReference)
-    expect(saveDocument).toHaveBeenCalled()
-  })
-
-  test('should call getPreviousPaymentCountByCalculationId', async () => {
-    await getSfi23QuarterlyStatement(paymentReference)
-    expect(getPreviousPaymentCountByCalculationId).toHaveBeenCalled()
-  })
-
-  test('should call getDocumentTypeByCode', async () => {
-    await getSfi23QuarterlyStatement(paymentReference)
-    expect(getDocumentTypeByCode).toHaveBeenCalled()
-  })
-
-  test('should call getAddressFromOrganisation', async () => {
-    await getSfi23QuarterlyStatement(paymentReference)
-    expect(getAddressFromOrganisation).toHaveBeenCalled()
-  })
+  test.each(mockedFunctions)(
+    'should call %s',
+    async (_name, fn) => {
+      await getSfi23QuarterlyStatement(paymentReference)
+      expect(fn).toHaveBeenCalled()
+    }
+  )
 })

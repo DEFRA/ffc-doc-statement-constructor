@@ -14,16 +14,12 @@ const mockTransaction = {
   commit: mockCommit,
   rollback: mockRollback
 }
-jest.mock('../../../app/data', () => {
-  return {
-    sequelize:
-    {
-      transaction: jest.fn().mockImplementation(() => {
-        return { ...mockTransaction }
-      })
-    }
+
+jest.mock('../../../app/data', () => ({
+  sequelize: {
+    transaction: jest.fn().mockImplementation(() => ({ ...mockTransaction }))
   }
-})
+}))
 
 jest.mock('../../../app/processing/process-sfi-23-quarterly-statements')
 const processSfi23QuarterlyStatement = require('../../../app/processing/process-sfi-23-quarterly-statements')
@@ -50,28 +46,18 @@ describe('processing', () => {
 
   describe('buildTaskConfigurations', () => {
     test('should build correct task configurations when both processes are active', async () => {
-      // Setup
       processingConfig.sfi23QuarterlyStatementProcessingActive = true
       processingConfig.delinkedStatementProcessingActive = true
 
-      // We need to mock processWithInterval to prevent the infinite loop
-      // but still test the task creation and execution
       const originalProcessWithInterval = processing.processWithInterval
       processing.processWithInterval = jest.fn().mockImplementation(async () => {
-        // Execute the task processing part only
         const tasks = processing.taskConfigurations.map(config =>
-          () => processing.processTask(
-            config.processFunction,
-            config.name
-          )
+          () => processing.processTask(config.processFunction, config.name)
         )
         await processing.processBatch(tasks)
       })
 
-      // Execute
       await processing.start()
-
-      // Restore original function
       processing.processWithInterval = originalProcessWithInterval
 
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
@@ -79,33 +65,23 @@ describe('processing', () => {
     })
 
     test('should only include SFI23 task when delinked statements are inactive', async () => {
-      // Setup
       processingConfig.sfi23QuarterlyStatementProcessingActive = true
       processingConfig.delinkedStatementProcessingActive = false
 
-      // Clear mocks
       processSfi23QuarterlyStatement.mockClear()
       processDelinkedStatement.mockClear()
 
-      // Mock processing function
       const originalProcessWithInterval = processing.processWithInterval
       processing.processWithInterval = jest.fn().mockImplementation(async () => {
         const tasks = processing.taskConfigurations.map(config =>
-          () => processing.processTask(
-            config.processFunction,
-            config.name
-          )
+          () => processing.processTask(config.processFunction, config.name)
         )
         await processing.processBatch(tasks)
       })
 
-      // Execute
       await processing.start()
-
-      // Restore
       processing.processWithInterval = originalProcessWithInterval
 
-      // Verify
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
       expect(processDelinkedStatement).not.toHaveBeenCalled()
       expect(console.log).toHaveBeenCalledWith('Delinked Payment Statement processing is disabled')
@@ -155,21 +131,19 @@ describe('processing', () => {
       const MAX_CONCURRENT_TASKS = 2
       const processBatch = async (tasks) => {
         const results = []
-
         for (let i = 0; i < tasks.length; i += MAX_CONCURRENT_TASKS) {
           const batch = tasks.slice(i, i + MAX_CONCURRENT_TASKS)
           const batchResults = await Promise.allSettled(batch.map(task => task()))
           results.push(...batchResults)
         }
-
         return results
       }
 
       const mockTask1 = jest.fn().mockResolvedValue('result1')
       const mockTask2 = jest.fn().mockResolvedValue('result2')
       const mockTask3 = jest.fn().mockResolvedValue('result3')
-
       const tasks = [mockTask1, mockTask2, mockTask3]
+
       await processBatch(tasks)
 
       expect(mockTask1).toHaveBeenCalled()
@@ -188,13 +162,11 @@ describe('processing', () => {
       processingConfig.delinkedStatementProcessingActive = true
 
       await processing.start()
-
       expect(setTimeout).toHaveBeenCalled()
     })
 
     test('should log starting message', async () => {
       await processing.start()
-
       expect(console.log).toHaveBeenCalledWith('Starting statement processing service')
     })
 
@@ -209,7 +181,7 @@ describe('processing', () => {
     })
   })
 
-  describe('when sfi-23-quarterly-statement-constructor is active with delinkedStatement not active', () => {
+  describe('when sfi-23 is active and delinkedStatement inactive', () => {
     beforeEach(() => {
       processingConfig.sfi23QuarterlyStatementProcessingActive = true
       processingConfig.delinkedStatementProcessingActive = false
@@ -217,7 +189,6 @@ describe('processing', () => {
 
     test('should process SFI statements only', async () => {
       await processing.start()
-
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
       expect(processDelinkedStatement).not.toHaveBeenCalled()
       expect(setTimeout).toHaveBeenCalled()
@@ -225,12 +196,11 @@ describe('processing', () => {
 
     test('should log that delinked statements are disabled', async () => {
       await processing.start()
-
       expect(console.log).toHaveBeenCalledWith('Delinked Payment Statement processing is disabled')
     })
   })
 
-  describe('when sfi-23-quarterly-statement-constructor and delinkedStatement not active', () => {
+  describe('when both sfi-23 and delinkedStatement inactive', () => {
     beforeEach(() => {
       processingConfig.sfi23QuarterlyStatementProcessingActive = false
       processingConfig.delinkedStatementProcessingActive = false
@@ -238,7 +208,6 @@ describe('processing', () => {
 
     test('should not process any statements but still set timeout', async () => {
       await processing.start()
-
       expect(processSfi23QuarterlyStatement).not.toHaveBeenCalled()
       expect(processDelinkedStatement).not.toHaveBeenCalled()
       expect(setTimeout).toHaveBeenCalled()
@@ -253,15 +222,14 @@ describe('processing', () => {
       const originalProcessWithInterval = processing.processWithInterval
       processing.processWithInterval = jest.fn().mockImplementation(async () => {
         const tasks = processing.taskConfigurations.map(config =>
-          () => processing.processTask(
-            config.processFunction,
-            config.name
-          )
+          () => processing.processTask(config.processFunction, config.name)
         )
         await processing.processBatch(tasks)
       })
+
       await processing.start()
       processing.processWithInterval = originalProcessWithInterval
+
       expect(console.error).toHaveBeenCalledWith(
         expect.stringContaining('Error processing SFI23 Quarterly Statement:'),
         expect.any(Error)

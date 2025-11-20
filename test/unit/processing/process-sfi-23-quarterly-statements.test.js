@@ -17,7 +17,7 @@ let retrievedDax
 
 describe('process statements', () => {
   beforeEach(async () => {
-    const dax = JSON.parse(JSON.stringify(require('../../mock-objects/mock-dax')))
+    const dax = structuredClone(require('../../mock-objects/mock-dax'))
     retrievedDax = [
       { ...dax, paymentReference: 'P1', daxId: 1 },
       { ...dax, paymentReference: 'P2', daxId: 2 },

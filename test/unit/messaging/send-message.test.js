@@ -1,84 +1,43 @@
 const mockSendMessage = jest.fn()
 const mockCloseConnection = jest.fn()
-jest.mock('ffc-messaging', () => {
-  return {
-    MessageSender: jest.fn().mockImplementation(() => {
-      return {
-        sendMessage: mockSendMessage,
-        closeConnection: mockCloseConnection
-      }
-    })
-  }
-})
+
+jest.mock('ffc-messaging', () => ({
+  MessageSender: jest.fn().mockImplementation(() => ({
+    sendMessage: mockSendMessage,
+    closeConnection: mockCloseConnection
+  }))
+}))
 
 jest.mock('../../../app/messaging/create-message')
 const createMessage = require('../../../app/messaging/create-message')
-
 const sendMessage = require('../../../app/messaging/send-message')
 
-let statement, config, options, type
-
 describe('send message', () => {
-  beforeEach(() => {
-    statement = JSON.parse(JSON.stringify(require('../../mock-objects/mock-statement')))
+  let statement, config, options, type, message
 
-    const body = { ...statement }
+  beforeEach(() => {
+    jest.clearAllMocks()
+
+    statement = structuredClone(require('../../mock-objects/mock-statement'))
     type = 'uk.gov.doc.statement'
-    config = {
-      source: 'ffc-doc-statement-constructor'
-    }
+    config = { source: 'ffc-doc-statement-constructor' }
     options = {}
 
-    createMessage.mockReturnValue({
-      body,
-      type,
-      source: config.source,
-      ...options
-    })
+    message = { body: statement, type, source: config.source, ...options }
+    createMessage.mockReturnValue(message)
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
-
-  test('should call createMessage', async () => {
+  test.each([
+    ['createMessage', () => expect(createMessage).toHaveBeenCalled()],
+    ['createMessage once', () => expect(createMessage).toHaveBeenCalledTimes(1)],
+    ['createMessage with correct args', () => expect(createMessage).toHaveBeenCalledWith(statement, type, config.source, options)],
+    ['mockSendMessage', () => expect(mockSendMessage).toHaveBeenCalled()],
+    ['mockSendMessage once', () => expect(mockSendMessage).toHaveBeenCalledTimes(1)],
+    ['mockSendMessage with message', () => expect(mockSendMessage).toHaveBeenCalledWith(message)],
+    ['mockCloseConnection', () => expect(mockCloseConnection).toHaveBeenCalled()],
+    ['mockCloseConnection once', () => expect(mockCloseConnection).toHaveBeenCalledTimes(1)]
+  ])('%s', async (_desc, assertion) => {
     await sendMessage(statement, type, config, options)
-    expect(createMessage).toHaveBeenCalled()
-  })
-
-  test('should call createMessage once', async () => {
-    await sendMessage(statement, type, config, options)
-    expect(createMessage).toHaveBeenCalledTimes(1)
-  })
-
-  test('should call createMessage with statement, config.source and options', async () => {
-    await sendMessage(statement, type, config, options)
-    expect(createMessage).toHaveBeenCalledWith(statement, type, config.source, options)
-  })
-
-  test('should call mockSendMessage', async () => {
-    await sendMessage(statement, type, config, options)
-    expect(mockSendMessage).toHaveBeenCalled()
-  })
-
-  test('should call mockSendMessage once', async () => {
-    await sendMessage(statement, type, config, options)
-    expect(mockSendMessage).toHaveBeenCalledTimes(1)
-  })
-
-  test('should call mockSendMessage with message', async () => {
-    const message = createMessage()
-    await sendMessage(statement, type, config, options)
-    expect(mockSendMessage).toHaveBeenCalledWith(message)
-  })
-
-  test('should call mockCloseConnection', async () => {
-    await sendMessage(statement, type, config, options)
-    expect(mockCloseConnection).toHaveBeenCalled()
-  })
-
-  test('should call mockCloseConnection once', async () => {
-    await sendMessage(statement, type, config, options)
-    expect(mockCloseConnection).toHaveBeenCalledTimes(1)
+    assertion()
   })
 })

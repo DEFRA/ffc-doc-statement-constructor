@@ -17,6 +17,19 @@ describe('getOrganisationBySbi', () => {
     postcode: '12345'
   }
 
+  const attributes = [
+    'sbi',
+    'addressLine1',
+    'addressLine2',
+    'addressLine3',
+    'city',
+    'county',
+    'emailAddress',
+    'frn',
+    'name',
+    'postcode'
+  ]
+
   beforeEach(() => {
     db.organisation.findOne.mockReset()
   })
@@ -27,19 +40,9 @@ describe('getOrganisationBySbi', () => {
     const result = await getOrganisationBySbi('123456789')
 
     expect(result).toEqual(mockOrganisation)
+    expect(db.organisation.findOne).toHaveBeenCalledTimes(1)
     expect(db.organisation.findOne).toHaveBeenCalledWith({
-      attributes: [
-        'sbi',
-        'addressLine1',
-        'addressLine2',
-        'addressLine3',
-        'city',
-        'county',
-        'emailAddress',
-        'frn',
-        'name',
-        'postcode'
-      ],
+      attributes,
       where: { sbi: '123456789' },
       raw: true
     })
@@ -51,19 +54,9 @@ describe('getOrganisationBySbi', () => {
     const result = await getOrganisationBySbi('123456789')
 
     expect(result).toBeNull()
+    expect(db.organisation.findOne).toHaveBeenCalledTimes(1)
     expect(db.organisation.findOne).toHaveBeenCalledWith({
-      attributes: [
-        'sbi',
-        'addressLine1',
-        'addressLine2',
-        'addressLine3',
-        'city',
-        'county',
-        'emailAddress',
-        'frn',
-        'name',
-        'postcode'
-      ],
+      attributes,
       where: { sbi: '123456789' },
       raw: true
     })

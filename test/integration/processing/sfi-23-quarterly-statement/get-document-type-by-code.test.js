@@ -15,7 +15,7 @@ describe('process get document type by code', () => {
   })
 
   beforeEach(async () => {
-    documentTypes = JSON.parse(JSON.stringify(require('../../../mock-objects/mock-document-types')))
+    documentTypes = structuredClone(require('../../../mock-objects/mock-document-types'))
     documentTypes[0].code = documentTypeCode
     await db.documentType.bulkCreate(documentTypes)
   })

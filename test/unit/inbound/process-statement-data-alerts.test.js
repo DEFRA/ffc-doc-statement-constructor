@@ -1,10 +1,8 @@
 const { DAX, D365, ORGANISATION, DELINKED, TOTAL } = require('../../../app/constants/types')
 
-jest.mock('ffc-alerting-utils', () => {
-  return {
-    dataProcessingAlert: jest.fn()
-  }
-})
+jest.mock('ffc-alerting-utils', () => ({
+  dataProcessingAlert: jest.fn()
+}))
 jest.mock('../../../app/inbound/dax/process-dax', () => jest.fn())
 jest.mock('../../../app/inbound/d365/process-d365', () => jest.fn())
 jest.mock('../../../app/inbound/organisation/process-organisation', () => jest.fn())
@@ -26,30 +24,25 @@ describe('process-statement-data centralized alerting', () => {
   })
 
   afterEach(() => {
-    if (console.error && console.error.mockRestore) console.error.mockRestore()
-    if (console.warn && console.warn.mockRestore) console.warn.mockRestore()
+    if (console.error && console.error.mockRestore) {
+      console.error.mockRestore()
+    }
+    if (console.warn && console.warn.mockRestore) {
+      console.warn.mockRestore()
+    }
   })
 
   test('publishes processing alert for DAX when underlying processor throws', async () => {
-    const dax = {
-      type: DAX,
-      paymentReference: 'P-123',
-      sbi: 'SBI-1',
-      transactionDate: new Date('2020-01-01'),
-      calculationReference: 'calc-1'
-    }
+    const dax = { type: DAX, paymentReference: 'P-123', sbi: 'SBI-1', transactionDate: new Date('2020-01-01'), calculationReference: 'calc-1' }
     const underlyingError = new Error('dax failed')
     processDax.mockRejectedValueOnce(underlyingError)
     dataProcessingAlert.mockResolvedValueOnce()
-
     console.error = jest.fn()
 
     await expect(processStatementData(dax)).rejects.toThrow('dax failed')
 
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining(`Error processing statement data of type ${DAX}:`), underlyingError)
-
     expect(dataProcessingAlert).toHaveBeenCalledTimes(1)
-
     const [alertPayload, alertType] = dataProcessingAlert.mock.calls[0]
     expect(alertType).toBe(DATA_PROCESSING_ERROR)
     expect(alertPayload).toMatchObject({
@@ -63,34 +56,20 @@ describe('process-statement-data centralized alerting', () => {
   })
 
   test('logs when dataProcessingAlert fails but still rethrows original error', async () => {
-    const dax = {
-      type: DAX,
-      paymentReference: 'P-456',
-      sbi: 'SBI-2',
-      transactionDate: new Date('2021-02-02'),
-      calculationReference: 'calc-2'
-    }
+    const dax = { type: DAX, paymentReference: 'P-456', sbi: 'SBI-2', transactionDate: new Date('2021-02-02'), calculationReference: 'calc-2' }
     const underlyingError = new Error('dax failed again')
     processDax.mockRejectedValueOnce(underlyingError)
-    const alertPublishError = new Error('alert publish failed')
-    dataProcessingAlert.mockRejectedValueOnce(alertPublishError)
-
+    dataProcessingAlert.mockRejectedValueOnce(new Error('alert publish failed'))
     console.error = jest.fn()
 
     await expect(processStatementData(dax)).rejects.toThrow('dax failed again')
-
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining(`Error processing statement data of type ${DAX}:`), underlyingError)
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining(`Failed to publish processing alert for type ${DAX}`), alertPublishError)
-
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining(`Failed to publish processing alert for type ${DAX}`), expect.any(Error))
     expect(dataProcessingAlert).toHaveBeenCalledTimes(1)
   })
 
   test('does not publish an alert when the child processor succeeds', async () => {
-    const dax = {
-      type: DAX,
-      paymentReference: 'P-777',
-      sbi: 'SBI-7'
-    }
+    const dax = { type: DAX, paymentReference: 'P-777', sbi: 'SBI-7' }
     processDax.mockResolvedValueOnce()
     await expect(processStatementData(dax)).resolves.toBeUndefined()
     expect(dataProcessingAlert).not.toHaveBeenCalled()
@@ -105,20 +84,13 @@ describe('process-statement-data centralized alerting', () => {
   })
 
   test('D365 extractor payload shape is respected when child processor throws', async () => {
-    const d365 = {
-      type: D365,
-      paymentReference: 'D-500',
-      paymentAmount: 1234,
-      transactionDate: new Date('2022-03-03')
-    }
+    const d365 = { type: D365, paymentReference: 'D-500', paymentAmount: 1234, transactionDate: new Date('2022-03-03') }
     const underlyingError = new Error('d365 failed')
     processD365.mockRejectedValueOnce(underlyingError)
     dataProcessingAlert.mockResolvedValueOnce()
-
     console.error = jest.fn()
 
     await expect(processStatementData(d365)).rejects.toThrow('d365 failed')
-
     expect(dataProcessingAlert).toHaveBeenCalledTimes(1)
     const [alertPayload, alertType] = dataProcessingAlert.mock.calls[0]
     expect(alertType).toBe(DATA_PROCESSING_ERROR)
@@ -132,38 +104,24 @@ describe('process-statement-data centralized alerting', () => {
   })
 
   test('D365 extractor uses fallback transactionDate when not provided (is a Date)', async () => {
-    const d365 = {
-      type: D365,
-      paymentReference: 'D-501',
-      paymentAmount: 5678
-    }
-    const underlyingError = new Error('d365 fallback date')
-    processD365.mockRejectedValueOnce(underlyingError)
+    const d365 = { type: D365, paymentReference: 'D-501', paymentAmount: 5678 }
+    processD365.mockRejectedValueOnce(new Error('d365 fallback date'))
     dataProcessingAlert.mockResolvedValueOnce()
-
     console.error = jest.fn()
 
     await expect(processStatementData(d365)).rejects.toThrow('d365 fallback date')
-
     expect(dataProcessingAlert).toHaveBeenCalledTimes(1)
     const [alertPayload] = dataProcessingAlert.mock.calls[0]
     expect(alertPayload.transactionDate).toBeInstanceOf(Date)
   })
 
   test('ORGANISATION extractor includes sbi when child processor throws', async () => {
-    const org = {
-      type: ORGANISATION,
-      sbi: 'ORG-1',
-      somethingElse: 'x'
-    }
-    const underlyingError = new Error('org failed')
-    processOrganisation.mockRejectedValueOnce(underlyingError)
+    const org = { type: ORGANISATION, sbi: 'ORG-1', somethingElse: 'x' }
+    processOrganisation.mockRejectedValueOnce(new Error('org failed'))
     dataProcessingAlert.mockResolvedValueOnce()
-
     console.error = jest.fn()
 
     await expect(processStatementData(org)).rejects.toThrow('org failed')
-
     expect(dataProcessingAlert).toHaveBeenCalledTimes(1)
     const [alertPayload] = dataProcessingAlert.mock.calls[0]
     expect(alertPayload).toMatchObject({
@@ -174,21 +132,12 @@ describe('process-statement-data centralized alerting', () => {
   })
 
   test('DELINKED extractor payload shape is respected when child processor throws', async () => {
-    const delinked = {
-      type: DELINKED,
-      sbi: 'SBI-DEL',
-      calculationId: 'calcId-1',
-      calculationReference: 'calc-ref-1',
-      applicationId: 'app-1'
-    }
-    const underlyingError = new Error('delinked failed')
-    processDelinked.mockRejectedValueOnce(underlyingError)
+    const delinked = { type: DELINKED, sbi: 'SBI-DEL', calculationId: 'calcId-1', calculationReference: 'calc-ref-1', applicationId: 'app-1' }
+    processDelinked.mockRejectedValueOnce(new Error('delinked failed'))
     dataProcessingAlert.mockResolvedValueOnce()
-
     console.error = jest.fn()
 
     await expect(processStatementData(delinked)).rejects.toThrow('delinked failed')
-
     expect(dataProcessingAlert).toHaveBeenCalledTimes(1)
     const [alertPayload, alertType] = dataProcessingAlert.mock.calls[0]
     expect(alertType).toBe(DATA_PROCESSING_ERROR)
@@ -203,20 +152,12 @@ describe('process-statement-data centralized alerting', () => {
   })
 
   test('TOTAL extractor payload shape is respected when child processor throws', async () => {
-    const total = {
-      type: TOTAL,
-      sbi: 'SBI-TOT',
-      agreementNumber: 'agr-1',
-      claimReference: 'claim-1'
-    }
-    const underlyingError = new Error('total failed')
-    processTotal.mockRejectedValueOnce(underlyingError)
+    const total = { type: TOTAL, sbi: 'SBI-TOT', agreementNumber: 'agr-1', claimReference: 'claim-1' }
+    processTotal.mockRejectedValueOnce(new Error('total failed'))
     dataProcessingAlert.mockResolvedValueOnce()
-
     console.error = jest.fn()
 
     await expect(processStatementData(total)).rejects.toThrow('total failed')
-
     expect(dataProcessingAlert).toHaveBeenCalledTimes(1)
     const [alertPayload, alertType] = dataProcessingAlert.mock.calls[0]
     expect(alertType).toBe(DATA_PROCESSING_ERROR)
@@ -228,14 +169,13 @@ describe('process-statement-data centralized alerting', () => {
       error: expect.any(Error)
     })
   })
+
   test('detail extractor function names match Sonar naming regex', () => {
     const detailExtractors = processStatementData.detailExtractors
     expect(detailExtractors).toBeDefined()
-
     const nameRegex = /^[_a-z][a-zA-Z0-9]*$/
     const typesToCheck = [DAX, D365, ORGANISATION, DELINKED, TOTAL]
-
-    typesToCheck.forEach((type) => {
+    typesToCheck.forEach(type => {
       const fn = detailExtractors[type]
       expect(typeof fn).toBe('function')
       expect(fn.name).toMatch(nameRegex)

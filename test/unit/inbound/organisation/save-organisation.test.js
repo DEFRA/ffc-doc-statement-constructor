@@ -18,7 +18,7 @@ describe('saveOrganisation', () => {
     jest.useRealTimers()
   })
 
-  test('should call upsert with organization record', async () => {
+  test('should call upsert with full organisation record', async () => {
     const organisation = {
       sbi: 123456789,
       addressLine1: '1 Test Street',
@@ -71,7 +71,10 @@ describe('saveOrganisation', () => {
       expect.objectContaining({
         updated: new Date('2023-01-01')
       }),
-      expect.any(Object)
+      expect.objectContaining({
+        transaction: undefined,
+        raw: true
+      })
     )
   })
 
@@ -82,7 +85,7 @@ describe('saveOrganisation', () => {
     await saveOrganisation(organisation, transaction)
 
     expect(db.organisation.upsert).toHaveBeenCalledWith(
-      expect.any(Object),
+      expect.objectContaining({ sbi: 123456789 }),
       expect.objectContaining({
         transaction,
         raw: true
@@ -111,5 +114,12 @@ describe('saveOrganisation', () => {
       transaction: undefined,
       raw: true
     })
+  })
+
+  test('should throw if upsert fails', async () => {
+    const organisation = { sbi: 123456789 }
+    db.organisation.upsert.mockRejectedValue(new Error('DB error'))
+
+    await expect(saveOrganisation(organisation)).rejects.toThrow('DB error')
   })
 })
