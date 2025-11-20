@@ -24,8 +24,12 @@ describe('process-statement-data centralized alerting', () => {
   })
 
   afterEach(() => {
-    if (console.error && console.error.mockRestore) console.error.mockRestore()
-    if (console.warn && console.warn.mockRestore) console.warn.mockRestore()
+    if (console.error && console.error.mockRestore) {
+      console.error.mockRestore()
+    }
+    if (console.warn && console.warn.mockRestore) {
+      console.warn.mockRestore()
+    }
   })
 
   test('publishes processing alert for DAX when underlying processor throws', async () => {

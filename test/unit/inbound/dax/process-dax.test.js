@@ -46,8 +46,13 @@ describe('processDax', () => {
   })
 
   afterEach(() => {
-    if (console.info && console.info.mockRestore) console.info.mockRestore()
-    if (console.warn && console.warn.mockRestore) console.warn.mockRestore()
+    if (console.info && console.info.mockRestore) {
+      console.info.mockRestore()
+    }
+    
+    if (console.warn && console.warn.mockRestore) {
+      console.warn.mockRestore()
+    }
   })
 
   test('should skip processing and rollback when duplicate Dax exists', async () => {
