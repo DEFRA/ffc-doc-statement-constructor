@@ -44,8 +44,13 @@ describe('processDelinked', () => {
   })
 
   afterEach(() => {
-    if (console.info?.mockRestore) console.info.mockRestore()
-    if (console.error?.mockRestore) console.error.mockRestore()
+    if (console.info?.mockRestore) {
+      console.info.mockRestore()
+    }
+    
+    if (console.error?.mockRestore) {
+      console.error.mockRestore()
+    }
   })
 
   describe.each([

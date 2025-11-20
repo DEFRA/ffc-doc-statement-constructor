@@ -4,19 +4,21 @@ const processOrganisation = require('../../../app/inbound/organisation')
 let organisation
 
 describe('process organisation', () => {
-  const find = () => db.organisation.findOne({ where: { sbi: organisation.sbi } })
+  const find = async () => {
+    await db.organisation.findOne({ where: { sbi: organisation.sbi } })
+  }
 
-  const truncate = () =>
-    db.sequelize.truncate({ cascade: true, restartIdentity: true })
+  const truncate = async () => {
+    await db.sequelize.truncate({ cascade: true, restartIdentity: true })
+  }
 
   beforeAll(async () => {
     await truncate()
   })
 
   beforeEach(async () => {
-    // clone the mock while keeping Dates intact
     const original = require('../../mock-objects/mock-organisation')
-    organisation = { ...original } // shallow clone preserves Date
+    organisation = { ...original }
   })
 
   afterEach(async () => {

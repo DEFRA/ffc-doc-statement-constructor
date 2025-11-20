@@ -18,9 +18,8 @@ let organisationData
 
 describe('get and transform organisation request information for building a statement object', () => {
   beforeEach(() => {
-    const retrievedOrganisationData = JSON.parse(
-      JSON.stringify(require('../../../mock-objects/mock-organisation'))
-    )
+    const retrievedOrganisationData = structuredClone(require('../../../mock-objects/mock-organisation'))
+    
     organisationData = retrievedOrganisationData
     schema.validate.mockReturnValue({ value: organisationData })
     getOrganisationBySbi.mockResolvedValue(retrievedOrganisationData)

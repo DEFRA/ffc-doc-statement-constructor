@@ -31,7 +31,6 @@ describe('validate Organisation', () => {
     expect(schema.validate).toHaveBeenCalledWith(retrievedOrganisation, { abortEarly: false })
   })
 
-  // --- schema.validate throws ---
   test.each([
     ['throws generic Error', new Error('Joi validation issue')]
   ])('should throw when schema.validate %s', (_, thrownError) => {
@@ -39,7 +38,6 @@ describe('validate Organisation', () => {
     expect(() => validateOrganisation(invalidOrganisation, sbi)).toThrow(thrownError)
   })
 
-  // --- schema.validate returns error object ---
   test.each([
     ['Validation error', new Error('Validation error')],
     ['Not a valid object', 'Not a valid object']
@@ -78,7 +76,6 @@ describe('validate Organisation', () => {
     )
     expect(dataProcessingAlert).toHaveBeenCalledTimes(1)
 
-    // Wait for async console.error to execute
     await new Promise(resolve => setImmediate(resolve))
     expect(console.error).toHaveBeenCalledTimes(1)
     const loggedMessage = console.error.mock.calls[0][0]

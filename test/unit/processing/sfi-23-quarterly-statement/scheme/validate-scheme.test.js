@@ -32,8 +32,12 @@ describe('validate scheme', () => {
       expectedMessage: 'Scheme with the Code: undefined does not have the required details data: undefined'
     }
   ])('$name', ({ mockImplementation, returnValue, expectedMessage }) => {
-    if (mockImplementation) schema.validate.mockImplementation(mockImplementation)
-    if (returnValue) schema.validate.mockReturnValue(returnValue)
+    if (mockImplementation) {
+      schema.validate.mockImplementation(mockImplementation)
+    }
+    if (returnValue) {
+      schema.validate.mockReturnValue(returnValue)
+    }
 
     expect(() => validateScheme(retrievedScheme)).toThrow(expectedMessage)
   })

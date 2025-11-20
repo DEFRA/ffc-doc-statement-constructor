@@ -17,7 +17,10 @@ describe('validateD365', () => {
 
   afterEach(() => {
     jest.clearAllMocks()
-    if (console.error?.mockRestore) console.error.mockRestore()
+    
+    if (console.error?.mockRestore) {
+      console.error.mockRestore()
+    }
   })
 
   test('returns the object when validation passes', () => {

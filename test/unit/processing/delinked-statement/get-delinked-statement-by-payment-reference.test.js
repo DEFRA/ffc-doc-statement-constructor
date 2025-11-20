@@ -49,7 +49,6 @@ describe('getDelinkedStatementByPaymentReference', () => {
   const paymentReference = 'paymentRef123'
   const excluded = false
 
-  // Refactored missing data tests using test.each
   test.each([
     {
       name: 'D365 data missing',
@@ -93,11 +92,15 @@ describe('getDelinkedStatementByPaymentReference', () => {
   ])('$name', async ({ setup, expectedError, alertCalled }) => {
     setup()
     await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow(expectedError)
-    if (alertCalled) expect(dataProcessingAlert).toHaveBeenCalled()
-    else expect(dataProcessingAlert).not.toHaveBeenCalled()
+    
+    if (alertCalled) {
+      expect(dataProcessingAlert).toHaveBeenCalled()
+    }
+    else {
+      expect(dataProcessingAlert).not.toHaveBeenCalled()
+    }
   })
 
-  // Keep the original unique tests for document type, previous payment count, and saved document
   test('should call alert and throw when document type is invalid', async () => {
     const d365Mock = { calculationId: 'calc123', otherData: 'data' }
     const delinkedCalculationMock = { sbi: 'sbi123', calculationData: 'data' }
