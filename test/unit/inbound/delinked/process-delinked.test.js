@@ -47,7 +47,7 @@ describe('processDelinked', () => {
     if (console.info?.mockRestore) {
       console.info.mockRestore()
     }
-    
+
     if (console.error?.mockRestore) {
       console.error.mockRestore()
     }

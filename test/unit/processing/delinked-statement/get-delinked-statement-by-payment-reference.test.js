@@ -92,11 +92,10 @@ describe('getDelinkedStatementByPaymentReference', () => {
   ])('$name', async ({ setup, expectedError, alertCalled }) => {
     setup()
     await expect(getDelinkedStatementByPaymentReference(paymentReference, excluded)).rejects.toThrow(expectedError)
-    
+
     if (alertCalled) {
       expect(dataProcessingAlert).toHaveBeenCalled()
-    }
-    else {
+    } else {
       expect(dataProcessingAlert).not.toHaveBeenCalled()
     }
   })

@@ -5,11 +5,11 @@ let organisation
 
 describe('process organisation', () => {
   const find = async () => {
-    await db.organisation.findOne({ where: { sbi: organisation.sbi } })
+    return await db.organisation.findOne({ where: { sbi: organisation.sbi } })
   }
 
   const truncate = async () => {
-    await db.sequelize.truncate({ cascade: true, restartIdentity: true })
+    return await db.sequelize.truncate({ cascade: true, restartIdentity: true })
   }
 
   beforeAll(async () => {

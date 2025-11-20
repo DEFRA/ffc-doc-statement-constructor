@@ -49,7 +49,7 @@ describe('processDax', () => {
     if (console.info && console.info.mockRestore) {
       console.info.mockRestore()
     }
-    
+
     if (console.warn && console.warn.mockRestore) {
       console.warn.mockRestore()
     }

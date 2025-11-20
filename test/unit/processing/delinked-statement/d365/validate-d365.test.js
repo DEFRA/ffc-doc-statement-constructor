@@ -17,7 +17,7 @@ describe('validateD365', () => {
 
   afterEach(() => {
     jest.clearAllMocks()
-    
+
     if (console.error?.mockRestore) {
       console.error.mockRestore()
     }
