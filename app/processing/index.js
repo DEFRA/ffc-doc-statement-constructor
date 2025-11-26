@@ -49,7 +49,7 @@ const processBatch = async (tasks) => {
 
 const processWithInterval = async () => {
   const startTime = Date.now()
-  const nextRunTime = startTime + processingConfig.settlementProcessingInterval
+  const nextRunTime = startTime + processingConfig.statementProcessingInterval
   const tasks = taskConfigurations.map(config =>
     () => processTask(config.processFunction, config.name)
   )
