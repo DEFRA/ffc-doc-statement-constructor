@@ -49,10 +49,10 @@ const processDelinked = async (delinked) => {
       ])
       await transaction.commit()
       console.info(`Successfully committed delinked: ${transformed.calculationId}`)
-    } catch (txErr) {
+    } catch (Error) {
       await transaction.rollback()
-      console.error(`Transaction error for delinked ${transformed.calculationId}:`, txErr)
-      throw txErr
+      console.error(`Transaction error for delinked ${transformed.calculationId}:`, Error)
+      throw Error
     }
   } catch (err) {
     const idForLog = calcRef ?? delinked?.calculationReference ?? delinked?.calculationId ?? 'unknown'

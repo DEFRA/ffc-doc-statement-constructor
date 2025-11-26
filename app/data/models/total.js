@@ -1,5 +1,8 @@
 const totalDB = (sequelize, DataTypes) => {
-  const [number2, number15, number20, number50] = [2, 15, 20, 50]
+  const number2 = 2
+  const number15 = 15
+  const number20 = 20
+  const number50 = 50
 
   const total = sequelize.define('total', {
     calculationId: { type: DataTypes.INTEGER, primaryKey: true, allowNull: false },
