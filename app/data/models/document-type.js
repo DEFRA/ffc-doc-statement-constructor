@@ -1,24 +1,21 @@
-const comment = 'Example Output: Source: Documents Used on Statement? No, used to pass configuration details to the CRM to allow integration between the two systems'
-
 const documentTypeDB = (sequelize, DataTypes) => {
   const documentType = sequelize.define('documentType', {
     documentTypeId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true,
-      comment
+      autoIncrement: true
     },
     code: {
       type: DataTypes.STRING,
-      comment
+      allowNull: true
     },
     name: {
       type: DataTypes.STRING,
-      comment
+      allowNull: true
     },
     description: {
       type: DataTypes.STRING,
-      comment
+      allowNull: true
     }
   }, {
     tableName: 'documentTypes',

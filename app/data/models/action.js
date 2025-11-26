@@ -8,23 +8,21 @@ const actionDB = (sequelize, DataTypes) => {
   const number50 = 50
   const number100 = 100
 
-  const comment = 'To be removed. RPA have just confirmed that SFI-23 and SFI-EO statements will not be issued, which has now introduced some technical debt to remove this.'
-
   const action = sequelize.define('action', {
-    actionId: { type: DataTypes.INTEGER, primaryKey: true, comment },
-    calculationId: { type: DataTypes.INTEGER, comment },
-    fundingCode: { type: DataTypes.STRING(number5), comment },
-    groupName: { type: DataTypes.STRING(number100), comment },
-    actionCode: { type: DataTypes.STRING(number5), comment },
-    actionName: { type: DataTypes.STRING(number100), comment },
-    rate: { type: DataTypes.STRING(number50), comment },
-    landArea: { type: DataTypes.DECIMAL(number18, number6), comment },
-    uom: { type: DataTypes.STRING(number10), comment },
-    annualValue: { type: DataTypes.STRING(number50), comment },
-    quarterlyValue: { type: DataTypes.DECIMAL(number15, number2), comment },
-    overDeclarationPenalty: { type: DataTypes.DECIMAL(number15, number2), comment },
-    quarterlyPaymentAmount: { type: DataTypes.DECIMAL(number15, number2), comment },
-    datePublished: { type: DataTypes.DATE, allowNull: true, comment }
+    actionId: { type: DataTypes.INTEGER, primaryKey: true },
+    calculationId: { type: DataTypes.INTEGER },
+    fundingCode: { type: DataTypes.STRING(number5) },
+    groupName: { type: DataTypes.STRING(number100) },
+    actionCode: { type: DataTypes.STRING(number5) },
+    actionName: { type: DataTypes.STRING(number100) },
+    rate: { type: DataTypes.STRING(number50) },
+    landArea: { type: DataTypes.DECIMAL(number18, number6) },
+    uom: { type: DataTypes.STRING(number10) },
+    annualValue: { type: DataTypes.STRING(number50) },
+    quarterlyValue: { type: DataTypes.DECIMAL(number15, number2) },
+    overDeclarationPenalty: { type: DataTypes.DECIMAL(number15, number2) },
+    quarterlyPaymentAmount: { type: DataTypes.DECIMAL(number15, number2) },
+    datePublished: { type: DataTypes.DATE, allowNull: true }
   },
   {
     tableName: 'actions',

@@ -53,58 +53,80 @@ describe('processDelinked', () => {
     }
   })
 
-  describe.each([
-    ['no previous delinked', null, true],
-    ['previous delinked exists', mockDelinked1, false]
-  ])('%s', (_desc, existingDelinked, shouldSave) => {
-    beforeEach(() => {
-      getDelinkedByCalculationId.mockResolvedValue(existingDelinked)
-    })
+  test('prefers calculationReference and calls getDelinkedByCalculationId with it', async () => {
+    await processDelinked(mockDelinked1)
+    expect(getDelinkedByCalculationId).toHaveBeenCalledWith(mockDelinked1.calculationReference)
+  })
 
-    test('calls getDelinkedByCalculationId with calculationReference', async () => {
-      await processDelinked(mockDelinked1)
-      expect(getDelinkedByCalculationId).toHaveBeenCalledWith(mockDelinked1.calculationReference)
-    })
+  test('falls back to calculationId when calculationReference missing', async () => {
+    const input = { ...mockDelinked1 }
+    delete input.calculationReference
+    input.calculationId = 9999999
+    await processDelinked(input)
+    expect(getDelinkedByCalculationId).toHaveBeenCalledWith(9999999)
+  })
 
-    test(`${shouldSave ? 'saves delinked and placeholder org' : 'skips saving'}`, async () => {
-      console.info = jest.fn()
-      await processDelinked(mockDelinked1)
+  test('coerces numeric-string calculationReference to number', async () => {
+    const input = { ...mockDelinked1, calculationReference: '12345' }
+    await processDelinked(input)
+    expect(getDelinkedByCalculationId).toHaveBeenCalledWith(12345)
+    expect(saveDelinked).toHaveBeenCalledWith(
+      expect.objectContaining({ calculationId: 12345 }),
+      expect.any(Object)
+    )
+  })
 
-      if (shouldSave) {
-        expect(savePlaceholderOrganisation).toHaveBeenCalledWith(
-          { sbi: mockDelinked1.sbi },
-          mockDelinked1.sbi,
-          mockTransaction
-        )
+  describe('duplicate / save paths', () => {
+    describe.each([
+      ['no previous delinked', null, true],
+      ['previous delinked exists', mockDelinked1, false]
+    ])('%s', (_desc, existingDelinked, shouldSave) => {
+      beforeEach(() => {
+        getDelinkedByCalculationId.mockResolvedValue(existingDelinked)
+      })
 
-        expect(saveDelinked).toHaveBeenCalledWith(
-          expect.objectContaining({
-            calculationId: mockDelinked1.calculationId || mockDelinked1.calculationReference,
-            sbi: mockDelinked1.sbi,
-            frn: mockDelinked1.frn,
-            datePublished: mockDelinked1.datePublished
-          }),
-          mockTransaction
-        )
+      test(`${shouldSave ? 'saves delinked and placeholder org' : 'skips saving and alerts'}`, async () => {
+        console.info = jest.fn()
+        await processDelinked(mockDelinked1)
 
-        expect(mockTransaction.commit).toHaveBeenCalled()
-        expect(mockTransaction.rollback).not.toHaveBeenCalled()
-      } else {
-        expect(savePlaceholderOrganisation).not.toHaveBeenCalled()
-        expect(saveDelinked).not.toHaveBeenCalled()
-        expect(console.info).toHaveBeenCalledWith(
-          `Duplicate delinked received, skipping ${mockDelinked1.calculationId}`
-        )
-        expect(dataProcessingAlert).toHaveBeenCalledWith(
-          {
-            process: 'processDelinked',
-            ...mockDelinked1,
-            message: `A duplicate record was received for calculation ID ${mockDelinked1.calculationId}`,
-            type: DUPLICATE_RECORD
-          },
-          DUPLICATE_RECORD
-        )
-      }
+        const expectedId = mockDelinked1.calculationId || mockDelinked1.calculationReference
+
+        if (shouldSave) {
+          expect(savePlaceholderOrganisation).toHaveBeenCalledWith(
+            { sbi: mockDelinked1.sbi },
+            mockDelinked1.sbi,
+            expect.objectContaining({ commit: expect.any(Function), rollback: expect.any(Function) })
+          )
+
+          expect(saveDelinked).toHaveBeenCalledWith(
+            expect.objectContaining({
+              calculationId: expectedId,
+              sbi: mockDelinked1.sbi,
+              frn: mockDelinked1.frn,
+              datePublished: mockDelinked1.datePublished
+            }),
+            expect.objectContaining({ commit: expect.any(Function), rollback: expect.any(Function) })
+          )
+
+          expect(mockTransaction.commit).toHaveBeenCalled()
+          expect(mockTransaction.rollback).not.toHaveBeenCalled()
+        } else {
+          expect(savePlaceholderOrganisation).not.toHaveBeenCalled()
+          expect(saveDelinked).not.toHaveBeenCalled()
+          expect(console.info).toHaveBeenCalledWith(
+            `Duplicate delinked received, skipping ${mockDelinked1.calculationId}`
+          )
+          expect(dataProcessingAlert).toHaveBeenCalledWith(
+            {
+              process: 'processDelinked',
+              ...mockDelinked1,
+              message: `A duplicate record was received for calculation ID ${mockDelinked1.calculationId}`,
+              type: DUPLICATE_RECORD
+            },
+            DUPLICATE_RECORD
+          )
+        }
+      })
     })
   })
 
@@ -115,10 +137,23 @@ describe('processDelinked', () => {
 
     await expect(processDelinked(mockDelinked1)).rejects.toThrow('Save error')
 
+    const expectedId = mockDelinked1.calculationId || mockDelinked1.calculationReference
+
     expect(mockTransaction.rollback).toHaveBeenCalled()
     expect(mockTransaction.commit).not.toHaveBeenCalled()
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining(`Transaction error for delinked ${mockDelinked1.calculationReference}:`), expect.any(Error))
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining(`Failed to process delinked ${mockDelinked1.calculationReference || 'unknown'}:`), expect.any(Error))
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining(`Transaction error for delinked ${expectedId}:`), expect.any(Error))
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining(`Failed to process delinked ${expectedId}:`), expect.any(Error))
+  })
+
+  test('throws when both calculationReference and calculationId are missing', async () => {
+    const input = { ...mockDelinked1 }
+    delete input.calculationReference
+    delete input.calculationId
+
+    console.error = jest.fn()
+
+    await expect(processDelinked(input)).rejects.toThrow('Missing calculationReference/calculationId')
+    expect(console.error).toHaveBeenCalledWith('Missing calculationReference/calculationId for delinked', input)
   })
 
   test('propagates errors from getDelinkedByCalculationId', async () => {
