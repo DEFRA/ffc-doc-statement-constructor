@@ -193,7 +193,7 @@ components:
       properties:
         paymentReference:
           $ref: '#/components/schemas/PaymentReference'
-        MarketingYear:
+        marketingYear:
           $ref: '#/components/schemas/MarketingYear'
         calculationReference:
           $ref: '#/components/schemas/CalculationId'
@@ -535,19 +535,19 @@ components:
     PaymentBand1:
       type: string
       description: first payment band bracket amount 
-      example: Up to £30000
+      example: "Up to £30000"
     PaymentBand2:
       type: string
       description: second payment band bracket amount 
-      example: £30,000.01 to £50,000
+      example: "£30,000.01 to £50,000"
     PaymentBand3:
       type: string
       description: third payment band bracket amount 
-      example: £50,000.01 to £150,000
+      example: "£50,000.01 to £150,000"
     PaymentBand4:
       type: string
       description: fourth payment band bracket amount 
-      example: Above £150,000
+      example: "Above £150,000"
     PercentageReduction1:
       type: string
       description: First percentage bracket for progressive reductions 
@@ -1039,7 +1039,7 @@ components:
       description: Scheme year for request
       minimum: 2021
       maximum: 2099
-      example: 2023
+      example: 2024
     Name:
       type: string
       description: Registered name of an organisation
