@@ -3,37 +3,55 @@ const mockRollback = jest.fn()
 const mockTransaction = { commit: mockCommit, rollback: mockRollback }
 
 jest.mock('../../../../app/data', () => ({
-  sequelize: {
-    transaction: jest.fn().mockResolvedValue({ ...mockTransaction })
-  }
+  sequelize: { transaction: jest.fn().mockResolvedValue({ ...mockTransaction }) }
 }))
 
 jest.mock('../../../../app/inbound/organisation/save-organisation')
 const saveOrganisation = require('../../../../app/inbound/organisation/save-organisation')
 
+jest.mock('../../../../app/inbound/organisation/check-and-remove-empty-address')
+const { checkAndRemoveEmptyAddress } = require('../../../../app/inbound/organisation/check-and-remove-empty-address')
+
+jest.mock('../../../../app/inbound/organisation/validate-organisation')
+const validateOrganisation = require('../../../../app/inbound/organisation/validate-organisation')
+
 const processOrganisation = require('../../../../app/inbound/organisation')
 
 let organisation
 
-describe('process organisation', () => {
+describe('processOrganisation', () => {
   beforeEach(() => {
-    // require the original mock object
     const original = require('../../../mock-objects/mock-organisation')
-
-    // manual shallow clone to preserve Date objects
     organisation = { ...original }
 
     saveOrganisation.mockResolvedValue(undefined)
+    checkAndRemoveEmptyAddress.mockResolvedValue(false)
     jest.clearAllMocks()
   })
 
   const run = () => processOrganisation(organisation)
 
-  // ----- Successful processing -----
-  test('calls saveOrganisation with organisation and transaction', async () => {
+  test('calls checkAndRemoveEmptyAddress', async () => {
     await run()
+    expect(checkAndRemoveEmptyAddress).toHaveBeenCalledWith(organisation, mockTransaction)
+  })
+
+  test('calls validateOrganisation and saveOrganisation when not removed', async () => {
+    checkAndRemoveEmptyAddress.mockResolvedValue(false)
+
+    await run()
+
+    expect(validateOrganisation).toHaveBeenCalledWith(organisation, organisation.sbi)
     expect(saveOrganisation).toHaveBeenCalledWith(organisation, mockTransaction)
-    expect(saveOrganisation).toHaveBeenCalledTimes(1)
+  })
+
+  test('does NOT call validateOrganisation or saveOrganisation if removed', async () => {
+    checkAndRemoveEmptyAddress.mockResolvedValue(true)
+
+    await run()
+
+    expect(validateOrganisation).not.toHaveBeenCalled()
+    expect(saveOrganisation).not.toHaveBeenCalled()
   })
 
   test('commits transaction once on success', async () => {
@@ -42,7 +60,6 @@ describe('process organisation', () => {
     expect(mockRollback).not.toHaveBeenCalled()
   })
 
-  // ----- saveOrganisation fails -----
   describe('when saveOrganisation throws', () => {
     const msg = 'Database save down issue'
 
@@ -67,7 +84,6 @@ describe('process organisation', () => {
     })
   })
 
-  // ----- commit fails -----
   describe('when transaction.commit throws', () => {
     const msg = 'Sequelize transaction commit issue'
 
