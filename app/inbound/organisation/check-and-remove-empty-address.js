@@ -14,7 +14,7 @@ const checkAndRemoveEmptyAddress = async (organisation, transaction) => {
   })
 
   if (existing) {
-    console.log(`${logMessage} — no address provided`)
+    console.log(`${logMessage} - no address provided`)
     await db.organisation.destroy({
       where: { sbi: organisation.sbi },
       transaction
