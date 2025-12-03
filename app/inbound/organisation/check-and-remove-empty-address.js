@@ -20,7 +20,7 @@ const checkAndRemoveEmptyAddress = async (organisation, transaction) => {
       transaction
     })
   } else {
-    console.log(`${logMessage}  - no address provided and does not exist in DB`)
+    console.log(`${logMessage} - no address provided and does not exist in DB`)
   }
 
   return true
