@@ -1,24 +1,19 @@
 asyncapi: 3.0.0
 info:
   title: FFC Document Statement Constructor
-  version: 1.0.1
+  version: 1.0.2
   description: Construct payment statements
 channels:
-  ffc-doc-statement-data/delinked:
-    address: ffc-doc-statement-data
-    messages:
-      subscribe.message:
-        $ref: '#/components/messages/DelinkedCalculation'
-  ffc-doc-statement-data/calculation:
-    address: ffc-doc-statement-data
-    messages:
-      subscribe.message:
-        $ref: '#/components/messages/DWHCalculation'
   ffc-doc-statement-data/organisation:
     address: ffc-doc-statement-data
     messages:
       subscribe.message:
         $ref: '#/components/messages/DWHOrganisation'
+  ffc-doc-statement-data/delinked:
+    address: ffc-doc-statement-data
+    messages:
+      subscribe.message:
+        $ref: '#/components/messages/DelinkedCalculation'
   ffc-doc-statement-data/total:
     address: ffc-doc-statement-data
     messages:
@@ -28,27 +23,12 @@ channels:
     address: ffc-doc-statement-data
     messages:
       subscribe.message:
-        $ref: '#/components/messages/DWHDax'    
-  ffc-pay-statement-processing:
-    address: ffc-pay-statement-processing
+        $ref: '#/components/messages/DWHDax'
+  ffc-doc-statement-data/d365:
+    address: ffc-doc-statement-data
     messages:
       subscribe.message:
-        $ref: '#/components/messages/PaymentRequestProcessing'
-  ffc-pay-statement-submit:
-    address: ffc-pay-statement-submit
-    messages:
-      subscribe.message:
-        $ref: '#/components/messages/PaymentRequestSubmit'
-  ffc-pay-statement-return:
-    address: ffc-pay-statement-return
-    messages:
-      subscribe.message:
-        $ref: '#/components/messages/ReturnMessage'
-  ffc-doc-statements/statement:
-    address: ffc-doc-statements
-    messages:
-      publish.message:
-        $ref: '#/components/messages/PaymentStatement'
+        $ref: '#/components/messages/DWHD365'   
   ffc-doc-statements/sfi-23-quarterly-statement:
     address: ffc-doc-statements
     messages:
@@ -60,12 +40,6 @@ channels:
       publish.message:
         $ref: '#/components/messages/DelinkedStatement'
 operations:
-  ffc-doc-statement-data/calculation.subscribe:
-    action: receive
-    channel:
-      $ref: '#/channels/ffc-doc-statement-data~1calculation'
-    messages:
-      - $ref: '#/channels/ffc-doc-statement-data~1calculation/messages/subscribe.message'
   ffc-doc-statement-data/delinkedCalculation.subscribe:
     action: receive
     channel:
@@ -90,37 +64,19 @@ operations:
       $ref: '#/channels/ffc-doc-statement-data~1dax'
     messages:
       - $ref: '#/channels/ffc-doc-statement-data~1dax/messages/subscribe.message'
-  ffc-pay-statement-processing.subscribe:
+  ffc-doc-statement-data/d365.subscribe:
     action: receive
     channel:
-      $ref: '#/channels/ffc-pay-statement-processing'
+      $ref: '#/channels/ffc-doc-statement-data~1d365'
     messages:
-      - $ref: '#/channels/ffc-pay-statement-processing/messages/subscribe.message'
-  ffc-pay-statement-submit.subscribe:
-    action: receive
-    channel:
-      $ref: '#/channels/ffc-pay-statement-submit'
-    messages:
-      - $ref: '#/channels/ffc-pay-statement-submit/messages/subscribe.message'
-  ffc-pay-statement-return.subscribe:
-    action: receive
-    channel:
-      $ref: '#/channels/ffc-pay-statement-return'
-    messages:
-      - $ref: '#/channels/ffc-pay-statement-return/messages/subscribe.message'
-  ffc-doc-statements/statement.publish:
-    action: send
-    channel:
-      $ref: '#/channels/ffc-doc-statements~1statement'
-    messages:
-      - $ref: '#/channels/ffc-doc-statements~1statement/messages/publish.message'
+      - $ref: '#/channels/ffc-doc-statement-data~1d365/messages/subscribe.message'
   ffc-doc-statements/sfi-23-quarterly-statement.publish:
     action: send
     channel:
       $ref: '#/channels/ffc-doc-statements~1sfi-23-quarterly-statement'
     messages:
       - $ref: '#/channels/ffc-doc-statements~1sfi-23-quarterly-statement/messages/publish.message'
-  ffc-doc-statements/delinked-statement:
+  ffc-doc-statements/delinked-statement.publish:
     action: send
     channel:
       $ref: '#/channels/ffc-doc-statements~1delinked-statement'
@@ -144,35 +100,20 @@ components:
       payload:
         $ref: '#/components/schemas/DWHOrganisation'
     DWHTotal:
-      name: Organisation information from DWH
+      name: Total information from DWH
       contentType: application/json
       payload:
         $ref: '#/components/schemas/DWHTotal'
     DWHDax:
-      name: Organisation information from DWH
+      name: Dax information from DWH
       contentType: application/json
       payload:
         $ref: '#/components/schemas/DWHDax'
-    PaymentRequestProcessing:
-      name: Payment statement before PPA
+    DWHD365:
+      name: D365 information from DWH
       contentType: application/json
       payload:
-        $ref: '#/components/schemas/PaymentRequestProcessing'
-    PaymentRequestSubmit:
-      name: Payment statement after PPA
-      contentType: application/json
-      payload:
-        $ref: '#/components/schemas/PaymentRequestSubmit'
-    ReturnMessage:
-      name: Return Message
-      contentType: application/json
-      payload:
-        $ref: '#/components/schemas/ReturnMessage'
-    PaymentStatement:
-      name: Payment statement
-      contentType: application/json
-      payload:
-        $ref: '#/components/schemas/PaymentStatement'
+        $ref: '#/components/schemas/DWHD365'
     SFI23QuarterlyPaymentStatement:
       name: SFI-23 Quarterly Payment statement
       contentType: application/json
@@ -208,8 +149,6 @@ components:
     DWHOrganisation:
       type: object
       properties:
-        businessName:
-          $ref: '#/components/schemas/BusinessName'
         addressLine1:
           $ref: '#/components/schemas/AddressLine1'
         addressLine2:
@@ -249,6 +188,23 @@ components:
           $ref: '#/components/schemas/TransactionDate'
         type:
           $ref: '#/components/schemas/TypeDax'
+    DWHD365:
+      type: object
+      properties:
+        paymentReference:
+          $ref: '#/components/schemas/PaymentReference'
+        marketingYear:
+          $ref: '#/components/schemas/MarketingYear'
+        calculationReference:
+          $ref: '#/components/schemas/CalculationId'
+        paymentPeriod:
+          $ref: '#/components/schemas/PaymentPeriod'
+        paymentAmount:
+          $ref: '#/components/schemas/PaymentAmount'
+        transactionDate:
+          $ref: '#/components/schemas/TransactionDate'
+        type:
+          $ref: '#/components/schemas/TypeD365'
     DWHTotal:
       type: object
       properties:
@@ -360,142 +316,6 @@ components:
           $ref: '#/components/schemas/PaymentAmountCalculated'
         type:
           $ref: '#/components/schemas/TypeDelinked'
-    PaymentRequestProcessing:
-      type: object
-      required:
-        - agreementNumber
-        - contractNumber
-        - correlationId
-        - currency
-        - deliveryBody
-        - dueDate
-        - frn
-        - invoiceLines
-        - invoiceNumber
-        - ledger
-        - marketingYear
-        - paymentRequestNumber
-        - schedule
-        - schemeId
-        - value
-      properties:
-        agreementNumber:
-          $ref: '#/components/schemas/AgreementNumber'
-        contractNumber:
-          $ref: '#/components/schemas/ContractNumber'
-        correlationId:
-          $ref: '#/components/schemas/CorrelationId'
-        currency:
-          $ref: '#/components/schemas/Currency'
-        deliveryBody:
-          $ref: '#/components/schemas/DeliveryBody'
-        dueDate:
-          $ref: '#/components/schemas/DueDate'
-        frn:
-          $ref: '#/components/schemas/FRN'
-        invoiceLines:
-          $ref: '#/components/schemas/InvoiceLinesProcessing'
-        invoiceNumber:
-          $ref: '#/components/schemas/InvoiceNumber'
-        ledger:
-          $ref: '#/components/schemas/Ledger'
-        marketingYear:
-          $ref: '#/components/schemas/MarketingYear'
-        paymentRequestNumber:
-          $ref: '#/components/schemas/PaymentRequestNumber'
-        schedule:
-          $ref: '#/components/schemas/Schedule'
-        schemeId:
-          $ref: '#/components/schemas/SchemeId'
-        value:
-          $ref: '#/components/schemas/ValueInteger'
-    PaymentRequestSubmit:
-      type: object
-      required:
-        - agreementNumber
-        - contractNumber
-        - correlationId
-        - currency
-        - deliveryBody
-        - dueDate
-        - frn
-        - invoiceLines
-        - invoiceNumber
-        - ledger
-        - marketingYear
-        - paymentRequestNumber
-        - schedule
-        - schemeId
-        - value
-      properties:
-        agreementNumber:
-          $ref: '#/components/schemas/AgreementNumber'
-        contractNumber:
-          $ref: '#/components/schemas/ContractNumber'
-        correlationId:
-          $ref: '#/components/schemas/CorrelationId'
-        currency:
-          $ref: '#/components/schemas/Currency'
-        deliveryBody:
-          $ref: '#/components/schemas/DeliveryBody'
-        dueDate:
-          $ref: '#/components/schemas/DueDate'
-        frn:
-          $ref: '#/components/schemas/FRN'
-        invoiceLines:
-          $ref: '#/components/schemas/InvoiceLinesSubmit'
-        invoiceNumber:
-          $ref: '#/components/schemas/InvoiceNumber'
-        ledger:
-          $ref: '#/components/schemas/Ledger'
-        marketingYear:
-          $ref: '#/components/schemas/MarketingYear'
-        paymentRequestNumber:
-          $ref: '#/components/schemas/PaymentRequestNumber'
-        schedule:
-          $ref: '#/components/schemas/Schedule'
-        schemeId:
-          $ref: '#/components/schemas/SchemeId'
-        value:
-          $ref: '#/components/schemas/ValueInteger'
-        paymentRequestId:
-          $ref: '#/components/schemas/PaymentRequestId'
-        referenceId:
-          $ref: '#/components/schemas/ReferenceIdSubmit'
-    ReturnMessage:
-      type: object
-      required:
-        - sourceSystem
-        - invoiceNumber
-        - frn
-        - currency
-        - value
-        - settlementDate
-        - reference
-        - settled
-        - detail
-        - referenceId
-      properties:
-        sourceSystem:
-          $ref: '#/components/schemas/SourceSystem'
-        invoiceNumber:
-          $ref: '#/components/schemas/InvoiceNumber'
-        frn:
-          $ref: '#/components/schemas/FRN'
-        currency:
-          $ref: '#/components/schemas/Currency'
-        value:
-          $ref: '#/components/schemas/ValueInteger'
-        settlementDate:
-          $ref: '#/components/schemas/SettlementDate'
-        reference:
-          $ref: '#/components/schemas/Reference'
-        settled:
-          $ref: '#/components/schemas/Settled'
-        detail:
-          $ref: '#/components/schemas/Detail'
-        referenceId:
-          $ref: '#/components/schemas/ReferenceIdReturn'
     PaymentStatement:
       type: object
       required:
@@ -623,7 +443,7 @@ components:
     ActionCode:
       type: string
       description: Identifier for action code within scheme
-      example: 80001
+      example: "80001"
     ActionId:
       type: number
       description: Unique identifier (pkId) for action
@@ -715,80 +535,79 @@ components:
     PaymentBand1:
       type: string
       description: first payment band bracket amount 
-      example: Up to £30000
+      example: "Up to £30000"
     PaymentBand2:
       type: string
       description: second payment band bracket amount 
-      example: £30,000.01 to £50,000
+      example: "£30,000.01 to £50,000"
     PaymentBand3:
       type: string
       description: third payment band bracket amount 
-      example: £50,000.01 to £150,000
+      example: "£50,000.01 to £150,000"
     PaymentBand4:
       type: string
       description: fourth payment band bracket amount 
-      example: Above £150,000
+      example: "Above £150,000"
     PercentageReduction1:
       type: string
       description: First percentage bracket for progressive reductions 
-      example: 50
+      example: "50.00"
     PercentageReduction2:
       type: string
       description: Second percentage bracket for progressive reductions 
-      example: 55
+      example: "55.00"
     PercentageReduction3:
       type: string
       description: Third percentage bracket for progressive reductions 
-      example: 60
+      example: "60.00"
     PercentageReduction4:
       type: string
       description: Fourth percentage bracket for progressive reductions 
-      example: 70
+      example: "70.00"
     ProgressiveReductions1:
       type: string
       description: Value against band1 for progressive reductions 
-      example: 11000
+      example: "11000.00"
     ProgressiveReductions2:
       type: string
       description: Value against band2 for progressive reductions 
-      example: 22000
+      example: "22000.00"
     ProgressiveReductions3:
       type: string
       description: Value against band3 for progressive reductions 
-      example: 33000
+      example: "33000.00"
     ProgressiveReductions4:
       type: string
       description: Value against band4 for progressive reductions 
-      example: 44000
+      example: "44000.00"
     ReferenceAmount:
       type: string
       description: Current reference amount of total
-      example: 125000
+      example: "125000.00"
     TotalProgressiveReduction:
       type: string
       description: Total progressive reduction amount
-      example: 74750
+      example: "74750.00"
     TotalDelinkedPayment:
       type: string
       description: Total annual delinked payment amount
-      example: 50250
+      example: "50250.00"
     PaymentAmountCalculated:
       type: string
       description: TotalDelinkedPayment /2 should match paymentAmount
-      example: 25125
+      example: "25125.00"
     InvoiceNumber:
       type: string
       description: Invoice number of payment request
       example: S0000001C000001V001   
     AreaClaimed:
-      type: number
-      format: decimal
+      type: string
       description: The area claimed for the calculation in hectares
-      example: 84.05
+      example: "84.05"
     LandArea:
       type: string
       description: The area claimed for the calculation in hectares
-      example: 84.05
+      example: "84.05"
     GroupName:
       type: string
       description: The group name of the action
@@ -797,7 +616,7 @@ components:
       type: string
       format: decimal
       description: The over declaration penalty
-      example: 120.50
+      example: "120.50"
     PaymentAmount:
       type: number
       format: decimal
@@ -813,13 +632,12 @@ components:
       example: PY1234545
     QuarterlyPaymentAmount:
       type: string
-      format: decimal
       description: The quarterly payment amount
-      example: 100.50
+      example: "100.50"
     QuarterlyValue:
       type: string
       description: The quarterly value
-      example: £100.50
+      example: "100.50"
     UnitOfMeasure:
       type: string
       description: The unit of measure
@@ -827,22 +645,19 @@ components:
     Rate:
       type: string
       description: Payment in pounds sterling per hectare
-      example: £22.5/ha
+      example: "£22.5/ha"
     TotalActionPayments:
       type: string
-      format: decimal
       description: Sum of all Action Payment
-      example: 100.5
+      example: "100.5"
     TotalAdditionalPayments:
       type: string
-      format: decimal
       description: Sum of all Additional Payment
-      example: 50.2
+      example: "50.2"
     TotalPayments:
       type: string
-      format: decimal
       description: Sum of all Payment
-      example: 150.7
+      example: "150.7"
     TransactionDate:
       type: string
       format: date-time
@@ -851,7 +666,7 @@ components:
     FundingCode:
       type: string
       description: Identifier for funding code within scheme
-      example: 80001 
+      example: "80001" 
     Address:
       type: object
       properties:
@@ -1224,7 +1039,7 @@ components:
       description: Scheme year for request
       minimum: 2021
       maximum: 2099
-      example: 2022
+      example: 2024
     Name:
       type: string
       description: Registered name of an organisation
@@ -1355,6 +1170,10 @@ components:
       type: string
       description: Constant DAX
       example: dax
+    TypeD365:
+      type: string
+      description: Constant DAX
+      example: d365
     TypeOrganisation:
       type: string
       description: Constant ORGANISATION

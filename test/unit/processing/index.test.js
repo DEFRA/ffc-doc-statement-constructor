@@ -34,6 +34,7 @@ const processing = require('../../../app/processing')
 describe('processing', () => {
   beforeEach(() => {
     processingConfig.statementProcessingInterval = 10000
+    processingConfig.settlementProcessingInterval = 10000
     console.log = jest.fn()
     console.error = jest.fn()
     console.warn = jest.fn()
