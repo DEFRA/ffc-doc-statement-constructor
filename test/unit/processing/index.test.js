@@ -29,6 +29,12 @@ jest.mock('../../../app/processing/process-delinked-payment-statements')
 const processDelinkedStatement = require('../../../app/processing/process-delinked-payment-statements')
 processDelinkedStatement.mockResolvedValue()
 
+jest.mock('../../../app/processing/window-helpers', () => ({
+  isWithinWindow: jest.fn(),
+  isPollDay: jest.fn()
+}))
+const { isWithinWindow, isPollDay } = require('../../../app/processing/window-helpers')
+
 const processing = require('../../../app/processing')
 
 describe('processing', () => {
@@ -49,16 +55,13 @@ describe('processing', () => {
       processingConfig.sfi23QuarterlyStatementProcessingActive = true
       processingConfig.delinkedStatementProcessingActive = true
 
-      const originalProcessWithInterval = processing.processWithInterval
-      processing.processWithInterval = jest.fn().mockImplementation(async () => {
-        const tasks = processing.taskConfigurations.map(config =>
-          () => processing.processTask(config.processFunction, config.name)
-        )
-        await processing.processBatch(tasks)
-      })
+      // ensure processing actually runs inside the interval by allowing
+      // the window checks to pass so the real internal `processWithInterval`
+      // executes when `start()` is called
+      isWithinWindow.mockReturnValue(true)
+      isPollDay.mockReturnValue(true)
 
       await processing.start()
-      processing.processWithInterval = originalProcessWithInterval
 
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
       expect(processDelinkedStatement).toHaveBeenCalled()
@@ -71,16 +74,10 @@ describe('processing', () => {
       processSfi23QuarterlyStatement.mockClear()
       processDelinkedStatement.mockClear()
 
-      const originalProcessWithInterval = processing.processWithInterval
-      processing.processWithInterval = jest.fn().mockImplementation(async () => {
-        const tasks = processing.taskConfigurations.map(config =>
-          () => processing.processTask(config.processFunction, config.name)
-        )
-        await processing.processBatch(tasks)
-      })
+      isWithinWindow.mockReturnValue(true)
+      isPollDay.mockReturnValue(true)
 
       await processing.start()
-      processing.processWithInterval = originalProcessWithInterval
 
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
       expect(processDelinkedStatement).not.toHaveBeenCalled()
@@ -174,6 +171,9 @@ describe('processing', () => {
       processingConfig.sfi23QuarterlyStatementProcessingActive = true
       processingConfig.delinkedStatementProcessingActive = true
 
+      isWithinWindow.mockReturnValue(true)
+      isPollDay.mockReturnValue(true)
+
       await processing.start()
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
       expect(processDelinkedStatement).toHaveBeenCalled()
@@ -188,6 +188,9 @@ describe('processing', () => {
     })
 
     test('should process SFI statements only', async () => {
+      isWithinWindow.mockReturnValue(true)
+      isPollDay.mockReturnValue(true)
+
       await processing.start()
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
       expect(processDelinkedStatement).not.toHaveBeenCalled()
@@ -219,21 +222,44 @@ describe('processing', () => {
       processingConfig.sfi23QuarterlyStatementProcessingActive = true
       processSfi23QuarterlyStatement.mockRejectedValueOnce(new Error('Critical error'))
 
-      const originalProcessWithInterval = processing.processWithInterval
-      processing.processWithInterval = jest.fn().mockImplementation(async () => {
-        const tasks = processing.taskConfigurations.map(config =>
-          () => processing.processTask(config.processFunction, config.name)
-        )
-        await processing.processBatch(tasks)
-      })
+      isWithinWindow.mockReturnValue(true)
+      isPollDay.mockReturnValue(true)
 
       await processing.start()
-      processing.processWithInterval = originalProcessWithInterval
 
       expect(console.error).toHaveBeenCalledWith(
         expect.stringContaining('Error processing SFI23 Quarterly Statement:'),
         expect.any(Error)
       )
+    })
+  })
+
+  describe('window helpers and conditional processing', () => {
+    test('processes when within window and on poll day', async () => {
+      processingConfig.sfi23QuarterlyStatementProcessingActive = true
+      processingConfig.delinkedStatementProcessingActive = false
+      isWithinWindow.mockReturnValue(true)
+      isPollDay.mockReturnValue(true)
+
+      await processing.start()
+
+      expect(isWithinWindow).toHaveBeenCalledWith(processingConfig.pollWindow)
+      expect(isPollDay).toHaveBeenCalledWith(processingConfig.pollWindow.days)
+      expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
+      expect(console.log).toHaveBeenCalledWith('All processing tasks completed successfully')
+    })
+
+    test('skips processing when outside window or not a poll day', async () => {
+      processingConfig.sfi23QuarterlyStatementProcessingActive = true
+      processingConfig.delinkedStatementProcessingActive = false
+      isWithinWindow.mockReturnValue(false)
+      isPollDay.mockReturnValue(true)
+
+      await processing.start()
+
+      expect(isWithinWindow).toHaveBeenCalled()
+      expect(console.log).toHaveBeenCalledWith('Outside processing window or not a processing day, skipping processing')
+      expect(processSfi23QuarterlyStatement).not.toHaveBeenCalled()
     })
   })
 })
