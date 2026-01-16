@@ -16,6 +16,9 @@ services:
       - ./package.json:/home/node/package.json
     environment:
       MAX_PROCESSING_REQUEST_AGE_HOURS: 6
+      POLL_WINDOW_START: "08:00"
+      POLL_WINDOW_END: "18:00"
+      POLL_WINDOW_DAYS: "Mon,Tue,Wed,Thu,Fri"
 
   ffc-doc-statement-constructor-postgres:
     volumes:

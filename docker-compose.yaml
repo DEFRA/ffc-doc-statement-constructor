@@ -24,6 +24,9 @@ services:
       POSTGRES_SCHEMA_NAME: ${POSTGRES_SCHEMA_NAME:-public}
       POSTGRES_USERNAME: ${POSTGRES_SCHEMA_USERNAME:-postgres}
       MAX_PROCESSING_REQUEST_AGE_HOURS: ${MAX_PROCESSING_REQUEST_AGE_HOURS}
+      POLL_WINDOW_START: ${POLL_WINDOW_START:-"08:00"}
+      POLL_WINDOW_END: ${POLL_WINDOW_END:-"18:00"}
+      POLL_WINDOW_DAYS: ${POLL_WINDOW_DAYS:-"Mon,Tue,Wed,Thu,Fri"}
 
   ffc-doc-statement-constructor-postgres:
     image: postgres:11.4-alpine
