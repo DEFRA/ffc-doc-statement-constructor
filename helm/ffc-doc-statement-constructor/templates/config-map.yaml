@@ -24,4 +24,7 @@ data:
   IDLE_CHECK_BATCH_SIZE: {{ quote .Values.container.idleCheckBatchSize }}
   IDLE_CHECK_MAX_DELIVERY_COUNT: {{ quote .Values.container.idleCheckMaxDeliveryCount }}
   IDLE_CHECK_INTERVAL: {{ quote .Values.container.idleCheckInterval }}
+  POLL_WINDOW_START: {{ quote .Values.container.pollWindowStart }}
+  POLL_WINDOW_END: {{ quote .Values.container.pollWindowEnd }}
+  POLL_WINDOW_DAYS: {{ quote .Values.container.pollWindowDays }}
 {{- end -}}

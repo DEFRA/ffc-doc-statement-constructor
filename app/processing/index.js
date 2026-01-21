@@ -1,6 +1,8 @@
 const { processingConfig } = require('../config')
 const processSfi23QuarterlyStatement = require('./process-sfi-23-quarterly-statements')
 const processDelinkedStatement = require('./process-delinked-payment-statements')
+const { isWithinWindow, isPollDay } = require('./window-helpers')
+
 const MAX_CONCURRENT_TASKS = 2
 let taskConfigurations = []
 
@@ -48,27 +50,31 @@ const processBatch = async (tasks) => {
 }
 
 const processWithInterval = async () => {
-  const startTime = Date.now()
-  const nextRunTime = startTime + processingConfig.settlementProcessingInterval
   const tasks = taskConfigurations.map(config =>
     () => processTask(config.processFunction, config.name)
   )
 
   try {
-    const results = await processBatch(tasks)
-    const failures = results.filter(
-      r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success)
-    )
+    const inWindow = isWithinWindow(processingConfig.pollWindow)
+    const onDay = isPollDay(processingConfig.pollWindow.days)
+    if (inWindow && onDay) {
+      const results = await processBatch(tasks)
+      const failures = results.filter(
+        r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success)
+      )
 
-    if (failures.length > 0) {
-      console.warn(`${failures.length} out of ${results.length} tasks failed`)
+      if (failures.length > 0) {
+        console.warn(`${failures.length} out of ${results.length} tasks failed`)
+      } else {
+        console.log('All processing tasks completed successfully')
+      }
+    } else {
+      console.log('Outside processing window or not a processing day, skipping processing')
     }
   } catch (error) {
     console.error('Critical error in processing:', error)
   } finally {
-    const currentTime = Date.now()
-    const delay = Math.max(0, nextRunTime - currentTime)
-    setTimeout(processWithInterval, delay)
+    setTimeout(processWithInterval, processingConfig.statementProcessingInterval)
   }
 }
 
