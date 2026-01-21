@@ -1,3 +1,0 @@
-container.dataTopicAddress: queue:ffc-doc-statement-data
-container.statementTopicAddress: queue:ffc-doc-statements
-container.alertTopicAddress: queue:ffc-doc-alerting
