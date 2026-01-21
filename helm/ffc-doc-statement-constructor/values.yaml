@@ -73,5 +73,5 @@ secretProviderClass:
       data:
         - objectName: appInsights-connectionString # secret name in Azure Key Vault
           key: APPLICATIONINSIGHTS_CONNECTION_STRING # the secret key in the Kubernetes secret and use in the application
-        - objectName: postgresUser
+        - objectName: snd2-postgresUser
           key: POSTGRES_USERNAME
