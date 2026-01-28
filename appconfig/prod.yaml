@@ -1,0 +1,28 @@
+---
+environment: production
+environmentCode: prd
+container:
+  messageQueueHost: PRDFFCINFSB1001.servicebus.windows.net
+  azureStorageAccountName: prdffcdocst1001
+  endpointEnabled: true
+  redisHostname: PRDFFCINFRD1001.redis.cache.windows.net
+ingress:
+  server: azure.defra.cloud
+  endpoint: ffc-doc-statement-constructor-prd
+secretProviderClass:
+  azure:
+    keyvaultName: PRDFFCINFKV1001
+    objects:
+      - objectName: prd-ffcahwr-appinsights-connectionString
+        objectType: secret
+      - objectName: prd-postgresUser
+        objectType: secret
+
+  secretObjects:
+    - secretName: ffc-doc-statement-constructor
+      type: Opaque
+      data:
+        - objectName: prd-ffcahwr-appinsights-connectionString
+          key: APPLICATIONINSIGHTS_CONNECTION_STRING
+        - objectName: prd-postgresUser
+          key: POSTGRES_USERNAME
