@@ -8,3 +8,6 @@ container:
 ingress:
   server: azure.defra.cloud
   endpoint: ffc-doc-statement-constructor-snd2
+  alertTopicAddress: queue:ffc-doc-alerting
+  dataTopicAddress: queue:ffc-doc-statement-data
+  statementTopicAddress: queue:ffc-doc-statements
