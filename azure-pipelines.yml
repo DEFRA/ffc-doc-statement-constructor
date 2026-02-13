@@ -35,3 +35,15 @@ extends:
     prDeployment: ${{ parameters.prDeployment }}
     branchDeployment: ${{ parameters.branchDeployment }}
     sndDeployment: ${{ parameters.sndDeployment }}
+    pr_params:
+      endpointEnabled: ${{ eq(variables['pr_endpointEnabled'], 'true') }}
+    snd2_params:
+      endpointEnabled: ${{ eq(variables['snd2_endpointEnabled'], 'true') }}
+    dev_params:
+      endpointEnabled: ${{ eq(variables['dev_endpointEnabled'], 'true') }}
+    test_params:
+      endpointEnabled: ${{ eq(variables['test_endpointEnabled'], 'true') }}
+    pre_params:
+      endpointEnabled: ${{ eq(variables['pre_endpointEnabled'], 'true') }}
+    prd_params:
+      endpointEnabled: ${{ eq(variables['prd_endpointEnabled'], 'true') }}
