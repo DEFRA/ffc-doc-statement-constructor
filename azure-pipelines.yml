@@ -37,14 +37,14 @@ extends:
     sndDeployment: ${{ parameters.sndDeployment }}
     variableGroupName: ffc-doc-statement-constructor-env-var
     pr_params:
-      endpointEnabled: ${{ eq(variables['pr_endpointEnabled'], 'true') }}
+      container.endpointEnabled: ${{ eq(variables['pr_endpointEnabled'], 'true') }}
     snd2_params:
-      endpointEnabled: ${{ eq(variables['snd2_endpointEnabled'], 'true') }}
+      container.endpointEnabled: ${{ eq(variables['snd2_endpointEnabled'], 'true') }}
     dev_params:
-      endpointEnabled: ${{ eq(variables['dev_endpointEnabled'], 'true') }}
+      container.endpointEnabled: ${{ eq(variables['dev_endpointEnabled'], 'true') }}
     test_params:
-      endpointEnabled: ${{ eq(variables['test_endpointEnabled'], 'true') }}
+      container.endpointEnabled: ${{ eq(variables['test_endpointEnabled'], 'true') }}
     pre_params:
-      endpointEnabled: ${{ eq(variables['pre_endpointEnabled'], 'true') }}
+      container.endpointEnabled: ${{ eq(variables['pre_endpointEnabled'], 'true') }}
     prd_params:
-      endpointEnabled: ${{ eq(variables['prd_endpointEnabled'], 'true') }}
+      container.endpointEnabled: ${{ eq(variables['prd_endpointEnabled'], 'true') }}
