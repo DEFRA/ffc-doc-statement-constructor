@@ -12,6 +12,22 @@
               "DuplicateDetectionHistoryTimeWindow": "PT20S",
               "RequiresDuplicateDetection": false
             }
+          },
+                    {
+            "Name": "ffc-doc-statement-data",
+            "Properties": {
+              "DefaultMessageTimeToLive": "PT1H",
+              "DuplicateDetectionHistoryTimeWindow": "PT20S",
+              "RequiresDuplicateDetection": false
+            }
+          },
+                    {
+            "Name": "ffc-doc-statements",
+            "Properties": {
+              "DefaultMessageTimeToLive": "PT1H",
+              "DuplicateDetectionHistoryTimeWindow": "PT20S",
+              "RequiresDuplicateDetection": false
+            }
           }
         ]
       } 
