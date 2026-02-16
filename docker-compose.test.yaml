@@ -22,7 +22,9 @@ services:
       MESSAGE_QUEUE_HOST: servicebus-emulator
       MESSAGE_QUEUE_USER: RootManageSharedAccessKey
       MESSAGE_QUEUE_PASSWORD: SAS_KEY_VALUE
-
+      DATA_TOPIC_ADDRESS: ffc-doc-statement-data
+      STATEMENT_TOPIC_ADDRESS: ffc-doc-statements
+      ALERT_TOPIC_ADDRESS: ffc-doc-alerting
   ffc-doc-statement-constructor-postgres:
     volumes:
       - postgres_data:/var/lib/postgresql/data
