@@ -51,7 +51,8 @@
     "nodemon": "3.1.4"
   },
   "overrides": {
-    "fast-xml-parser": "^5.3.4"
+    "fast-xml-parser": "^5.3.4",
+    "minimatch": "^10.2.1"
   },
   "nodemonConfig": {
     "ignore": [
