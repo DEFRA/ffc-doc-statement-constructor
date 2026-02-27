@@ -34,8 +34,11 @@ const processTask = async (processFunction, processName) => {
     const result = await processFunction()
     let processed = 0
 
-    if (typeof result === 'number') processed = result
-    else if (result && typeof result.processed === 'number') processed = result.processed
+    if (typeof result === 'number') {
+      processed = result
+    } else if (result && typeof result.processed === 'number') {
+      processed = result.processed
+    }
 
     return { success: true, name: processName, processed }
   } catch (error) {
@@ -49,56 +52,63 @@ const processBatch = async (tasks) => {
 
   for (let i = 0; i < tasks.length; i += MAX_CONCURRENT_TASKS) {
     const batch = tasks.slice(i, i + MAX_CONCURRENT_TASKS)
-    const batchResults = await Promise.allSettled(batch.map(task => task()))
+    const batchResults = await Promise.allSettled(batch.map((task) => task()))
     results.push(...batchResults)
   }
 
   return results
 }
 
+const handleResults = (results) => {
+  if (results.length === 0) {
+    if (lastHadWork) {
+      console.log('Processing is idle: no tasks configured')
+      lastHadWork = false
+    }
+    return
+  }
+
+  const failures = results.filter(
+    (r) => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success)
+  )
+
+  const fulfilled = results
+    .filter((r) => r.status === 'fulfilled')
+    .map((r) => r.value)
+
+  const totalProcessed = fulfilled.reduce((s, v) => s + (v.processed || 0), 0)
+
+  if (totalProcessed === 0) {
+    if (lastHadWork) {
+      console.log('Processing is idle: no items processed this cycle')
+      lastHadWork = false
+    }
+    return
+  }
+
+  lastHadWork = true
+
+  if (failures.length > 0) {
+    console.warn(`${failures.length} out of ${results.length} tasks failed`)
+  } else {
+    console.log(`All processing tasks completed successfully — processed ${totalProcessed} items`)
+  }
+}
+
 const processWithInterval = async () => {
   taskConfigurations = buildTaskConfigurations()
 
-  const tasks = taskConfigurations.map(config =>
-    () => processTask(config.processFunction, config.name)
-  )
+  const tasks = taskConfigurations.map((config) => {
+    return () => processTask(config.processFunction, config.name)
+  })
 
   try {
     const inWindow = isWithinWindow(processingConfig.pollWindow)
     const onDay = isPollDay(processingConfig.pollWindow.days)
+
     if (inWindow && onDay) {
       const results = await processBatch(tasks)
-
-      if (results.length === 0) {
-        if (lastHadWork) {
-          console.log('Processing is idle: no tasks configured')
-          lastHadWork = false
-        }
-      } else {
-        const failures = results.filter(
-          r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success)
-        )
-
-        const fulfilled = results
-          .filter(r => r.status === 'fulfilled')
-          .map(r => r.value)
-
-        const totalProcessed = fulfilled.reduce((s, v) => s + (v.processed || 0), 0)
-
-        if (totalProcessed === 0) {
-          if (lastHadWork) {
-            console.log('Processing is idle: no items processed this cycle')
-            lastHadWork = false
-          }
-        } else {
-          lastHadWork = true
-          if (failures.length > 0) {
-            console.warn(`${failures.length} out of ${results.length} tasks failed`)
-          } else {
-            console.log(`All processing tasks completed successfully — processed ${totalProcessed} items`)
-          }
-        }
-      }
+      handleResults(results)
     } else {
       console.log('Outside processing window or not a processing day, skipping processing')
     }
