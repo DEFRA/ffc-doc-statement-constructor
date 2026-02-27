@@ -38,6 +38,8 @@ const processTask = async (processFunction, processName) => {
       processed = result
     } else if (result && typeof result.processed === 'number') {
       processed = result.processed
+    } else {
+      processed = 0
     }
 
     return { success: true, name: processName, processed }
