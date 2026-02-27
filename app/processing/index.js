@@ -32,7 +32,7 @@ const buildTaskConfigurations = () => {
 const processTask = async (processFunction, processName) => {
   try {
     const result = await processFunction()
-    let processed = 0
+    let processed
 
     if (typeof result === 'number') {
       processed = result
