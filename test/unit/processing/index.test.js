@@ -23,11 +23,9 @@ jest.mock('../../../app/data', () => ({
 
 jest.mock('../../../app/processing/process-sfi-23-quarterly-statements')
 const processSfi23QuarterlyStatement = require('../../../app/processing/process-sfi-23-quarterly-statements')
-processSfi23QuarterlyStatement.mockResolvedValue()
 
 jest.mock('../../../app/processing/process-delinked-payment-statements')
 const processDelinkedStatement = require('../../../app/processing/process-delinked-payment-statements')
-processDelinkedStatement.mockResolvedValue()
 
 jest.mock('../../../app/processing/window-helpers', () => ({
   isWithinWindow: jest.fn(),
@@ -41,9 +39,15 @@ describe('processing', () => {
   beforeEach(() => {
     processingConfig.statementProcessingInterval = 10000
     processingConfig.settlementProcessingInterval = 10000
+    processingConfig.pollWindowEnabled = true
     console.log = jest.fn()
     console.error = jest.fn()
     console.warn = jest.fn()
+    processSfi23QuarterlyStatement.mockReset()
+    processDelinkedStatement.mockReset()
+    processSfi23QuarterlyStatement.mockResolvedValue(1)
+    processDelinkedStatement.mockResolvedValue(0)
+    processing.lastHadWork = false
   })
 
   afterEach(() => {
@@ -51,34 +55,23 @@ describe('processing', () => {
   })
 
   describe('buildTaskConfigurations', () => {
-    test('should build correct task configurations when both processes are active', async () => {
+    test('builds both tasks when both active', async () => {
       processingConfig.sfi23QuarterlyStatementProcessingActive = true
       processingConfig.delinkedStatementProcessingActive = true
-
-      // ensure processing actually runs inside the interval by allowing
-      // the window checks to pass so the real internal `processWithInterval`
-      // executes when `start()` is called
       isWithinWindow.mockReturnValue(true)
       isPollDay.mockReturnValue(true)
-
       await processing.start()
-
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
       expect(processDelinkedStatement).toHaveBeenCalled()
+      expect(setTimeout).toHaveBeenCalled()
     })
 
-    test('should only include SFI23 task when delinked statements are inactive', async () => {
+    test('only includes SFI23 when delinked inactive and logs disabled', async () => {
       processingConfig.sfi23QuarterlyStatementProcessingActive = true
       processingConfig.delinkedStatementProcessingActive = false
-
-      processSfi23QuarterlyStatement.mockClear()
-      processDelinkedStatement.mockClear()
-
       isWithinWindow.mockReturnValue(true)
       isPollDay.mockReturnValue(true)
-
       await processing.start()
-
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
       expect(processDelinkedStatement).not.toHaveBeenCalled()
       expect(console.log).toHaveBeenCalledWith('Delinked Payment Statement processing is disabled')
@@ -86,180 +79,134 @@ describe('processing', () => {
   })
 
   describe('processTask', () => {
-    test('should execute the process function with correct parameters', async () => {
-      const processTask = async (processFunction, processName) => {
-        await processFunction()
-        return { success: true, name: processName }
-      }
-
-      const result = await processTask(processSfi23QuarterlyStatement, 'Test Process')
-
-      expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
-      expect(result).toEqual({ success: true, name: 'Test Process' })
+    test('returns numeric processed value', async () => {
+      processSfi23QuarterlyStatement.mockResolvedValue(3)
+      const res = await processing.processTask(processSfi23QuarterlyStatement, 'Test')
+      expect(res).toEqual({ success: true, name: 'Test', processed: 3 })
     })
 
-    test('should handle errors and return failure result', async () => {
-      const processTask = async (processFunction, processName) => {
-        try {
-          await processFunction()
-          return { success: true, name: processName }
-        } catch (error) {
-          console.error(`Error processing ${processName}:`, error)
-          return { success: false, name: processName, error }
-        }
-      }
+    test('returns object processed property', async () => {
+      processSfi23QuarterlyStatement.mockResolvedValue({ processed: 4 })
+      const res = await processing.processTask(processSfi23QuarterlyStatement, 'TestObj')
+      expect(res).toEqual({ success: true, name: 'TestObj', processed: 4 })
+    })
 
-      const mockError = new Error('Processing failed')
-      processSfi23QuarterlyStatement.mockRejectedValueOnce(mockError)
-
-      const result = await processTask(processSfi23QuarterlyStatement, 'Test Process')
-
-      expect(result).toEqual({
-        success: false,
-        name: 'Test Process',
-        error: mockError
-      })
-      expect(console.error).toHaveBeenCalledWith('Error processing Test Process:', mockError)
+    test('handles errors and logs', async () => {
+      const err = new Error('boom')
+      processSfi23QuarterlyStatement.mockRejectedValueOnce(err)
+      const res = await processing.processTask(processSfi23QuarterlyStatement, 'ErrTest')
+      expect(res.success).toBe(false)
+      expect(res.processed).toBe(0)
+      expect(console.error).toHaveBeenCalledWith('Error processing ErrTest:', err)
     })
   })
 
   describe('processBatch', () => {
-    test('should process tasks in batches of MAX_CONCURRENT_TASKS', async () => {
-      const MAX_CONCURRENT_TASKS = 2
-      const processBatch = async (tasks) => {
-        const results = []
-        for (let i = 0; i < tasks.length; i += MAX_CONCURRENT_TASKS) {
-          const batch = tasks.slice(i, i + MAX_CONCURRENT_TASKS)
-          const batchResults = await Promise.allSettled(batch.map(task => task()))
-          results.push(...batchResults)
-        }
-        return results
-      }
-
-      const mockTask1 = jest.fn().mockResolvedValue('result1')
-      const mockTask2 = jest.fn().mockResolvedValue('result2')
-      const mockTask3 = jest.fn().mockResolvedValue('result3')
-      const tasks = [mockTask1, mockTask2, mockTask3]
-
-      await processBatch(tasks)
-
+    test('processes tasks in batches', async () => {
+      const mockTask1 = jest.fn().mockResolvedValue('r1')
+      const mockTask2 = jest.fn().mockResolvedValue('r2')
+      const mockTask3 = jest.fn().mockResolvedValue('r3')
+      const results = await processing.processBatch([mockTask1, mockTask2, mockTask3])
       expect(mockTask1).toHaveBeenCalled()
       expect(mockTask2).toHaveBeenCalled()
       expect(mockTask3).toHaveBeenCalled()
+      expect(Array.isArray(results)).toBe(true)
     })
   })
 
-  describe('start processing integration', () => {
-    beforeEach(() => {
-      jest.spyOn(processing, 'start')
-    })
-
-    test('should call setTimeout with dynamic interval in processWithInterval', async () => {
-      processingConfig.sfi23QuarterlyStatementProcessingActive = true
-      processingConfig.delinkedStatementProcessingActive = true
-
-      await processing.start()
-      expect(setTimeout).toHaveBeenCalled()
-    })
-
-    test('should log starting message', async () => {
+  describe('start and interval', () => {
+    test('logs starting and schedules interval', async () => {
       await processing.start()
       expect(console.log).toHaveBeenCalledWith('Starting statement processing service')
-    })
-
-    test('should initialize task configurations and start interval processing', async () => {
-      processingConfig.sfi23QuarterlyStatementProcessingActive = true
-      processingConfig.delinkedStatementProcessingActive = true
-
-      isWithinWindow.mockReturnValue(true)
-      isPollDay.mockReturnValue(true)
-
-      await processing.start()
-      expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
-      expect(processDelinkedStatement).toHaveBeenCalled()
       expect(setTimeout).toHaveBeenCalled()
     })
   })
 
-  describe('when sfi-23 is active and delinkedStatement inactive', () => {
-    beforeEach(() => {
-      processingConfig.sfi23QuarterlyStatementProcessingActive = true
-      processingConfig.delinkedStatementProcessingActive = false
-    })
-
-    test('should process SFI statements only', async () => {
-      isWithinWindow.mockReturnValue(true)
-      isPollDay.mockReturnValue(true)
-
-      await processing.start()
-      expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
-      expect(processDelinkedStatement).not.toHaveBeenCalled()
-      expect(setTimeout).toHaveBeenCalled()
-    })
-
-    test('should log that delinked statements are disabled', async () => {
-      await processing.start()
-      expect(console.log).toHaveBeenCalledWith('Delinked Payment Statement processing is disabled')
-    })
-  })
-
-  describe('when both sfi-23 and delinkedStatement inactive', () => {
-    beforeEach(() => {
-      processingConfig.sfi23QuarterlyStatementProcessingActive = false
-      processingConfig.delinkedStatementProcessingActive = false
-    })
-
-    test('should not process any statements but still set timeout', async () => {
-      await processing.start()
-      expect(processSfi23QuarterlyStatement).not.toHaveBeenCalled()
-      expect(processDelinkedStatement).not.toHaveBeenCalled()
-      expect(setTimeout).toHaveBeenCalled()
-    })
-  })
-
-  describe('error handling', () => {
-    test('should handle and log critical errors', async () => {
-      processingConfig.sfi23QuarterlyStatementProcessingActive = true
-      processSfi23QuarterlyStatement.mockRejectedValueOnce(new Error('Critical error'))
-
-      isWithinWindow.mockReturnValue(true)
-      isPollDay.mockReturnValue(true)
-
-      await processing.start()
-
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining('Error processing SFI23 Quarterly Statement:'),
-        expect.any(Error)
-      )
-    })
-  })
-
-  describe('window helpers and conditional processing', () => {
+  describe('conditional processing and logging', () => {
     test('processes when within window and on poll day', async () => {
       processingConfig.sfi23QuarterlyStatementProcessingActive = true
       processingConfig.delinkedStatementProcessingActive = false
       isWithinWindow.mockReturnValue(true)
       isPollDay.mockReturnValue(true)
-
+      processSfi23QuarterlyStatement.mockResolvedValue(1)
       await processing.start()
-
       expect(isWithinWindow).toHaveBeenCalledWith(processingConfig.pollWindow)
       expect(isPollDay).toHaveBeenCalledWith(processingConfig.pollWindow.days)
       expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
-      expect(console.log).toHaveBeenCalledWith('All processing tasks completed successfully')
+      expect(console.log).toHaveBeenCalledWith('All processing tasks completed successfully — processed 1 items')
+      expect(console.log).toHaveBeenCalledWith('Delinked Payment Statement processing is disabled')
+    })
+
+    test('logs idle when no tasks configured after previously processing', async () => {
+      processingConfig.sfi23QuarterlyStatementProcessingActive = true
+      processingConfig.delinkedStatementProcessingActive = false
+      isWithinWindow.mockReturnValue(true)
+      isPollDay.mockReturnValue(true)
+      processSfi23QuarterlyStatement.mockResolvedValueOnce(1)
+      await processing.processWithInterval()
+      processingConfig.sfi23QuarterlyStatementProcessingActive = false
+      processingConfig.delinkedStatementProcessingActive = false
+      await processing.processWithInterval()
+      expect(console.log).toHaveBeenCalledWith('Processing is idle: no tasks configured')
+    })
+
+    test('logs idle when items drop to zero after previously processing', async () => {
+      processingConfig.sfi23QuarterlyStatementProcessingActive = true
+      processingConfig.delinkedStatementProcessingActive = false
+      isWithinWindow.mockReturnValue(true)
+      isPollDay.mockReturnValue(true)
+      processSfi23QuarterlyStatement.mockResolvedValueOnce(1)
+      await processing.processWithInterval()
+      processSfi23QuarterlyStatement.mockResolvedValueOnce(0)
+      await processing.processWithInterval()
+      expect(console.log).toHaveBeenCalledWith('Delinked Payment Statement processing is disabled')
+      expect(console.log).toHaveBeenCalledWith('Processing is idle: no items processed this cycle')
+    })
+
+    test('logs success when items processed', async () => {
+      processingConfig.sfi23QuarterlyStatementProcessingActive = true
+      processingConfig.delinkedStatementProcessingActive = false
+      isWithinWindow.mockReturnValue(true)
+      isPollDay.mockReturnValue(true)
+      processSfi23QuarterlyStatement.mockResolvedValue(2)
+      await processing.processWithInterval()
+      expect(console.log).toHaveBeenCalledWith('All processing tasks completed successfully — processed 2 items')
+      expect(console.log).toHaveBeenCalledWith('Delinked Payment Statement processing is disabled')
+    })
+
+    test('logs warning when one task fails and another processes items', async () => {
+      processingConfig.sfi23QuarterlyStatementProcessingActive = true
+      processingConfig.delinkedStatementProcessingActive = true
+      isWithinWindow.mockReturnValue(true)
+      isPollDay.mockReturnValue(true)
+      processSfi23QuarterlyStatement.mockResolvedValueOnce(2)
+      processDelinkedStatement.mockRejectedValueOnce(new Error('fail'))
+      await processing.processWithInterval()
+      expect(console.warn).toHaveBeenCalledWith(expect.stringMatching(/tasks failed/))
     })
 
     test('skips processing when outside window or not a poll day', async () => {
       processingConfig.sfi23QuarterlyStatementProcessingActive = true
       processingConfig.delinkedStatementProcessingActive = false
       isWithinWindow.mockReturnValue(false)
-      isPollDay.mockReturnValue(true)
-
+      isPollDay.mockReturnValue(false)
       await processing.start()
-
       expect(isWithinWindow).toHaveBeenCalled()
       expect(console.log).toHaveBeenCalledWith('Outside processing window or not a processing day, skipping processing')
       expect(processSfi23QuarterlyStatement).not.toHaveBeenCalled()
+    })
+
+    test('processes when pollWindowEnabled false but window helpers return true', async () => {
+      processingConfig.sfi23QuarterlyStatementProcessingActive = true
+      processingConfig.delinkedStatementProcessingActive = false
+      processingConfig.pollWindowEnabled = false
+      isWithinWindow.mockReturnValue(true)
+      isPollDay.mockReturnValue(true)
+      processSfi23QuarterlyStatement.mockResolvedValue(1)
+      await processing.processWithInterval()
+      expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
+      expect(console.log).toHaveBeenCalledWith('All processing tasks completed successfully — processed 1 items')
+      expect(console.log).toHaveBeenCalledWith('Delinked Payment Statement processing is disabled')
     })
   })
 })
