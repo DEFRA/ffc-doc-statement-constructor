@@ -24,6 +24,7 @@ const handleProcessingError = async (item, err) => {
 
 const processDelinkedStatement = async () => {
   const d365 = await getVerifiedD365DelinkedStatements()
+  let processed = 0
 
   for (const item of d365) {
     try {
@@ -35,10 +36,13 @@ const processDelinkedStatement = async () => {
       await validateDelinkedStatement(delinkedStatement)
       await sendDelinkedStatement(delinkedStatement)
       await updateD365CompletePublishByD365Id(item.d365Id)
+      processed += 1
     } catch (err) {
       await handleProcessingError(item, err)
     }
   }
+
+  return processed
 }
 
 module.exports = processDelinkedStatement
