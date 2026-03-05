@@ -39,7 +39,7 @@ describe('processing', () => {
   beforeEach(() => {
     processingConfig.statementProcessingInterval = 10000
     processingConfig.settlementProcessingInterval = 10000
-    processingConfig.pollWindowEnabled = true
+    processingConfig.pollWindow.enabled = true
     console.log = jest.fn()
     console.error = jest.fn()
     console.warn = jest.fn()
@@ -196,10 +196,10 @@ describe('processing', () => {
       expect(processSfi23QuarterlyStatement).not.toHaveBeenCalled()
     })
 
-    test('processes when pollWindowEnabled false but window helpers return true', async () => {
+    test('processes when pollWindow.enabled false but window helpers return true', async () => {
       processingConfig.sfi23QuarterlyStatementProcessingActive = true
       processingConfig.delinkedStatementProcessingActive = false
-      processingConfig.pollWindowEnabled = false
+      processingConfig.pollWindow.enabled = false
       isWithinWindow.mockReturnValue(true)
       isPollDay.mockReturnValue(true)
       processSfi23QuarterlyStatement.mockResolvedValue(1)
