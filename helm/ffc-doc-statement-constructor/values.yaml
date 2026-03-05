@@ -15,7 +15,7 @@ containerConfigMap:
   name: ffc-doc-statement-constructor-config-map
 
 containerSecret:
-  name: ffc-doc-statement-constructor-container-secret
+  name: ffc-doc-statement-constructor
   type: Opaque
 
 deployment:
