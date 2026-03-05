@@ -9,6 +9,7 @@ path = ".gitleaks-shared/.gitleaks.toml"
 description = "Service-specific exclusions"
 paths = [
   '''test/mock-objects/.*''',
+  '''test/mock-modules/.*''',
 ]
 # regexes = [
 #   '''MY_SPECIFIC_TEST_TOKEN_VALUE''',
