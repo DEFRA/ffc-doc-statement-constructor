@@ -15,7 +15,7 @@ containerConfigMap:
   name: ffc-doc-statement-constructor-config-map
 
 containerSecret:
-  name: ffc-doc-statement-constructor-container-secret
+  name: ffc-doc-statement-constructor
   type: Opaque
 
 deployment:
@@ -44,6 +44,7 @@ container:
   pollWindowStart: "00:00"
   pollWindowEnd: "23:59"
   pollWindowDays: "Sun,Mon,Tue,Wed,Thu,Fri,Sat"
+  pollWindowEnabled: true
 
 postgresService:
   postgresDb: ffc_doc_statement_constructor
@@ -57,3 +58,17 @@ workloadIdentity: true
 azureIdentity:
   clientID: not-a-real-clientID
   resourceID: not-a-real-resourceID
+
+secretProviderClass:
+  azure:
+    keyvaultName: SNDFFCINFKV2001
+    objects: # reading the secret from Azure Key Vault
+      - objectName: appInsights-connectionString # secret name in Azure Key Vault
+        objectType: secret
+
+  secretObjects: # creating a Kubernetes secret from the Azure Key Vault secrets
+    - secretName: ffc-doc-statement-constructor
+      type: Opaque
+      data:
+        - objectName: appInsights-connectionString # secret name in Azure Key Vault
+          key: APPLICATIONINSIGHTS_CONNECTION_STRING # the secret key in the Kubernetes secret and use in the application
