@@ -1,0 +1,51 @@
+name: '$(Build.SourceBranchName)$(System.PullRequest.SourceBranch)$(Rev:.r)'
+
+trigger:
+  - main
+  - feature/*
+  - release/*
+
+pr:
+  - main
+  - releases/*
+
+parameters:
+  - name: prDeployment
+    type: boolean
+    default: true
+  - name: branchDeployment
+    type: boolean
+    default: true
+  - name: sndDeployment
+    type: boolean
+    default: true
+
+resources:
+  repositories:
+    - repository: templates
+      endpoint: DEFRA
+      type: github
+      name: defra/fcp-pipeline-common
+      # ref: branch-name
+
+extends:
+  template: fcp-common-pipeline.yaml@templates
+  parameters:
+    appFrameworkType: nodejs
+    prDeployment: ${{ parameters.prDeployment }}
+    branchDeployment: ${{ parameters.branchDeployment }}
+    sndDeployment: ${{ parameters.sndDeployment }}
+    variableGroupName: ffc-doc-statement-constructor-env-var
+    failOnThreshold: moderate  # Optional: moderate (default), low, high, critical
+    pr_params:
+      container.endpointEnabled: ${{ eq(variables['pr_endpointEnabled'], 'true') }}
+    snd2_params:
+      container.endpointEnabled: ${{ eq(variables['snd2_endpointEnabled'], 'true') }}
+    dev_params:
+      container.endpointEnabled: ${{ eq(variables['dev_endpointEnabled'], 'true') }}
+    test_params:
+      container.endpointEnabled: ${{ eq(variables['test_endpointEnabled'], 'true') }}
+    pre_params:
+      container.endpointEnabled: ${{ eq(variables['pre_endpointEnabled'], 'true') }}
+    prd_params:
+      container.endpointEnabled: ${{ eq(variables['prd_endpointEnabled'], 'true') }}

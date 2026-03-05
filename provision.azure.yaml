@@ -8,6 +8,8 @@ resources:
       subscriptions:
         - name: ffc-doc-statement-constructor
     - name: ffc-doc-statements
-      role: sender
+      roles: 
+        - name: sender
     - name: ffc-doc-alerting
-      role: sender
+      roles: 
+        - name: sender

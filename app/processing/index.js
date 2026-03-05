@@ -108,7 +108,7 @@ const processWithInterval = async () => {
     const inWindow = isWithinWindow(processingConfig.pollWindow)
     const onDay = isPollDay(processingConfig.pollWindow.days)
 
-    if (inWindow && onDay) {
+    if (!processingConfig.pollWindow.enabled || (inWindow && onDay)) {
       const results = await processBatch(tasks)
       handleResults(results)
     } else {
