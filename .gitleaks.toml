@@ -2,8 +2,7 @@
 title = "ffc-doc-statement-constructor"
 
 [extend]
-# Pull in the shared DEFRA base rules
-url = "https://raw.githubusercontent.com/DEFRA/ffc-shared-actions/main/.gitleaks.toml"
+path = ".gitleaks-shared/.gitleaks.toml"
 
 # Service-specific additions only below this line
 [allowlist]
