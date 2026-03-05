@@ -1,0 +1,23 @@
+#!/bin/sh
+
+GITLEAKS_VERSION="8.24.3"
+GITLEAKS_BIN="$HOME/.local/bin/gitleaks"
+
+# Install gitleaks if not present
+if [ ! -f "$GITLEAKS_BIN" ]; then
+  echo "⚠️  gitleaks not found, installing..."
+  mkdir -p "$HOME/.local/bin"
+  curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+    | tar -xz -C "$HOME/.local/bin" gitleaks
+fi
+
+# Fetch shared gitleaks config if not present
+if [ ! -f ".gitleaks-shared/.gitleaks.toml" ]; then
+ echo
+  mkdir -p .gitleaks-shared
+  curl -sSfL https://raw.githubusercontent.com/DEFRA/ffc-shared-actions/main/.gitleaks.toml \
+    -o .gitleaks-shared/.gitleaks.toml
+fi
+
+echo "🔍 Running gitleaks scan..."
+"$GITLEAKS_BIN" detect --config .gitleaks.toml --verbose --exit-code=2
