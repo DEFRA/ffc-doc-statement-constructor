@@ -5,6 +5,11 @@ container:
   messageQueueHost: PREFFCINFSB1001.servicebus.windows.net
   azureStorageAccountName: preffcdocst1001
   redisHostname: PREFFCINFRD1001.redis.cache.windows.net
+  statementProcessingInterval: 3600000
+  pollWindowStart: "08:00"
+  pollWindowEnd: "18:00"
+  pollWindowDays: "Mon,Tue,Wed,Thu,Fri"
+  pollWindowEnabled: true
 secretProviderClass:
   azure:
     keyvaultName: PREFFCINFKV1001
