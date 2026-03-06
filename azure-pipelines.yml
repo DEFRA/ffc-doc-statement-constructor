@@ -38,14 +38,14 @@ extends:
     variableGroupName: ffc-doc-statement-constructor-env-var
     failOnThreshold: moderate  # Optional: moderate (default), low, high, critical
     pr_params:
-      container.endpointEnabled: ${{ eq(variables['pr_endpointEnabled'], 'true') }}
+      container.endpointEnabled: $(pr_endpointEnabled)
     snd2_params:
-      container.endpointEnabled: ${{ eq(variables['snd2_endpointEnabled'], 'true') }}
+      container.endpointEnabled: $(snd2_endpointEnabled)
     dev_params:
-      container.endpointEnabled: ${{ eq(variables['dev_endpointEnabled'], 'true') }}
+      container.endpointEnabled: $(dev_endpointEnabled)
     test_params:
-      container.endpointEnabled: ${{ eq(variables['test_endpointEnabled'], 'true') }}
+      container.endpointEnabled: $(test_endpointEnabled)
     pre_params:
-      container.endpointEnabled: ${{ eq(variables['pre_endpointEnabled'], 'true') }}
+      container.endpointEnabled: $(pre_endpointEnabled)
     prd_params:
-      container.endpointEnabled: ${{ eq(variables['prd_endpointEnabled'], 'true') }}
+      container.endpointEnabled: $(prd_endpointEnabled)
