@@ -18,4 +18,3 @@ secretProviderClass:
       data:
         - objectName: prd-ffcahwr-appinsights-connectionString
           key: APPLICATIONINSIGHTS_CONNECTION_STRING
-notifyApiKeySecret: secret_api_key-822638a6-2c67-44ef-9fe0-98tc9bb99272-45yne8e4-7daa-4324-89f3-7e53x7bqe3l9
