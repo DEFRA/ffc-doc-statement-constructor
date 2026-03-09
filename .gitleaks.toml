@@ -10,7 +10,7 @@ description = "Service-specific exclusions"
 paths = [
   '''test/mock-objects/.*''',
   '''test/mock-modules/.*''',
-    '''test/unit/.*'''
+  '''test/unit/.*'''
 ]
 # regexes = [
 #   '''GITHUB_NEW_TOKEN''',
