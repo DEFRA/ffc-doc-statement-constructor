@@ -9,4 +9,3 @@ container:
   pollWindowStart: "08:00"
   pollWindowEnd: "18:00"
   pollWindowDays: "Mon,Tue,Wed,Thu,Fri"
-  pollWindowEnabled: true
