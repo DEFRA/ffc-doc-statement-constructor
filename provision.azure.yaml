@@ -2,14 +2,29 @@ resources:
   identity: doc-statement-constructor
   postgreSql:
     name: ffc-doc-statement-constructor
-  topics:
-    - name: ffc-doc-statement-data
-      role: receiver
-      subscriptions:
-        - name: ffc-doc-statement-constructor
-    - name: ffc-doc-statements
-      roles: 
+  service_bus:
+    topics:
+      - name: ffc-doc-statement-data
+        defaultMessageTimeToLive: P3650D
+        duplicateDetectionHistoryTimeWindow: PT10M30S
+        requiresDuplicateDetection: true
+        roles: 
+        - name: receiver
+        subscriptions:
+          - name: ffc-doc-statement-constructor
+            deadLetteringOnMessageExpiration: true
+            defaultMessageTimeToLive: P3650D
+            lockDuration: PT5M
+            maxDeliveryCount: 2000
+      - name: ffc-doc-statements
+        defaultMessageTimeToLive: P3650D
+        duplicateDetectionHistoryTimeWindow: PT10M30S
+        requiresDuplicateDetection: true
+        roles: 
         - name: sender
-    - name: ffc-doc-alerting
-      roles: 
+      - name: ffc-doc-alerting
+        defaultMessageTimeToLive: P3650D
+        duplicateDetectionHistoryTimeWindow: PT10M30S
+        requiresDuplicateDetection: true
+        roles: 
         - name: sender
