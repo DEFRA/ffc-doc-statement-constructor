@@ -2,7 +2,7 @@ const { dataProcessingAlert } = require('ffc-alerting-utils')
 const db = require('../../data')
 const saveD365 = require('./save-d365')
 const validateD365 = require('./validate-d365')
-const getD365ByCalculationIdAndPaymentReference = require('./get-d365-by-calculation-id-and-payment-reference')
+const getExistingD365 = require('./get-existing-d365')
 const { D365 } = require('../../constants/types')
 const { retryOnFkError } = require('../../utility/retry-fk-error')
 const { DUPLICATE_RECORD } = require('../../constants/alerts')
@@ -21,13 +21,13 @@ const processD365 = async (d365) => {
 
     validateD365(transformedD365, transformedD365.paymentReference)
 
-    const existingD365 = await getD365ByCalculationIdAndPaymentReference(d365)
+    const existingD365 = await getExistingD365(d365)
     if (existingD365) {
-      console.info(`Duplicate D365 paymentReference received, skipping payment reference ${existingD365.paymentReference} for calculation ${existingD365.calculationId}`)
+      console.info(`Duplicate D365 paymentReference received, skipping payment reference ${existingD365.paymentReference}`)
       await dataProcessingAlert({
         process: 'processD365',
         ...d365,
-        message: `A duplicate record was received for payment reference ${existingD365.paymentReference} and calculation ${existingD365.calculationId}`,
+        message: `A duplicate record was received for payment reference ${existingD365.paymentReference}`,
         type: DUPLICATE_RECORD
       }, DUPLICATE_RECORD)
       return
