@@ -21,14 +21,14 @@ jest.mock('ffc-alerting-utils')
 jest.mock('../../../../app/inbound/d365/save-d365')
 jest.mock('../../../../app/inbound/d365/schema')
 jest.mock('../../../../app/inbound/d365/validate-d365')
-jest.mock('../../../../app/inbound/d365/get-d365-by-calculation-id-and-payment-reference')
+jest.mock('../../../../app/inbound/d365/get-existing-d365')
 
 const { dataProcessingAlert } = require('ffc-alerting-utils')
 const db = require('../../../../app/data')
 const processD365 = require('../../../../app/inbound/d365/process-d365')
 const saveD365 = require('../../../../app/inbound/d365/save-d365')
 const validateD365 = require('../../../../app/inbound/d365/validate-d365')
-const getD365ByPaymentReference = require('../../../../app/inbound/d365/get-d365-by-calculation-id-and-payment-reference')
+const getExistingD365 = require('../../../../app/inbound/d365/get-existing-d365')
 const { DUPLICATE_RECORD } = require('../../../../app/constants/alerts')
 
 beforeAll(() => {
@@ -52,7 +52,7 @@ describe('processD365', () => {
 
   test('should skip processing and log info when duplicate paymentReference exists', async () => {
     const d365 = { paymentReference: 'PY1000001', calculationReference: 12345 }
-    getD365ByPaymentReference.mockResolvedValue({
+    getExistingD365.mockResolvedValue({
       ...d365,
       calculationId: 12345
     })
@@ -60,13 +60,13 @@ describe('processD365', () => {
 
     await processD365(d365)
 
-    expect(console.info).toHaveBeenCalledWith('Duplicate D365 paymentReference received, skipping payment reference PY1000001 for calculation 12345')
+    expect(console.info).toHaveBeenCalledWith('Duplicate D365 paymentReference received, skipping payment reference PY1000001')
     expect(db.sequelize.transaction).not.toHaveBeenCalled()
   })
 
   test('should trigger alert if duplicate payment reference identified', async () => {
     const d365 = { paymentReference: 'PY1000001', calculationReference: 12345 }
-    getD365ByPaymentReference.mockResolvedValue({
+    getExistingD365.mockResolvedValue({
       ...d365,
       calculationId: 12345
     })
@@ -76,7 +76,7 @@ describe('processD365', () => {
     expect(dataProcessingAlert).toHaveBeenCalledWith({
       process: 'processD365',
       ...d365,
-      message: 'A duplicate record was received for payment reference PY1000001 and calculation 12345',
+      message: 'A duplicate record was received for payment reference PY1000001',
       type: DUPLICATE_RECORD
     }, DUPLICATE_RECORD)
   })
@@ -89,7 +89,7 @@ describe('processD365', () => {
       paymentAmount: 1000,
       transactionDate: '2024-04-01'
     }
-    getD365ByPaymentReference.mockResolvedValue(null)
+    getExistingD365.mockResolvedValue(null)
     validateD365.mockImplementation(() => { })
     saveD365.mockResolvedValue()
 
@@ -116,7 +116,7 @@ describe('processD365', () => {
       paymentPeriod: '2024-Q1',
       paymentAmount: 1000
     }
-    getD365ByPaymentReference.mockResolvedValue(null)
+    getExistingD365.mockResolvedValue(null)
     validateD365.mockImplementation(() => { })
     saveD365.mockRejectedValue(new Error('Test save error'))
 
@@ -130,7 +130,7 @@ describe('processD365', () => {
       calculationReference: 'abc'
     }
     const validationError = new Error('Validation failed')
-    getD365ByPaymentReference.mockResolvedValue(null)
+    getExistingD365.mockResolvedValue(null)
     validateD365.mockImplementation(() => { throw validationError })
 
     await expect(processD365(d365)).rejects.toThrow('Validation failed')
@@ -140,7 +140,7 @@ describe('processD365', () => {
   test('should throw and log when getD365ByPaymentReference fails', async () => {
     const d365 = { paymentReference: 'PY1000001' }
     const error = new Error()
-    getD365ByPaymentReference.mockRejectedValue(error)
+    getExistingD365.mockRejectedValue(error)
 
     await expect(processD365(d365)).rejects.toThrow()
     expect(transaction.rollback).not.toHaveBeenCalled()
@@ -154,7 +154,7 @@ describe('processD365', () => {
       paymentAmount: 1000,
       transactionDate: '2024-04-01'
     }
-    getD365ByPaymentReference.mockResolvedValue(null)
+    getExistingD365.mockResolvedValue(null)
     validateD365.mockImplementation(() => { })
     const fkError = new db.Sequelize.ForeignKeyConstraintError({ message: 'FK error' })
     saveD365
