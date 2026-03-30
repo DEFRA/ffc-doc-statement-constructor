@@ -1,19 +1,16 @@
 const publishDelinkedStatement = require('../../../../app/processing/delinked-statement/publish-delinked-statement')
-const util = require('util')
 const config = require('../../../../app/config')
 
 jest.mock('../../../../app/messaging/send-message')
 const sendMessage = require('../../../../app/messaging/send-message')
 
 describe('publishDelinkedStatement', () => {
-  const delinkedStatement = { id: 'stmt123', amount: 100 }
+  const delinkedStatement = { sbi: 123, frn: 456 }
 
   let consoleLogSpy
-  let utilInspectSpy
 
   beforeEach(() => {
     consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
-    utilInspectSpy = jest.spyOn(util, 'inspect')
     jest.clearAllMocks()
   })
 
@@ -32,8 +29,7 @@ describe('publishDelinkedStatement', () => {
       name: 'logs the sent statement',
       verify: () => {
         expect(consoleLogSpy).toHaveBeenCalledWith(
-          'Delinked Payment Statement sent:',
-          utilInspectSpy(delinkedStatement, false, null, true)
+          'Delinked Payment Statement sent: sbi: 123, frn: 456'
         )
       }
     }

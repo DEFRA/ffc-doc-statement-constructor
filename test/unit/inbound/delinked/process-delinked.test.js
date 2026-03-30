@@ -153,7 +153,7 @@ describe('processDelinked', () => {
     console.error = jest.fn()
 
     await expect(processDelinked(input)).rejects.toThrow('Missing calculationReference/calculationId')
-    expect(console.error).toHaveBeenCalledWith('Missing calculationReference/calculationId for delinked', input)
+    expect(console.error).toHaveBeenCalledWith('Missing calculationReference/calculationId for delinked: sbi: 110100001')
   })
 
   test('propagates errors from getDelinkedByCalculationId', async () => {

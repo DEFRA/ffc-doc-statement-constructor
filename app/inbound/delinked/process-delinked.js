@@ -18,7 +18,7 @@ const processDelinked = async (delinked) => {
   const PROCESS = 'processDelinked'
   const { calcRef, appRef } = resolveIds(delinked)
   if (calcRef === undefined || calcRef === null || calcRef === '') {
-    console.error('Missing calculationReference/calculationId for delinked', delinked)
+    console.error(`Missing calculationReference/calculationId for delinked: sbi: ${delinked.sbi}`)
     throw new Error('Missing calculationReference/calculationId')
   }
 
