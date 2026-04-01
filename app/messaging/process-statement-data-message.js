@@ -1,10 +1,13 @@
-const util = require('util')
 const processStatementData = require('../inbound/statement-data/process-statement-data')
 
 const processStatementDataMessage = async (message, receiver) => {
   try {
     const statementData = message.body
-    console.log(`Processing statement data - (${statementData.type}):`, util.inspect(statementData, false, null, true))
+    if (statementData.type === 'd365' || statementData.type === 'dax') {
+      console.log(`Processing statement data - (${statementData.type}): paymentReference: ${statementData.paymentReference}`)
+    } else {
+      console.log(`Processing statement data - (${statementData.type}): frn: ${statementData.frn}, sbi: ${statementData.sbi}`)
+    }
     await processStatementData(statementData)
     await receiver.completeMessage(message)
   } catch (err) {
