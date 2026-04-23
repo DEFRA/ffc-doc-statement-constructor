@@ -18,6 +18,11 @@ const mqSchema = Joi.object({
     topic: Joi.string(),
     type: Joi.string().default('subscription')
   },
+  retentionSubscription: {
+    address: Joi.string().required(),
+    topic: Joi.string().required(),
+    type: Joi.string().default('subscription')
+  },
   statementTopic: {
     address: Joi.string(),
     source: Joi.string()
@@ -44,6 +49,11 @@ const mqConfig = {
     topic: process.env.DATA_TOPIC_ADDRESS,
     type: 'subscription'
   },
+  retentionSubscription: {
+    address: process.env.RETENTION_SUBSCRIPTION_ADDRESS,
+    topic: process.env.RETENTION_TOPIC_ADDRESS,
+    type: 'subscription'
+  },
   statementTopic: {
     address: process.env.STATEMENT_TOPIC_ADDRESS,
     source: docStatementConstructor
@@ -65,6 +75,7 @@ if (mqResult.error) {
 }
 
 const statementDataSubscription = { ...mqResult.value.messageQueue, ...mqResult.value.statementDataSubscription }
+const retentionSubscription = { ...mqResult.value.messageQueue, ...mqResult.value.retentionSubscription }
 const statementTopic = { ...mqResult.value.messageQueue, ...mqResult.value.statementTopic }
 const alertTopic = { ...mqResult.value.messageQueue, ...mqResult.value.alertTopic }
 const idleCheckBatchSize = mqResult.value.idleCheckBatchSize
@@ -73,6 +84,7 @@ const idleCheckInterval = mqResult.value.idleCheckInterval
 
 module.exports = {
   statementDataSubscription,
+  retentionSubscription,
   statementTopic,
   alertTopic,
   idleCheckBatchSize,
