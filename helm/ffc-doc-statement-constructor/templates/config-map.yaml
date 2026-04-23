@@ -8,12 +8,15 @@ data:
   ALERT_TOPIC_ADDRESS: {{ .Values.container.alertTopicAddress }}-{{ .Values.environmentCode }}
   DATA_TOPIC_ADDRESS: {{ .Values.container.dataTopicAddress }}-{{ .Values.environmentCode }}
   STATEMENT_TOPIC_ADDRESS: {{ .Values.container.statementTopicAddress }}-{{ .Values.environmentCode }}
+  RETENTION_TOPIC_ADDRESS: {{ .Values.container.retentionTopicAddress }}-{{ .Values.environmentCode }}
   {{ else }}
   ALERT_TOPIC_ADDRESS: {{ .Values.container.alertTopicAddress }}
   DATA_TOPIC_ADDRESS: {{ .Values.container.dataTopicAddress }}
   STATEMENT_TOPIC_ADDRESS: {{ .Values.container.statementTopicAddress }}
+  RETENTION_TOPIC_ADDRESS: {{ .Values.container.retentionTopicAddress }}
   {{- end }}
   DATA_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.dataSubscriptionAddress }}
+  RETENTION_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.retentionSubscriptionAddress }}
   POSTGRES_DB: {{ quote .Values.postgresService.postgresDb }}
   POSTGRES_HOST: {{ quote .Values.postgresService.postgresqlHost }}
   POSTGRES_PORT: {{ quote .Values.postgresService.postgresPort }}

@@ -12,27 +12,50 @@ const throughputOptions = {
 }
 
 describe('messaging', () => {
+  let mockSubscribe
+  let mockCloseConnection
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+
+    mockSubscribe = jest.fn().mockResolvedValue()
+    mockCloseConnection = jest.fn().mockResolvedValue()
+
+    MessageReceiver.mockImplementation(() => ({
+      subscribe: mockSubscribe,
+      closeConnection: mockCloseConnection
+    }))
+  })
+
   afterAll(async () => {
     await messageService.stop()
   })
 
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
-  test.each([
-    [true, 1, 'starts message receivers when paymentLinkActive is true'],
-    [false, 1, 'starts only statement data receiver when paymentLinkActive is false']
-  ])('%s', async (paymentLinkActive, expectedCalls, _description) => {
-    config.paymentLinkActive = paymentLinkActive
-
+  test('start creates both statementDataReceiver and retentionReceiver with correct params and subscribes', async () => {
     await messageService.start()
 
-    expect(MessageReceiver).toHaveBeenCalledTimes(expectedCalls)
-    expect(MessageReceiver).toHaveBeenCalledWith(
+    expect(MessageReceiver).toHaveBeenCalledTimes(2)
+
+    expect(MessageReceiver).toHaveBeenNthCalledWith(
+      1,
       config.statementDataSubscription,
       expect.any(Function),
       throughputOptions
     )
+
+    expect(MessageReceiver).toHaveBeenNthCalledWith(
+      2,
+      config.retentionSubscription,
+      expect.any(Function)
+    )
+
+    expect(mockSubscribe).toHaveBeenCalledTimes(2)
+  })
+
+  test('stop closes connections for both receivers', async () => {
+    await messageService.start()
+    await messageService.stop()
+
+    expect(mockCloseConnection).toHaveBeenCalledTimes(2)
   })
 })
