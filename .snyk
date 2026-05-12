@@ -5,5 +5,5 @@ ignore:
   SNYK-JS-UUID-16133035:
     - '*':
         reason: "No direct upgrade or patch available through sequelize dependency chain"
-        expires: "2026-12-31T23:59:59.999Z"
+        expires: "2026-05-261T23:59:59.999Z"
 patch: {}
