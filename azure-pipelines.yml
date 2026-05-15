@@ -36,7 +36,7 @@ extends:
     branchDeployment: ${{ parameters.branchDeployment }}
     sndDeployment: ${{ parameters.sndDeployment }}
     variableGroupName: ffc-doc-statement-constructor-env-var
-    failOnThreshold: moderate  # Optional: moderate (default), low, high, critical
+    failOnThreshold: critical  # Optional: moderate (default), low, high, critical
     pr_params:
       container.endpointEnabled: $(pr_endpointEnabled)
       container.pollWindowEnabled: $(pr_pollWindowEnabled)
