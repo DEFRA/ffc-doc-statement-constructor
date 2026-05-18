@@ -33,6 +33,8 @@ container:
   messageQueueHost: namespace.servicebus.windows.net
   dataTopicAddress: ffc-doc-statement-data
   dataSubscriptionAddress: ffc-doc-statement-constructor
+  retentionTopicAddress: fcp-pds-data-retention
+  retentionSubscriptionAddress: ffc-doc-statement-constructor
   statementTopicAddress: ffc-doc-statements
   alertTopicAddress: ffc-doc-alerting
   statementProcessingInterval: 60000
