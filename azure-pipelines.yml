@@ -34,7 +34,7 @@ extends:
     appFrameworkType: nodejs
     prDeployment: ${{ parameters.prDeployment }}
     branchDeployment: ${{ parameters.branchDeployment }}
-    sndDeployment: ${{ parameters.sndDeployment }}
+    sndDeployment: ${{ parameters.snd2Deployment }}
     variableGroupName: ffc-doc-statement-constructor-env-var
     failOnThreshold: moderate  # Optional: moderate (default), low, high, critical
     pr_params:
