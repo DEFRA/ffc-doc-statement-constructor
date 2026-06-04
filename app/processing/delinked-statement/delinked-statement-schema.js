@@ -13,10 +13,16 @@ const constants = {
   number260: 260,
   number4000: 4000,
   year2023: 2023,
-  year2024: 2024,
-  year2025: 2025,
-  year2050: 2050
+  year2050: 2050,
+  schemeYearStart: 2024,
+  schemeYearEnd: 2027
 }
+
+const currentYear = new Date().getFullYear()
+const validSchemeYears = Array.from(
+  { length: Math.min(currentYear, constants.schemeYearEnd) - constants.schemeYearStart + 1 },
+  (_, base) => constants.schemeYearStart + base
+)
 
 const messages = {
   numberBase: (field) => `${field} should be a type of number`,
@@ -154,11 +160,11 @@ module.exports = Joi.object({
       'any.required': 'The field scheme short name is not present but it is required',
       'any.only': 'Scheme short name must be DP'
     }),
-    year: Joi.number().integer().valid(constants.year2024, constants.year2025).messages({
+    year: Joi.number().integer().required().valid(...validSchemeYears).messages({
       'number.base': 'Year should be a type of number',
       'number.integer': 'Year should be an integer',
       'any.required': 'The field year is not present but it is required',
-      'any.only': 'Year must be either 2024 or 2025'
+      'any.only': `Year must be one of ${validSchemeYears.join(', ')}`
     })
   }),
   previousPaymentCount: numberSchema('previousPaymentCount'),
