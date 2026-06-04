@@ -18,9 +18,8 @@ const constants = {
   schemeYearEnd: 2027
 }
 
-const currentYear = new Date().getFullYear()
 const validSchemeYears = Array.from(
-  { length: Math.min(currentYear, constants.schemeYearEnd) - constants.schemeYearStart + 1 },
+  { length: constants.schemeYearEnd - constants.schemeYearStart + 1 },
   (_, base) => constants.schemeYearStart + base
 )
 
