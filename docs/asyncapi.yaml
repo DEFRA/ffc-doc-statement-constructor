@@ -314,8 +314,6 @@ components:
           $ref: '#/components/schemas/TotalDelinkedPayment'
         paymentAmountCalculated:
           $ref: '#/components/schemas/PaymentAmountCalculated'
-        type:
-          $ref: '#/components/schemas/TypeDelinked'
     PaymentStatement:
       type: object
       required:
@@ -402,6 +400,10 @@ components:
            $ref: '#/components/schemas/PreviousPaymentCount' 
         documentReference:
           $ref: '#/components/schemas/DocumentReference'
+        excludedFromNotify:
+          $ref: '#/components/schemas/ExcludedFromNotify'
+        type:
+          $ref: '#/components/schemas/TypeSFI23'    
     ActionGroup:
       type: object
       properties:
@@ -535,19 +537,19 @@ components:
     PaymentBand1:
       type: string
       description: first payment band bracket amount 
-      example: "Up to £30000"
+      example: £30000
     PaymentBand2:
       type: string
       description: second payment band bracket amount 
-      example: "£30,000.01 to £50,000"
+      example: "£50,000"
     PaymentBand3:
       type: string
       description: third payment band bracket amount 
-      example: "£50,000.01 to £150,000"
+      example: "£150,000"
     PaymentBand4:
       type: string
       description: fourth payment band bracket amount 
-      example: "Above £150,000"
+      example: "£999,999"
     PercentageReduction1:
       type: string
       description: First percentage bracket for progressive reductions 
@@ -592,6 +594,10 @@ components:
       type: string
       description: Total annual delinked payment amount
       example: "50250.00"
+    PaymentAmountString:
+      type: string
+      description: total payment amount
+      example: "25125.00"  
     PaymentAmountCalculated:
       type: string
       description: TotalDelinkedPayment /2 should match paymentAmount
@@ -699,16 +705,8 @@ components:
           example: farm@farms.com
         businessName:
           $ref: '#/components/schemas/BusinessName'
-        addressLine1:
-          $ref: '#/components/schemas/AddressLine1'
-        addressLine2:
-          $ref: '#/components/schemas/AddressLine2'
-        addressLine3:
-          $ref: '#/components/schemas/AddressLine3'
-        city:
-          $ref: '#/components/schemas/City'
-        county:
-          $ref: '#/components/schemas/County'
+        address:
+          $ref: '#/components/schemas/Address'
         schemeYear:
           type: string
           format: integer
@@ -744,12 +742,24 @@ components:
           $ref: '#/components/schemas/TotalProgressiveReduction'
         totalDelinkedPayment:
           $ref: '#/components/schemas/TotalDelinkedPayment'
+        paymentAmount:
+          $ref: '#/components/schemas/PaymentAmountString'
         paymentAmountCalculated:
           $ref: '#/components/schemas/PaymentAmountCalculated'
         transactionDate:
           $ref: '#/components/schemas/TransactionDate'
         paymentReference:
           $ref: '#/components/schemas/PaymentReference'
+        paymentPeriod:
+          $ref: '#/components/schemas/PaymentPeriod'
+        previousPaymentCount:
+          $ref: '#/components/schemas/PreviousPaymentCount'   
+        documentReference:
+          $ref: '#/components/schemas/DocumentReference' 
+        excludedFromNotify:
+          $ref: '#/components/schemas/ExcludedFromNotify'    
+        type:
+          $ref: '#/components/schemas/TypeDelinkedStatement'  
     Scheme:
       type: object
       required:
@@ -769,7 +779,7 @@ components:
         year:
           type: string
           description: The marketing year
-          example: 2022
+          example: '2022'
         frequency:
           type: string
           description: The frequency of payments
@@ -956,6 +966,10 @@ components:
         detection
       minimum: 1
       example: 1
+    ExcludedFromNotify:
+      type: boolean
+      description: Flag to determine whether data passed to Notify
+      example: false  
     DueDate:
       type: string
       format: 'DD/MM/YYYY, YYYY/MM/DD, DD-MM-YYYY or YYYY-MM-DD'
@@ -1097,7 +1111,7 @@ components:
     SchemeCode:
       type: string
       description: Unique funding option code
-      example: 80001
+      example: '80001'
       enum:
         - 80001 (Arable and horticultural soils Introductory)
     SchemeId:
@@ -1182,10 +1196,18 @@ components:
       type: string
       description: Constant TOTALS
       example: total
+    TypeSFI23:
+      type: string
+      description: Constant TYPESFI23
+      example: uk.gov.doc.sfi-23-quarterly-statement
     TypeSFI23QuarterlyStatement:
       type: string
       description: Constant SFI23QUARTERLYPAYMENT
       example: SFI23QuarterlyStatement
+    TypeDelinkedStatement:
+      type: string
+      description: Constant DELINKEDSTATEMENT
+      example: uk.gov.doc.delinked-statement  
     SchemeType:
       type: string
       description: Type of scheme that payment is made for.
