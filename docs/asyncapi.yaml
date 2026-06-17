@@ -314,8 +314,6 @@ components:
           $ref: '#/components/schemas/TotalDelinkedPayment'
         paymentAmountCalculated:
           $ref: '#/components/schemas/PaymentAmountCalculated'
-        type:
-          $ref: '#/components/schemas/TypeDelinked'
     PaymentStatement:
       type: object
       required:
@@ -457,9 +455,9 @@ components:
       description: Name of the action
       example: Manage hedgerows
     AgreementNumber:
-      type: number
+      type: string
       description: Unique identifier for agreement
-      example: 123456789
+      example: '123456789'
     AgreementEnd:
       type: string
       format: date-time
@@ -709,11 +707,10 @@ components:
           $ref: '#/components/schemas/BusinessName'
         address:
           $ref: '#/components/schemas/Address'
-        schemeYear:
-          type: string
-          format: integer
-          description: Scheme or marketing year
-          example: 2024
+        scheme:
+          $ref: '#/components/schemas/DelinkedScheme'  
+        marketingYear:
+          $ref: '#/components/schemas/MarketingYear'
         paymentBand1:
           $ref: '#/components/schemas/PaymentBand1'
         paymentBand2:
@@ -788,6 +785,25 @@ components:
           example: Quarterly
         agreementNumber:
            $ref: '#/components/schemas/AgreementNumber'
+    DelinkedScheme:
+      type: object
+      required:
+        - name
+        - shortName
+        - year
+      properties:
+        name:
+          type: string
+          description: The name of the scheme
+          example: 'Delinked Payment Statement'
+        shortName:
+          type: string
+          description: The short name of the scheme
+          example: 'DP'
+        year:
+          type: number
+          description: The marketing year
+          example: 2024       
     Payment:
       type: object
       required:
