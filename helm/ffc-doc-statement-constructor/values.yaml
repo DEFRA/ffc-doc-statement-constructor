@@ -47,6 +47,7 @@ container:
   pollWindowEnd: "23:59"
   pollWindowDays: "Sun,Mon,Tue,Wed,Thu,Fri,Sat"
   pollWindowEnabled: true
+  azureLogLevel: error
 
 postgresService:
   postgresDb: ffc_doc_statement_constructor
