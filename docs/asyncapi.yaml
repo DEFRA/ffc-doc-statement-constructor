@@ -314,8 +314,6 @@ components:
           $ref: '#/components/schemas/TotalDelinkedPayment'
         paymentAmountCalculated:
           $ref: '#/components/schemas/PaymentAmountCalculated'
-        type:
-          $ref: '#/components/schemas/TypeDelinked'
     PaymentStatement:
       type: object
       required:
@@ -402,6 +400,10 @@ components:
            $ref: '#/components/schemas/PreviousPaymentCount' 
         documentReference:
           $ref: '#/components/schemas/DocumentReference'
+        excludedFromNotify:
+          $ref: '#/components/schemas/ExcludedFromNotify'
+        type:
+          $ref: '#/components/schemas/TypeSFI23'    
     ActionGroup:
       type: object
       properties:
@@ -453,19 +455,19 @@ components:
       description: Name of the action
       example: Manage hedgerows
     AgreementNumber:
-      type: number
+      type: string
       description: Unique identifier for agreement
-      example: 123456789
+      example: '123456789'
     AgreementEnd:
       type: string
       format: date-time
       description: The date the Agreement End
-      example: '2022-08-22T16:45:20.891Z'
+      example: '2023-08-22T16:45:20.891Z'
     AgreementStart:
       type: string
       format: date-time
       description: The date the Agreement Start
-      example: '2022-08-22T16:45:20.891Z'
+      example: '2023-08-22T16:45:20.891Z'
     AnnualValue:
       type: string
       description: The annual value of the action
@@ -523,7 +525,7 @@ components:
       type: string
       format: date-time
       description: The date the calculation was performed
-      example: '2022-08-22T16:45:20.891Z'
+      example: '2023-08-22T16:45:20.891Z'
     ClaimId:
       type: number
       description: Unique Identifier for claim
@@ -535,19 +537,19 @@ components:
     PaymentBand1:
       type: string
       description: first payment band bracket amount 
-      example: "Up to £30000"
+      example: £30000
     PaymentBand2:
       type: string
       description: second payment band bracket amount 
-      example: "£30,000.01 to £50,000"
+      example: "£50,000"
     PaymentBand3:
       type: string
       description: third payment band bracket amount 
-      example: "£50,000.01 to £150,000"
+      example: "£150,000"
     PaymentBand4:
       type: string
       description: fourth payment band bracket amount 
-      example: "Above £150,000"
+      example: "£999,999"
     PercentageReduction1:
       type: string
       description: First percentage bracket for progressive reductions 
@@ -592,6 +594,10 @@ components:
       type: string
       description: Total annual delinked payment amount
       example: "50250.00"
+    PaymentAmountString:
+      type: string
+      description: total payment amount
+      example: "25125.00"  
     PaymentAmountCalculated:
       type: string
       description: TotalDelinkedPayment /2 should match paymentAmount
@@ -625,7 +631,7 @@ components:
     PaymentPeriod:
       type: string
       description: The period covered by the payment
-      example: April 2022 to June 2022
+      example: April 2023 to June 2023
     PaymentReference:
       type: string
       description: Unique identifier for payment as shown on the remittance advice
@@ -662,7 +668,7 @@ components:
       type: string
       format: date-time
       description: The date the transaction was made
-      example: '2022-08-22T16:45:20.891Z'
+      example: '2023-08-22T16:45:20.891Z'
     FundingCode:
       type: string
       description: Identifier for funding code within scheme
@@ -699,21 +705,12 @@ components:
           example: farm@farms.com
         businessName:
           $ref: '#/components/schemas/BusinessName'
-        addressLine1:
-          $ref: '#/components/schemas/AddressLine1'
-        addressLine2:
-          $ref: '#/components/schemas/AddressLine2'
-        addressLine3:
-          $ref: '#/components/schemas/AddressLine3'
-        city:
-          $ref: '#/components/schemas/City'
-        county:
-          $ref: '#/components/schemas/County'
-        schemeYear:
-          type: string
-          format: integer
-          description: Scheme or marketing year
-          example: 2024
+        address:
+          $ref: '#/components/schemas/Address'
+        scheme:
+          $ref: '#/components/schemas/DelinkedScheme'  
+        marketingYear:
+          $ref: '#/components/schemas/MarketingYear'
         paymentBand1:
           $ref: '#/components/schemas/PaymentBand1'
         paymentBand2:
@@ -744,12 +741,24 @@ components:
           $ref: '#/components/schemas/TotalProgressiveReduction'
         totalDelinkedPayment:
           $ref: '#/components/schemas/TotalDelinkedPayment'
+        paymentAmount:
+          $ref: '#/components/schemas/PaymentAmountString'
         paymentAmountCalculated:
           $ref: '#/components/schemas/PaymentAmountCalculated'
         transactionDate:
           $ref: '#/components/schemas/TransactionDate'
         paymentReference:
           $ref: '#/components/schemas/PaymentReference'
+        paymentPeriod:
+          $ref: '#/components/schemas/PaymentPeriod'
+        previousPaymentCount:
+          $ref: '#/components/schemas/PreviousPaymentCount'   
+        documentReference:
+          $ref: '#/components/schemas/DocumentReference' 
+        excludedFromNotify:
+          $ref: '#/components/schemas/ExcludedFromNotify'    
+        type:
+          $ref: '#/components/schemas/TypeDelinkedStatement'  
     Scheme:
       type: object
       required:
@@ -769,13 +778,32 @@ components:
         year:
           type: string
           description: The marketing year
-          example: 2022
+          example: '2023'
         frequency:
           type: string
           description: The frequency of payments
           example: Quarterly
         agreementNumber:
            $ref: '#/components/schemas/AgreementNumber'
+    DelinkedScheme:
+      type: object
+      required:
+        - name
+        - shortName
+        - year
+      properties:
+        name:
+          type: string
+          description: The name of the scheme
+          example: 'Delinked Payment Statement'
+        shortName:
+          type: string
+          description: The short name of the scheme
+          example: 'DP'
+        year:
+          type: number
+          description: The marketing year
+          example: 2024       
     Payment:
       type: object
       required:
@@ -956,6 +984,10 @@ components:
         detection
       minimum: 1
       example: 1
+    ExcludedFromNotify:
+      type: boolean
+      description: Flag to determine whether data passed to Notify
+      example: false  
     DueDate:
       type: string
       format: 'DD/MM/YYYY, YYYY/MM/DD, DD-MM-YYYY or YYYY-MM-DD'
@@ -1097,7 +1129,7 @@ components:
     SchemeCode:
       type: string
       description: Unique funding option code
-      example: 80001
+      example: '80001'
       enum:
         - 80001 (Arable and horticultural soils Introductory)
     SchemeId:
@@ -1182,10 +1214,18 @@ components:
       type: string
       description: Constant TOTALS
       example: total
+    TypeSFI23:
+      type: string
+      description: Constant TYPESFI23
+      example: uk.gov.doc.sfi-23-quarterly-statement
     TypeSFI23QuarterlyStatement:
       type: string
       description: Constant SFI23QUARTERLYPAYMENT
       example: SFI23QuarterlyStatement
+    TypeDelinkedStatement:
+      type: string
+      description: Constant DELINKEDSTATEMENT
+      example: uk.gov.doc.delinked-statement  
     SchemeType:
       type: string
       description: Type of scheme that payment is made for.
