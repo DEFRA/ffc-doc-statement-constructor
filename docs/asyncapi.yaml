@@ -462,12 +462,12 @@ components:
       type: string
       format: date-time
       description: The date the Agreement End
-      example: '2022-08-22T16:45:20.891Z'
+      example: '2023-08-22T16:45:20.891Z'
     AgreementStart:
       type: string
       format: date-time
       description: The date the Agreement Start
-      example: '2022-08-22T16:45:20.891Z'
+      example: '2023-08-22T16:45:20.891Z'
     AnnualValue:
       type: string
       description: The annual value of the action
@@ -525,7 +525,7 @@ components:
       type: string
       format: date-time
       description: The date the calculation was performed
-      example: '2022-08-22T16:45:20.891Z'
+      example: '2023-08-22T16:45:20.891Z'
     ClaimId:
       type: number
       description: Unique Identifier for claim
@@ -631,7 +631,7 @@ components:
     PaymentPeriod:
       type: string
       description: The period covered by the payment
-      example: April 2022 to June 2022
+      example: April 2023 to June 2023
     PaymentReference:
       type: string
       description: Unique identifier for payment as shown on the remittance advice
@@ -668,7 +668,7 @@ components:
       type: string
       format: date-time
       description: The date the transaction was made
-      example: '2022-08-22T16:45:20.891Z'
+      example: '2023-08-22T16:45:20.891Z'
     FundingCode:
       type: string
       description: Identifier for funding code within scheme
@@ -778,7 +778,7 @@ components:
         year:
           type: string
           description: The marketing year
-          example: '2022'
+          example: '2023'
         frequency:
           type: string
           description: The frequency of payments
