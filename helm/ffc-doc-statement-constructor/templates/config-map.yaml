@@ -33,4 +33,5 @@ data:
   POLL_WINDOW_END: {{ quote .Values.container.pollWindowEnd }}
   POLL_WINDOW_DAYS: {{ quote .Values.container.pollWindowDays }}
   POLL_WINDOW_ENABLED: {{ quote .Values.container.pollWindowEnabled }}
+  AZURE_LOG_LEVEL: {{ quote .Values.container.azureLogLevel }}
 {{- end -}}

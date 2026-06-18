@@ -314,6 +314,8 @@ components:
           $ref: '#/components/schemas/TotalDelinkedPayment'
         paymentAmountCalculated:
           $ref: '#/components/schemas/PaymentAmountCalculated'
+        type:
+          $ref: '#/components/schemas/TypeDelinked'  
     PaymentStatement:
       type: object
       required:
