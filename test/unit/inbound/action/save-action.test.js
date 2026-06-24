@@ -1,9 +1,3 @@
-process.env.MESSAGE_QUEUE_HOST = 'test.servicebus.windows.net'
-process.env.DATA_SUBSCRIPTION_ADDRESS = 'test-sub'
-process.env.DATA_TOPIC_ADDRESS = 'test-topic'
-process.env.RETENTION_SUBSCRIPTION_ADDRESS = 'test-retention-sub'
-process.env.RETENTION_TOPIC_ADDRESS = 'test-retention-topic'
-
 jest.mock('../../../../app/data')
 
 const db = require('../../../../app/data')
