@@ -17,6 +17,7 @@ data:
   RETENTION_TOPIC_ADDRESS: {{ .Values.container.retentionTopicAddress }}
   {{- end }}
   DATA_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.dataSubscriptionAddress }}
+  DATA_MAX_CONCURRENT_CALLS: {{ quote .Values.container.dataMaxConcurrentCalls }}
   RETENTION_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.retentionSubscriptionAddress }}
   POSTGRES_DB: {{ quote .Values.postgresService.postgresDb }}
   POSTGRES_HOST: {{ quote .Values.postgresService.postgresqlHost }}
@@ -26,9 +27,6 @@ data:
   STATEMENT_PROCESSING_INTERVAL: {{ quote .Values.container.statementProcessingInterval }}
   SFI23_QUARTERLY_STATEMENT_PROCESSING_ACTIVE: {{ quote .Values.container.sfi23QuarterlyStatementProcessingActive }}
   DELINKED_STATEMENT_PROCESSING_ACTIVE: {{ quote .Values.container.delinkedStatementProcessingActive }}
-  IDLE_CHECK_BATCH_SIZE: {{ quote .Values.container.idleCheckBatchSize }}
-  IDLE_CHECK_MAX_DELIVERY_COUNT: {{ quote .Values.container.idleCheckMaxDeliveryCount }}
-  IDLE_CHECK_INTERVAL: {{ quote .Values.container.idleCheckInterval }}
   POLL_WINDOW_START: {{ quote .Values.container.pollWindowStart }}
   POLL_WINDOW_END: {{ quote .Values.container.pollWindowEnd }}
   POLL_WINDOW_DAYS: {{ quote .Values.container.pollWindowDays }}

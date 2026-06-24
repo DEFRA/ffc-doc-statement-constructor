@@ -1,7 +1,11 @@
 const db = require('../../data')
 
 const saveAction = async (actions, transaction) => {
-  for (const action of actions) {
+  if (!actions || actions.length === 0) {
+    return
+  }
+
+  const transformedActions = actions.map(action => {
     const transformedAction = {
       ...action,
       actionId: action.actionReference,
@@ -11,8 +15,10 @@ const saveAction = async (actions, transaction) => {
     delete transformedAction.actionReference
     delete transformedAction.calculationReference
 
-    await db.action.create(transformedAction, { transaction })
-  }
+    return transformedAction
+  })
+
+  await db.action.bulkCreate(transformedActions, { transaction })
 }
 
 module.exports = saveAction

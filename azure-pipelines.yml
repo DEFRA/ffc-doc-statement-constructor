@@ -46,6 +46,7 @@ extends:
       container.pollWindowStart: $(pr_pollWindowStart)
       container.pollWindowEnd: $(pr_pollWindowEnd)
       container.pollWindowDays: $(pr_pollWindowDays)
+      container.dataMaxConcurrentCalls: $(pr_dataMaxConcurrentCalls)
     snd2_params:
       container.endpointEnabled: $(snd2_endpointEnabled)
       container.pollWindowEnabled: $(snd2_pollWindowEnabled)
@@ -55,6 +56,7 @@ extends:
       container.pollWindowStart: $(snd2_pollWindowStart)
       container.pollWindowEnd: $(snd2_pollWindowEnd)
       container.pollWindowDays: $(snd2_pollWindowDays)
+      container.dataMaxConcurrentCalls: $(snd2_dataMaxConcurrentCalls)
     dev_params:
       container.endpointEnabled: $(dev_endpointEnabled)
       container.pollWindowEnabled: $(dev_pollWindowEnabled)
@@ -64,6 +66,7 @@ extends:
       container.pollWindowStart: $(dev_pollWindowStart)
       container.pollWindowEnd: $(dev_pollWindowEnd)
       container.pollWindowDays: $(dev_pollWindowDays)
+      container.dataMaxConcurrentCalls: $(dev_dataMaxConcurrentCalls)
     test_params:
       container.endpointEnabled: $(test_endpointEnabled)
       container.pollWindowEnabled: $(test_pollWindowEnabled)
@@ -73,6 +76,7 @@ extends:
       container.pollWindowStart: $(test_pollWindowStart)
       container.pollWindowEnd: $(test_pollWindowEnd)
       container.pollWindowDays: $(test_pollWindowDays)
+      container.dataMaxConcurrentCalls: $(test_dataMaxConcurrentCalls)
     pre_params:
       container.endpointEnabled: $(pre_endpointEnabled)
       container.pollWindowEnabled: $(pre_pollWindowEnabled)
@@ -82,6 +86,7 @@ extends:
       container.pollWindowStart: $(pre_pollWindowStart)
       container.pollWindowEnd: $(pre_pollWindowEnd)
       container.pollWindowDays: $(pre_pollWindowDays)
+      container.dataMaxConcurrentCalls: $(pre_dataMaxConcurrentCalls)
     prd_params:
       container.endpointEnabled: $(prd_endpointEnabled)
       container.pollWindowEnabled: $(prd_pollWindowEnabled)
@@ -91,3 +96,4 @@ extends:
       container.pollWindowStart: $(prd_pollWindowStart)
       container.pollWindowEnd: $(prd_pollWindowEnd)
       container.pollWindowDays: $(prd_pollWindowDays)
+      container.dataMaxConcurrentCalls: $(prd_dataMaxConcurrentCalls)

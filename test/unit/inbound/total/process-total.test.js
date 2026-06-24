@@ -90,7 +90,8 @@ describe('processTotal', () => {
     await processTotal(total)
 
     expect(validateTotal).toHaveBeenCalledWith(total, total.calculationReference)
-    expect(savePlaceholderOrganisation).toHaveBeenCalledWith({ sbi: total.sbi }, total.sbi)
+    expect(savePlaceholderOrganisation).toHaveBeenCalledWith({ sbi: total.sbi }, total.sbi, transaction)
+    expect(saveTotal).toHaveBeenCalledWith(total, transaction)
     expect(saveTotal).toHaveBeenCalledWith(total, transaction)
     expect(saveActions).toHaveBeenCalledWith(total.actions, transaction)
     expect(transaction.commit).toHaveBeenCalled()

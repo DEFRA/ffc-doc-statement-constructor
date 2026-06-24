@@ -1,7 +1,4 @@
 const Joi = require('joi')
-const number1 = 1
-const number250 = 250
-const number10000 = 10000
 const docStatementConstructor = 'ffc-doc-statement-constructor'
 
 const mqSchema = Joi.object({
@@ -15,7 +12,8 @@ const mqSchema = Joi.object({
   statementDataSubscription: {
     address: Joi.string(),
     topic: Joi.string(),
-    type: Joi.string().default('subscription')
+    type: Joi.string().default('subscription'),
+    maxConcurrentCalls: Joi.number().default(15)
   },
   retentionSubscription: {
     address: Joi.string().required(),
@@ -28,10 +26,7 @@ const mqSchema = Joi.object({
   },
   alertTopic: {
     address: Joi.string()
-  },
-  idleCheckBatchSize: Joi.number().default(number250),
-  idleCheckMaxDeliveryCount: Joi.number().default(number1),
-  idleCheckInterval: Joi.number().default(number10000)
+  }
 })
 
 const mqConfig = {
@@ -45,7 +40,8 @@ const mqConfig = {
   statementDataSubscription: {
     address: process.env.DATA_SUBSCRIPTION_ADDRESS,
     topic: process.env.DATA_TOPIC_ADDRESS,
-    type: 'subscription'
+    type: 'subscription',
+    maxConcurrentCalls: process.env.DATA_MAX_CONCURRENT_CALLS
   },
   retentionSubscription: {
     address: process.env.RETENTION_SUBSCRIPTION_ADDRESS,
@@ -58,10 +54,7 @@ const mqConfig = {
   },
   alertTopic: {
     address: process.env.ALERT_TOPIC_ADDRESS
-  },
-  idleCheckBatchSize: process.env.IDLE_CHECK_BATCH_SIZE,
-  idleCheckMaxDeliveryCount: process.env.IDLE_CHECK_MAX_DELIVERY_COUNT,
-  idleCheckInterval: process.env.IDLE_CHECK_INTERVAL
+  }
 }
 
 const mqResult = mqSchema.validate(mqConfig, {
@@ -76,16 +69,10 @@ const statementDataSubscription = { ...mqResult.value.messageQueue, ...mqResult.
 const retentionSubscription = { ...mqResult.value.messageQueue, ...mqResult.value.retentionSubscription }
 const statementTopic = { ...mqResult.value.messageQueue, ...mqResult.value.statementTopic }
 const alertTopic = { ...mqResult.value.messageQueue, ...mqResult.value.alertTopic }
-const idleCheckBatchSize = mqResult.value.idleCheckBatchSize
-const idleCheckMaxDeliveryCount = mqResult.value.idleCheckMaxDeliveryCount
-const idleCheckInterval = mqResult.value.idleCheckInterval
 
 module.exports = {
   statementDataSubscription,
   retentionSubscription,
   statementTopic,
-  alertTopic,
-  idleCheckBatchSize,
-  idleCheckMaxDeliveryCount,
-  idleCheckInterval
+  alertTopic
 }
