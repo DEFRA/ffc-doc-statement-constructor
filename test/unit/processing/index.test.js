@@ -203,7 +203,7 @@ describe('processing', () => {
       isPollDay.mockReturnValue(true)
       processSfi23QuarterlyStatement.mockResolvedValue(5)
       await processing.processWithInterval()
-      expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 0)
+      expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 50)
     })
 
     test('schedules next poll after full interval when no work was done', async () => {
