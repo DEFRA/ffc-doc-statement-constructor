@@ -16,6 +16,7 @@ const sendMessage = async (body, type, config, options) => {
   try {
     await getOrCreateSender(config).sendMessage(message)
   } catch (err) {
+    console.warn('MessageSender failed, closing and retrying:', err.message)
     if (sharedSender) {
       try {
         await sharedSender.closeConnection()

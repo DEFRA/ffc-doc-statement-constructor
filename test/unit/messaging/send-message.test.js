@@ -59,6 +59,17 @@ describe('send message', () => {
     expect(mockSendMessage).toHaveBeenCalledTimes(2)
   })
 
+  test('logs a warning when sender fails', async () => {
+    const sendError = new Error('connection timeout')
+    mockSendMessage.mockRejectedValueOnce(sendError).mockResolvedValueOnce()
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation()
+
+    await sendMessage(statement, type, config, options)
+
+    expect(warnSpy).toHaveBeenCalledWith('MessageSender failed, closing and retrying:', 'connection timeout')
+    warnSpy.mockRestore()
+  })
+
   describe('closeConnection', () => {
     test('closes the shared sender connection', async () => {
       await sendMessage(statement, type, config, options)
