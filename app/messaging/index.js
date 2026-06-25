@@ -2,6 +2,7 @@ const { MessageReceiver } = require('ffc-messaging')
 const config = require('../config')
 const processStatementDataMessage = require('./process-statement-data-message')
 const { processRetentionMessage } = require('./process-retention-message')
+const sendMessage = require('./send-message')
 
 let statementDataReceiver
 let retentionReceiver
@@ -20,6 +21,7 @@ const start = async () => {
 const stop = async () => {
   await statementDataReceiver.closeConnection()
   await retentionReceiver.closeConnection()
+  await sendMessage.closeConnection()
 }
 
 module.exports = { start, stop }

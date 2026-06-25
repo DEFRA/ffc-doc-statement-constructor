@@ -1,3 +1,9 @@
+process.env.MESSAGE_QUEUE_HOST = 'test.servicebus.windows.net'
+process.env.DATA_SUBSCRIPTION_ADDRESS = 'test-sub'
+process.env.DATA_TOPIC_ADDRESS = 'test-topic'
+process.env.RETENTION_SUBSCRIPTION_ADDRESS = 'test-retention-sub'
+process.env.RETENTION_TOPIC_ADDRESS = 'test-retention-topic'
+
 jest.mock('../../../app/processing/sfi-23-quarterly-statement')
 const {
   getVerifiedDaxsSfi23QuarterlyStatements,
@@ -67,12 +73,25 @@ describe('process statements', () => {
     })
   })
 
-  test('should call resetDaxUnCompletePublishByDaxId for each dax', async () => {
+  test('should not call resetDaxUnCompletePublishByDaxId when all items succeed', async () => {
     await processSfi23QuarterlyStatements()
-    expect(resetDaxUnCompletePublishByDaxId).toHaveBeenCalledTimes(retrievedDax.length)
-    retrievedDax.forEach(dax => {
-      expect(resetDaxUnCompletePublishByDaxId).toHaveBeenCalledWith(dax.daxId)
-    })
+    expect(resetDaxUnCompletePublishByDaxId).not.toHaveBeenCalled()
+  })
+
+  test('should call resetDaxUnCompletePublishByDaxId only for failed items', async () => {
+    sendSfi23QuarterlyStatement.mockRejectedValueOnce(new Error('send failed'))
+    await processSfi23QuarterlyStatements()
+    expect(resetDaxUnCompletePublishByDaxId).toHaveBeenCalledTimes(1)
+    expect(resetDaxUnCompletePublishByDaxId).toHaveBeenCalledWith(retrievedDax[0].daxId)
+  })
+
+  test('should log error and continue when an item fails', async () => {
+    sendSfi23QuarterlyStatement.mockRejectedValueOnce(new Error('send failed'))
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation()
+    await processSfi23QuarterlyStatements()
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('send failed'))
+    expect(updateDaxCompletePublishByDaxId).toHaveBeenCalledTimes(retrievedDax.length - 1)
+    errorSpy.mockRestore()
   })
 
   test('should log and skip sending statement if payment reference is excluded', async () => {
