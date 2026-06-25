@@ -2,7 +2,7 @@ const { processingConfig } = require('../config')
 const processSfi23QuarterlyStatement = require('./process-sfi-23-quarterly-statements')
 const processDelinkedStatement = require('./process-delinked-payment-statements')
 const { isWithinWindow, isPollDay } = require('./window-helpers')
-
+const DELAY_AFTER_WORK = 50
 const MAX_CONCURRENT_TASKS = 2
 let taskConfigurations = []
 let lastHadWork = false
@@ -67,7 +67,7 @@ const handleResults = (results) => {
       console.log('Processing is idle: no tasks configured')
       lastHadWork = false
     }
-    return
+    return false
   }
 
   const failures = results.filter(
@@ -85,7 +85,7 @@ const handleResults = (results) => {
       console.log('Processing is idle: no items processed this cycle')
       lastHadWork = false
     }
-    return
+    return false
   }
 
   lastHadWork = true
@@ -95,6 +95,8 @@ const handleResults = (results) => {
   } else {
     console.log(`All processing tasks completed successfully — processed ${totalProcessed} items`)
   }
+
+  return true
 }
 
 const processWithInterval = async () => {
@@ -104,20 +106,23 @@ const processWithInterval = async () => {
     return () => processTask(config.processFunction, config.name)
   })
 
+  let hadWork = false
+
   try {
     const inWindow = isWithinWindow(processingConfig.pollWindow)
     const onDay = isPollDay(processingConfig.pollWindow.days)
 
     if (!processingConfig.pollWindow.enabled || (inWindow && onDay)) {
       const results = await processBatch(tasks)
-      handleResults(results)
+      hadWork = handleResults(results)
     } else {
       console.log('Outside processing window or not a processing day, skipping processing')
     }
   } catch (error) {
     console.error('Critical error in processing:', error)
   } finally {
-    setTimeout(processWithInterval, processingConfig.statementProcessingInterval)
+    const delay = hadWork ? DELAY_AFTER_WORK : processingConfig.statementProcessingInterval
+    setTimeout(processWithInterval, delay)
   }
 }
 

@@ -1,6 +1,6 @@
 const { Sequelize } = require('../data')
 const DEFAULT_MAX_RETRIES = 8
-const DEFAULT_BASE_DELAY_MS = 5000 // 5s
+const DEFAULT_BASE_DELAY_MS = 500 // 500ms
 const DEFAULT_MAX_TOTAL_DELAY_MS = 240000 // 4m
 
 const parseEnvInt = (name) => {

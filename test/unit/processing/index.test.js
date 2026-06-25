@@ -196,17 +196,33 @@ describe('processing', () => {
       expect(processSfi23QuarterlyStatement).not.toHaveBeenCalled()
     })
 
-    test('processes when pollWindow.enabled false but window helpers return true', async () => {
+    test('schedules next poll immediately (0ms) when work was done', async () => {
       processingConfig.sfi23QuarterlyStatementProcessingActive = true
       processingConfig.delinkedStatementProcessingActive = false
-      processingConfig.pollWindow.enabled = false
       isWithinWindow.mockReturnValue(true)
       isPollDay.mockReturnValue(true)
-      processSfi23QuarterlyStatement.mockResolvedValue(1)
+      processSfi23QuarterlyStatement.mockResolvedValue(5)
       await processing.processWithInterval()
-      expect(processSfi23QuarterlyStatement).toHaveBeenCalled()
-      expect(console.log).toHaveBeenCalledWith('All processing tasks completed successfully — processed 1 items')
-      expect(console.log).toHaveBeenCalledWith('Delinked Payment Statement processing is disabled')
+      expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 50)
+    })
+
+    test('schedules next poll after full interval when no work was done', async () => {
+      processingConfig.sfi23QuarterlyStatementProcessingActive = true
+      processingConfig.delinkedStatementProcessingActive = false
+      isWithinWindow.mockReturnValue(true)
+      isPollDay.mockReturnValue(true)
+      processSfi23QuarterlyStatement.mockResolvedValue(0)
+      await processing.processWithInterval()
+      expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), processingConfig.statementProcessingInterval)
+    })
+
+    test('schedules next poll after full interval when outside window', async () => {
+      processingConfig.sfi23QuarterlyStatementProcessingActive = true
+      processingConfig.delinkedStatementProcessingActive = false
+      isWithinWindow.mockReturnValue(false)
+      isPollDay.mockReturnValue(false)
+      await processing.processWithInterval()
+      expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), processingConfig.statementProcessingInterval)
     })
   })
 })

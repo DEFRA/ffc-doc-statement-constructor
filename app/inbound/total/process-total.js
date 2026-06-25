@@ -24,7 +24,7 @@ const processTotal = async (total) => {
         await transaction.rollback()
       } else {
         validateTotal(total, total.calculationReference)
-        await savePlaceholderOrganisation({ sbi: total.sbi }, total.sbi)
+        await savePlaceholderOrganisation({ sbi: total.sbi }, total.sbi, transaction)
         await saveTotal(total, transaction)
         await saveActions(total.actions, transaction)
         await transaction.commit()

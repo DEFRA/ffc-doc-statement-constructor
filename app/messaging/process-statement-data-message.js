@@ -1,4 +1,5 @@
 const processStatementData = require('../inbound/statement-data/process-statement-data')
+const throughputTracker = require('./throughput-tracker')
 
 const processStatementDataMessage = async (message, receiver) => {
   try {
@@ -10,6 +11,7 @@ const processStatementDataMessage = async (message, receiver) => {
     }
     await processStatementData(statementData)
     await receiver.completeMessage(message)
+    throughputTracker.record(statementData.type)
   } catch (err) {
     console.error('Unable to process statement message:', err)
     await receiver.deadLetterMessage(message)

@@ -4,13 +4,6 @@ const { MessageReceiver } = require('ffc-messaging')
 const messageService = require('../../../app/messaging')
 const config = require('../../../app/config')
 
-const throughputOptions = {
-  preFetchMessages: 250,
-  maxConcurrentMessages: 25,
-  receiveBatchSize: 20,
-  processingTimeoutInMs: 30000
-}
-
 describe('messaging', () => {
   let mockSubscribe
   let mockCloseConnection
@@ -39,8 +32,7 @@ describe('messaging', () => {
     expect(MessageReceiver).toHaveBeenNthCalledWith(
       1,
       config.statementDataSubscription,
-      expect.any(Function),
-      throughputOptions
+      expect.any(Function)
     )
 
     expect(MessageReceiver).toHaveBeenNthCalledWith(

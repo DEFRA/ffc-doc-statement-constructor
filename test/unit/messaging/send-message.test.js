@@ -9,13 +9,15 @@ jest.mock('ffc-messaging', () => ({
 }))
 
 jest.mock('../../../app/messaging/create-message')
+const { MessageSender } = require('ffc-messaging')
 const createMessage = require('../../../app/messaging/create-message')
 const sendMessage = require('../../../app/messaging/send-message')
 
 describe('send message', () => {
   let statement, config, options, type, message
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await sendMessage.closeConnection()
     jest.clearAllMocks()
 
     statement = structuredClone(require('../../mock-objects/mock-statement'))
@@ -33,11 +35,59 @@ describe('send message', () => {
     ['createMessage with correct args', () => expect(createMessage).toHaveBeenCalledWith(statement, type, config.source, options)],
     ['mockSendMessage', () => expect(mockSendMessage).toHaveBeenCalled()],
     ['mockSendMessage once', () => expect(mockSendMessage).toHaveBeenCalledTimes(1)],
-    ['mockSendMessage with message', () => expect(mockSendMessage).toHaveBeenCalledWith(message)],
-    ['mockCloseConnection', () => expect(mockCloseConnection).toHaveBeenCalled()],
-    ['mockCloseConnection once', () => expect(mockCloseConnection).toHaveBeenCalledTimes(1)]
+    ['mockSendMessage with message', () => expect(mockSendMessage).toHaveBeenCalledWith(message)]
   ])('%s', async (_desc, assertion) => {
     await sendMessage(statement, type, config, options)
     assertion()
+  })
+
+  test('reuses the same MessageSender across multiple calls', async () => {
+    await sendMessage(statement, type, config, options)
+    await sendMessage(statement, type, config, options)
+    expect(MessageSender).toHaveBeenCalledTimes(1)
+    expect(mockSendMessage).toHaveBeenCalledTimes(2)
+  })
+
+  test('closes and recreates the sender once when sendMessage fails', async () => {
+    const sendError = new Error('send failed')
+    mockSendMessage.mockRejectedValueOnce(sendError).mockResolvedValueOnce()
+
+    await sendMessage(statement, type, config, options)
+
+    expect(MessageSender).toHaveBeenCalledTimes(2)
+    expect(mockCloseConnection).toHaveBeenCalledTimes(1)
+    expect(mockSendMessage).toHaveBeenCalledTimes(2)
+  })
+
+  test('logs a warning when sender fails', async () => {
+    const sendError = new Error('connection timeout')
+    mockSendMessage.mockRejectedValueOnce(sendError).mockResolvedValueOnce()
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation()
+
+    await sendMessage(statement, type, config, options)
+
+    expect(warnSpy).toHaveBeenCalledWith('MessageSender failed, closing and retrying:', 'connection timeout')
+    warnSpy.mockRestore()
+  })
+
+  describe('closeConnection', () => {
+    test('closes the shared sender connection', async () => {
+      await sendMessage(statement, type, config, options)
+      await sendMessage.closeConnection()
+      expect(mockCloseConnection).toHaveBeenCalledTimes(1)
+    })
+
+    test('creates a new sender after connection is closed', async () => {
+      await sendMessage(statement, type, config, options)
+      await sendMessage.closeConnection()
+      jest.clearAllMocks()
+      await sendMessage(statement, type, config, options)
+      expect(MessageSender).toHaveBeenCalledTimes(1)
+    })
+
+    test('does nothing if no sender exists', async () => {
+      await sendMessage.closeConnection()
+      expect(mockCloseConnection).not.toHaveBeenCalled()
+    })
   })
 })
