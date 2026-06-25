@@ -2,7 +2,7 @@ const { processingConfig } = require('../config')
 const processSfi23QuarterlyStatement = require('./process-sfi-23-quarterly-statements')
 const processDelinkedStatement = require('./process-delinked-payment-statements')
 const { isWithinWindow, isPollDay } = require('./window-helpers')
-
+const DELAY_AFTER_WORK = 50
 const MAX_CONCURRENT_TASKS = 2
 let taskConfigurations = []
 let lastHadWork = false
@@ -121,7 +121,7 @@ const processWithInterval = async () => {
   } catch (error) {
     console.error('Critical error in processing:', error)
   } finally {
-    const delay = hadWork ? 0 : processingConfig.statementProcessingInterval
+    const delay = hadWork ? DELAY_AFTER_WORK : processingConfig.statementProcessingInterval
     setTimeout(processWithInterval, delay)
   }
 }
