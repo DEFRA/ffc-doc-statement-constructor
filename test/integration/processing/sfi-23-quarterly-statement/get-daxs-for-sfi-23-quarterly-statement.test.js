@@ -1,4 +1,5 @@
 const db = require('../../../../app/data')
+const { truncate } = require('../../../helpers/truncate')
 
 const getDaxsForSfi23QuarterlyStatement = require('../../../../app/processing/sfi-23-quarterly-statement/get-daxs-for-sfi-23-quarterly-statement')
 
@@ -11,17 +12,13 @@ let retrievedDax
 
 describe('process get calculation object', () => {
   beforeAll(async () => {
-    await db.sequelize.truncate({
-      cascade: true,
-      restartIdentity: true
-    })
+    await truncate()
   })
 
   beforeEach(async () => {
-    const organisation = structuredClone(require('../../../mock-objects/mock-organisation'))
-    const total = structuredClone(require('../../../mock-objects/mock-total'))
-    const dax = structuredClone(require('../../../mock-objects/mock-dax'))
-    const calculationReference = total.calculationReference
+    const { type, ...organisation } = structuredClone(require('../../../mock-objects/mock-organisation'))
+    const { calculationReference, claimReference, actions, type: _type, ...total } = structuredClone(require('../../../mock-objects/mock-total'))
+    const { calculationReference: _calculationReference, type: _daxType, ...dax } = structuredClone(require('../../../mock-objects/mock-dax'))
 
     retrievedDax = [
       { ...dax, calculationId: calculationReference, paymentReference: payReferenceOne, startPublish: null },
@@ -30,26 +27,51 @@ describe('process get calculation object', () => {
       { ...dax, calculationId: calculationReference, paymentReference: payReferenceFour, startPublish: null }
     ]
 
-    await db.organisation.create(organisation)
-    await db.total.create({ ...total, calculationId: calculationReference, claimId: total.claimReference })
+    await db.organisations().insert(organisation)
+    await db.totals().insert({ ...total, calculationId: calculationReference, claimId: claimReference })
   })
 
   afterEach(async () => {
-    await db.sequelize.truncate({
-      cascade: true,
-      restartIdentity: true
-    })
+    await truncate()
   })
 
   afterAll(async () => {
-    await db.sequelize.close()
+    await db.close()
   })
 
   test('Should return all new dax with startPublish equal null', async () => {
-    await db.dax.bulkCreate(retrievedDax)
-    const transaction = await db.sequelize.transaction()
+    await db.dax().insert(retrievedDax)
+    const transaction = await db.transaction()
     const result = await getDaxsForSfi23QuarterlyStatement(transaction)
     await transaction.commit()
     expect(result.length).toBe(4)
+  })
+
+  test('Should not return dax already started or dated today or later', async () => {
+    const today = new Date()
+    today.setHours(12, 0, 0, 0)
+    await db.dax().insert([
+      { ...retrievedDax[0], startPublish: new Date() },
+      { ...retrievedDax[1], transactionDate: today },
+      retrievedDax[2]
+    ])
+    const transaction = await db.transaction()
+    const result = await getDaxsForSfi23QuarterlyStatement(transaction)
+    await transaction.commit()
+    expect(result.map(dax => dax.paymentReference)).toEqual([payReferenceThree])
+  })
+
+  test('Should skip rows locked by another transaction', async () => {
+    await db.dax().insert(retrievedDax)
+    const locker = await db.transaction()
+    await db.dax(locker).where({ paymentReference: payReferenceOne }).forUpdate()
+
+    const transaction = await db.transaction()
+    const result = await getDaxsForSfi23QuarterlyStatement(transaction)
+    await transaction.commit()
+    await locker.rollback()
+
+    expect(result.map(dax => dax.paymentReference)).not.toContain(payReferenceOne)
+    expect(result.length).toBe(3)
   })
 })
