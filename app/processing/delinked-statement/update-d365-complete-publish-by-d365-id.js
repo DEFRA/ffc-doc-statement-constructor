@@ -1,11 +1,9 @@
-const db = require('../../data')
+const { d365 } = require('../../data')
 
 const updateD365CompletePublishByD365Id = async (d365Id) => {
-  await db.d365.update({ completePublish: new Date() }, {
-    where: {
-      d365Id
-    }
-  })
+  await d365()
+    .where({ d365Id })
+    .update({ completePublish: new Date() })
 }
 
 module.exports = updateD365CompletePublishByD365Id

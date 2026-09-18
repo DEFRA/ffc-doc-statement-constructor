@@ -1,5 +1,5 @@
 const { dataProcessingAlert } = require('ffc-alerting-utils')
-const db = require('../../data')
+const { d365 } = require('../../data')
 const config = require('../../config').processingConfig
 const { DATA_PROCESSING_ERROR } = require('../../../app/constants/alerts')
 
@@ -8,25 +8,14 @@ const getD365ForDelinkedStatement = async (transaction) => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
-    const d365ForDelinkedStatement = await db.d365.findAll({
-      lock: true,
-      skipLocked: true,
-      order: [
-        ['lastProcessAttempt', 'ASC']
-      ],
-      limit: config.maxProcessingBatchSize,
-      transaction,
-      attributes: [
-        'd365Id',
-        'calculationId',
-        'paymentReference'
-      ],
-      where: {
-        startPublish: null,
-        transactionDate: { [db.Sequelize.Op.lt]: today }
-      },
-      raw: true
-    })
+    const d365ForDelinkedStatement = await d365(transaction)
+      .select('d365Id', 'calculationId', 'paymentReference')
+      .whereNull('startPublish')
+      .where('transactionDate', '<', today)
+      .orderBy('lastProcessAttempt', 'asc')
+      .limit(config.maxProcessingBatchSize)
+      .forUpdate()
+      .skipLocked()
 
     return d365ForDelinkedStatement
   } catch (error) {

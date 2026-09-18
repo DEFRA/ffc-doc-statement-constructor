@@ -1,4 +1,5 @@
-const { Sequelize } = require('../data')
+// PostgreSQL SQLSTATE for foreign_key_violation, surfaced by pg as error.code
+const FOREIGN_KEY_VIOLATION = '23503'
 const DEFAULT_MAX_RETRIES = 8
 const DEFAULT_BASE_DELAY_MS = 500 // 500ms
 const DEFAULT_MAX_TOTAL_DELAY_MS = 240000 // 4m
@@ -37,7 +38,7 @@ const createWrappedError = (message, cause, data) => {
 }
 
 /**
- * Retry a function on ForeignKeyConstraintError with exponential backoff (capped at MAX_TOTAL_DELAY_MS total delay)
+ * Retry a function on a foreign key violation with exponential backoff (capped at MAX_TOTAL_DELAY_MS total delay)
  * @param {Function} fn - The function to retry
  * @param {string} context - Context for logging (e.g., 'D365', 'calculation')
  * @param {string} identifier - Identifier for logging (e.g., paymentReference, calculationReference)
@@ -51,7 +52,7 @@ const retryOnFkError = async (fn, context, identifier) => {
     try {
       return await fn()
     } catch (error) {
-      if (!(error instanceof Sequelize.ForeignKeyConstraintError)) {
+      if (error?.code !== FOREIGN_KEY_VIOLATION) {
         throw error
       } else {
         console.warn(`Caught FK error on attempt ${attempt + 1} for ${context} ${identifier}:`, error)
@@ -77,6 +78,7 @@ const retryOnFkError = async (fn, context, identifier) => {
 }
 
 module.exports = {
+  FOREIGN_KEY_VIOLATION,
   retryOnFkError,
   createWrappedError,
   parseEnvInt,

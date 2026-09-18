@@ -4,7 +4,7 @@ const validateOrganisation = require('./validate-organisation')
 const { checkAndRemoveEmptyAddress } = require('./check-and-remove-empty-address')
 
 const processOrganisation = async (organisation) => {
-  const transaction = await db.sequelize.transaction()
+  const transaction = await db.transaction()
 
   try {
     const removed = await checkAndRemoveEmptyAddress(organisation, transaction)

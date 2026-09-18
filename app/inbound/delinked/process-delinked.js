@@ -41,7 +41,7 @@ const processDelinked = async (delinked) => {
 
     await validateDelinked(transformed, transformed.calculationId)
 
-    const transaction = await db.sequelize.transaction()
+    const transaction = await db.transaction()
     try {
       await Promise.all([
         savePlaceholderOrganisation({ sbi: transformed.sbi }, transformed.sbi, transaction),

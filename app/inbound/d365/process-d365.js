@@ -34,7 +34,7 @@ const processD365 = async (d365) => {
     }
 
     await retryOnFkError(async () => {
-      const transaction = await db.sequelize.transaction()
+      const transaction = await db.transaction()
       try {
         await saveD365(transformedD365, transaction)
         await transaction.commit()

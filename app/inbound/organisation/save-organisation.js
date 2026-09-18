@@ -1,4 +1,4 @@
-const db = require('../../data')
+const { organisations } = require('../../data')
 
 const saveOrganisation = async (organisation, transaction) => {
   const organisationRecord = {
@@ -15,10 +15,10 @@ const saveOrganisation = async (organisation, transaction) => {
     updated: organisation.updated || new Date()
   }
 
-  return db.organisation.upsert(organisationRecord, {
-    transaction,
-    raw: true
-  })
+  return organisations(transaction)
+    .insert(organisationRecord)
+    .onConflict('sbi')
+    .merge()
 }
 
 module.exports = saveOrganisation

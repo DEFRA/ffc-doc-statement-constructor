@@ -8,7 +8,7 @@ const { removeDocuments } = require('./remove-documents')
 const { removeExcludedPaymentReferences } = require('./remove-excluded-payment-references')
 
 const removeAgreementData = async (retentionData) => {
-  const transaction = await db.sequelize.transaction()
+  const transaction = await db.transaction()
   try {
     const { simplifiedAgreementNumber, frn, schemeId } = retentionData
 

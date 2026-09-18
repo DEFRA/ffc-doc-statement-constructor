@@ -1,24 +1,27 @@
-const db = require('../../data')
+const { actions } = require('../../data')
 
-const saveAction = async (actions, transaction) => {
-  if (!actions || actions.length === 0) {
+const saveAction = async (records, transaction) => {
+  if (!records || records.length === 0) {
     return
   }
 
-  const transformedActions = actions.map(action => {
-    const transformedAction = {
-      ...action,
-      actionId: action.actionReference,
-      calculationId: action.calculationReference
-    }
+  const transformedActions = records.map(action => ({
+    actionId: action.actionReference,
+    calculationId: action.calculationReference,
+    fundingCode: action.fundingCode,
+    groupName: action.groupName,
+    actionCode: action.actionCode,
+    actionName: action.actionName,
+    rate: action.rate,
+    landArea: action.landArea,
+    uom: action.uom,
+    annualValue: action.annualValue,
+    quarterlyValue: action.quarterlyValue,
+    overDeclarationPenalty: action.overDeclarationPenalty,
+    quarterlyPaymentAmount: action.quarterlyPaymentAmount
+  }))
 
-    delete transformedAction.actionReference
-    delete transformedAction.calculationReference
-
-    return transformedAction
-  })
-
-  await db.action.bulkCreate(transformedActions, { transaction })
+  await actions(transaction).insert(transformedActions)
 }
 
 module.exports = saveAction

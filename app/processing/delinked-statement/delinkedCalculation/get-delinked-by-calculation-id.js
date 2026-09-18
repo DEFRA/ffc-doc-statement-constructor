@@ -1,8 +1,8 @@
-const db = require('../../../data')
+const { delinkedCalculations } = require('../../../data')
 
 const getDelinkedByCalculationId = async (calculationId) => {
-  return db.delinkedCalculation.findOne({
-    attributes: [
+  const delinked = await delinkedCalculations()
+    .select(
       'calculationId',
       'applicationId',
       'sbi',
@@ -23,11 +23,9 @@ const getDelinkedByCalculationId = async (calculationId) => {
       'totalProgressiveReduction',
       'totalDelinkedPayment',
       'paymentAmountCalculated'
-    ],
-    where: {
-      calculationId
-    },
-    raw: true
-  })
+    )
+    .where({ calculationId })
+    .first()
+  return delinked ?? null
 }
 module.exports = getDelinkedByCalculationId

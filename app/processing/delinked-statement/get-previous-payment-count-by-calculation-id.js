@@ -1,14 +1,12 @@
-const db = require('../../data')
+const { d365 } = require('../../data')
 
 const getPreviousPaymentCountByCalculationId = async (calculationId) => {
-  return db.d365.count({
-    where: {
-      completePublish: {
-        [db.Sequelize.Op.ne]: null
-      },
-      calculationId
-    }
-  })
+  const { count } = await d365()
+    .count({ count: '*' })
+    .whereNotNull('completePublish')
+    .where({ calculationId })
+    .first()
+  return Number(count)
 }
 
 module.exports = getPreviousPaymentCountByCalculationId

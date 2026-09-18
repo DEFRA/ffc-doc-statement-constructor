@@ -1,14 +1,9 @@
-const db = require('../data')
+const { excludedPaymentReferences } = require('../data')
 
 const removeExcludedPaymentReferences = async (paymentReferences, transaction) => {
-  await db.excludedPaymentReference.destroy({
-    where: {
-      paymentReference: {
-        [db.Sequelize.Op.in]: paymentReferences
-      }
-    },
-    transaction
-  })
+  await excludedPaymentReferences(transaction)
+    .whereIn('paymentReference', paymentReferences)
+    .del()
 }
 
 module.exports = {
