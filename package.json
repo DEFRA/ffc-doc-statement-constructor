@@ -52,7 +52,8 @@
     "protobufjs": "8.8.0",
     "uuid": "11.1.1",
     "js-yaml": "4.3.2",
-    "@opentelemetry/core": "2.8.0"
+    "@opentelemetry/core": "2.8.0",
+    "joi": "18.2.9"
   },
   "nodemonConfig": {
     "ignore": [
