@@ -1,4 +1,3 @@
-// PostgreSQL SQLSTATE for foreign_key_violation, surfaced by pg as error.code
 const FOREIGN_KEY_VIOLATION = '23503'
 const DEFAULT_MAX_RETRIES = 8
 const DEFAULT_BASE_DELAY_MS = 500 // 500ms
