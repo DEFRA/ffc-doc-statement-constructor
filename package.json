@@ -29,20 +29,16 @@
   ],
   "license": "OGL-UK-3.0",
   "dependencies": {
-    "@azure/identity": "4.13.1",
     "@azure/monitor-opentelemetry": "1.18.0",
     "@hapi/hapi": "21.4.8",
     "@joi/date": "2.1.0",
     "ffc-alerting-utils": "1.0.15",
-    "ffc-database": "1.0.25",
+    "ffc-database": "2.0.0",
     "ffc-messaging": "2.10.6",
     "ffc-pay-event-publisher": "1.2.5",
     "joi": "18.2.1",
     "log-timestamp": "0.3.0",
-    "moment": "2.29.4",
-    "pg": "8.7.3",
-    "pg-hstore": "2.3.4",
-    "sequelize": "6.37.8"
+    "moment": "2.29.4"
   },
   "devDependencies": {
     "eslint": "9.39.1",
