@@ -1,21 +1,23 @@
-const db = require('../../../../app/data')
+const { createKnexMock } = require('../../../helpers/mock-knex')
+
+const mockDb = createKnexMock()
+
+jest.mock('../../../../app/data', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close
+}))
+jest.mock('../../../../app/processing/delinked-statement/get-d365-for-delinked-statement')
+jest.mock('../../../../app/processing/delinked-statement/update-d365-for-start-publish')
+
 const getD365ForDelinkedStatement = require('../../../../app/processing/delinked-statement/get-d365-for-delinked-statement')
 const updateD365ForStartPublish = require('../../../../app/processing/delinked-statement/update-d365-for-start-publish')
 const getVerifiedD365DelinkedStatements = require('../../../../app/processing/delinked-statement/get-verified-d365-delinked-statements')
 
-jest.mock('../../../../app/data')
-jest.mock('../../../../app/processing/delinked-statement/get-d365-for-delinked-statement')
-jest.mock('../../../../app/processing/delinked-statement/update-d365-for-start-publish')
-
 describe('getVerifiedD365DelinkedStatements', () => {
-  let transaction
+  const transaction = mockDb.trx
 
   beforeEach(() => {
-    transaction = {
-      commit: jest.fn(),
-      rollback: jest.fn()
-    }
-    db.sequelize.transaction.mockResolvedValue(transaction)
     jest.clearAllMocks()
   })
 
@@ -59,7 +61,7 @@ describe('getVerifiedD365DelinkedStatements', () => {
 
     const result = await getVerifiedD365DelinkedStatements()
 
-    expect(db.sequelize.transaction).toHaveBeenCalled()
+    expect(mockDb.transaction).toHaveBeenCalled()
     expect(getD365ForDelinkedStatement).toHaveBeenCalledWith(transaction)
 
     if (!getD365Error) {

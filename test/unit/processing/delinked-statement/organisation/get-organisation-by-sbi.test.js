@@ -1,7 +1,15 @@
-const db = require('../../../../../app/data')
-const getOrganisationBySbi = require('../../../../../app/processing/delinked-statement/organisation/get-organisation-by-sbi')
+const { createKnexMock } = require('../../../../helpers/mock-knex')
 
-jest.mock('../../../../../app/data')
+const mockDb = createKnexMock(['organisations'])
+
+jest.mock('../../../../../app/data', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
+}))
+
+const getOrganisationBySbi = require('../../../../../app/processing/delinked-statement/organisation/get-organisation-by-sbi')
 
 describe('getOrganisationBySbi', () => {
   const mockOrganisation = {
@@ -17,7 +25,7 @@ describe('getOrganisationBySbi', () => {
     postcode: '12345'
   }
 
-  const attributes = [
+  const columns = [
     'sbi',
     'addressLine1',
     'addressLine2',
@@ -31,34 +39,26 @@ describe('getOrganisationBySbi', () => {
   ]
 
   beforeEach(() => {
-    db.organisation.findOne.mockReset()
+    jest.clearAllMocks()
   })
 
   test('should return organisation data when found', async () => {
-    db.organisation.findOne.mockResolvedValue(mockOrganisation)
+    mockDb.builder.resolves(mockOrganisation)
 
     const result = await getOrganisationBySbi('123456789')
 
     expect(result).toEqual(mockOrganisation)
-    expect(db.organisation.findOne).toHaveBeenCalledTimes(1)
-    expect(db.organisation.findOne).toHaveBeenCalledWith({
-      attributes,
-      where: { sbi: '123456789' },
-      raw: true
-    })
+    expect(mockDb.tables.organisations).toHaveBeenCalledTimes(1)
+    expect(mockDb.builder.select).toHaveBeenCalledWith(...columns)
+    expect(mockDb.builder.where).toHaveBeenCalledWith({ sbi: '123456789' })
+    expect(mockDb.builder.first).toHaveBeenCalledTimes(1)
   })
 
   test('should return null when no organisation is found', async () => {
-    db.organisation.findOne.mockResolvedValue(null)
+    mockDb.builder.resolves(undefined)
 
     const result = await getOrganisationBySbi('123456789')
 
     expect(result).toBeNull()
-    expect(db.organisation.findOne).toHaveBeenCalledTimes(1)
-    expect(db.organisation.findOne).toHaveBeenCalledWith({
-      attributes,
-      where: { sbi: '123456789' },
-      raw: true
-    })
   })
 })

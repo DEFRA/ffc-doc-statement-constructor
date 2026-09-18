@@ -1,44 +1,35 @@
-const db = require('../../../app/data')
-const { removeDocuments } = require('../../../app/retention/remove-documents')
+const { createKnexMock } = require('../../helpers/mock-knex')
+
+const mockDb = createKnexMock(['documents'])
 
 jest.mock('../../../app/data', () => ({
-  document: {
-    destroy: jest.fn()
-  },
-  Sequelize: {
-    Op: {
-      in: 'in'
-    }
-  }
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
 }))
 
+const { removeDocuments } = require('../../../app/retention/remove-documents')
+
 describe('removeDocuments', () => {
-  const paymentReferences = ['PY1234', 'PY5678', 'PY9012']
-  const transaction = {}
+  const paymentReferences = ['PY1', 'PY2']
+  const transaction = mockDb.trx
 
   beforeEach(() => {
     jest.clearAllMocks()
+    mockDb.builder.resolves(2)
   })
 
-  test('calls db.document.destroy with correct parameters using Sequelize.Op.in', async () => {
-    db.document.destroy.mockResolvedValue()
-
+  test('deletes the rows matching the ids against the transaction', async () => {
     await removeDocuments(paymentReferences, transaction)
 
-    expect(db.document.destroy).toHaveBeenCalledTimes(1)
-    expect(db.document.destroy).toHaveBeenCalledWith({
-      where: {
-        documentSourceReference: {
-          [db.Sequelize.Op.in]: paymentReferences
-        }
-      },
-      transaction
-    })
+    expect(mockDb.tables.documents).toHaveBeenCalledWith(transaction)
+    expect(mockDb.builder.whereIn).toHaveBeenCalledWith('documentSourceReference', paymentReferences)
+    expect(mockDb.builder.del).toHaveBeenCalledTimes(1)
   })
 
-  test('propagates error when db.document.destroy rejects', async () => {
-    const error = new Error('DB destroy error')
-    db.document.destroy.mockRejectedValue(error)
+  test('propagates error when the delete rejects', async () => {
+    mockDb.builder.rejects(new Error('DB destroy error'))
 
     await expect(removeDocuments(paymentReferences, transaction)).rejects.toThrow('DB destroy error')
   })

@@ -1,7 +1,15 @@
-const db = require('../../../../app/data')
-const saveDelinked = require('../../../../app/inbound/delinked/save-delinked')
+const { createKnexMock } = require('../../../helpers/mock-knex')
 
-jest.mock('../../../../app/data')
+const mockDb = createKnexMock(['delinkedCalculations'])
+
+jest.mock('../../../../app/data', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
+}))
+
+const saveDelinked = require('../../../../app/inbound/delinked/save-delinked')
 
 const expectedPayload = {
   calculationId: 'calculationReference1',
@@ -29,52 +37,35 @@ const expectedPayload = {
 }
 
 describe('saveDelinked', () => {
-  const transaction = {}
+  const transaction = mockDb.trx
   const delinkedCalculation = {
     calculationId: 'calculationReference1',
     applicationId: 'applicationReference1'
   }
 
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks()
+    mockDb.builder.resolves()
   })
 
-  test('should save the transformed delinked calculation successfully', async () => {
-    db.delinkedCalculation.create.mockResolvedValue()
-
+  test('inserts the transformed delinked calculation against the transaction', async () => {
     await saveDelinked(delinkedCalculation, transaction)
 
-    expect(db.delinkedCalculation.create).toHaveBeenCalledWith(expectedPayload, {
-      transaction,
-      raw: true
-    })
+    expect(mockDb.tables.delinkedCalculations).toHaveBeenCalledWith(transaction)
+    expect(mockDb.builder.insert).toHaveBeenCalledWith(expectedPayload)
   })
 
-  test('should throw an error if saving fails', async () => {
-    const errorMessage = 'Database error'
-    db.delinkedCalculation.create.mockRejectedValue(new Error(errorMessage))
+  test('propagates an insert failure', async () => {
+    mockDb.builder.rejects(new Error('Database error'))
 
     await expect(saveDelinked(delinkedCalculation, transaction)).rejects.toThrow('Database error')
   })
 
-  test('should transform delinkedCalculation correctly', async () => {
-    db.delinkedCalculation.create.mockResolvedValue()
+  test('does not carry calculationReference or applicationReference into the row', async () => {
+    await saveDelinked({ ...delinkedCalculation, calculationReference: 1, applicationReference: 2 }, transaction)
 
-    await saveDelinked(delinkedCalculation, transaction)
-
-    expect(db.delinkedCalculation.create).toHaveBeenCalledWith(expectedPayload, {
-      transaction,
-      raw: true
-    })
-  })
-
-  test('should not contain calculationReference and applicationReference after transformation', async () => {
-    db.delinkedCalculation.create.mockResolvedValue()
-
-    await saveDelinked(delinkedCalculation, transaction)
-
-    const callArgs = db.delinkedCalculation.create.mock.calls[0][0]
-    expect(callArgs).not.toHaveProperty('calculationReference')
-    expect(callArgs).not.toHaveProperty('applicationReference')
+    const [row] = mockDb.builder.insert.mock.calls[0]
+    expect(row).not.toHaveProperty('calculationReference')
+    expect(row).not.toHaveProperty('applicationReference')
   })
 })

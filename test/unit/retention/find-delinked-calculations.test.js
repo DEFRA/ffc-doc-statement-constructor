@@ -1,54 +1,47 @@
-const db = require('../../../app/data')
-const { findDelinkedCalculations } = require('../../../app/retention/find-delinked-calculations')
+const { createKnexMock } = require('../../helpers/mock-knex')
+
+const mockDb = createKnexMock(['delinkedCalculations'])
 
 jest.mock('../../../app/data', () => ({
-  delinkedCalculation: {
-    findAll: jest.fn()
-  }
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
 }))
 
+const { findDelinkedCalculations } = require('../../../app/retention/find-delinked-calculations')
+
 describe('findDelinkedCalculations', () => {
-  const applicationId = 'AGR-123'
-  const frn = 456789
-  const transaction = {}
+  const applicationId = 'AGR-001'
+  const frn = 1234567890
+  const transaction = mockDb.trx
 
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  test('calls db.delinkedCalculation.findAll with correct parameters', async () => {
-    const mockResult = [
-      { calculationId: 1, sbi: 1001 },
-      { calculationId: 2, sbi: 1002 }
-    ]
-    db.delinkedCalculation.findAll.mockResolvedValue(mockResult)
+  test('selects the matching rows against the transaction', async () => {
+    const mockResult = [{ id: 1 }, { id: 2 }]
+    mockDb.builder.resolves(mockResult)
 
     const result = await findDelinkedCalculations(applicationId, frn, transaction)
 
-    expect(db.delinkedCalculation.findAll).toHaveBeenCalledTimes(1)
-    expect(db.delinkedCalculation.findAll).toHaveBeenCalledWith({
-      attributes: ['calculationId', 'sbi'],
-      where: {
-        applicationId,
-        frn
-      },
-      transaction
-    })
+    expect(mockDb.tables.delinkedCalculations).toHaveBeenCalledWith(transaction)
+    expect(mockDb.builder.select).toHaveBeenCalledWith('calculationId', 'sbi')
+    expect(mockDb.builder.where).toHaveBeenCalledWith({ applicationId, frn })
     expect(result).toBe(mockResult)
   })
 
-  test('returns empty array when no calculations found', async () => {
-    db.delinkedCalculation.findAll.mockResolvedValue([])
+  test('returns empty array when nothing matches', async () => {
+    mockDb.builder.resolves([])
 
     const result = await findDelinkedCalculations(applicationId, frn, transaction)
 
-    expect(db.delinkedCalculation.findAll).toHaveBeenCalledTimes(1)
     expect(result).toEqual([])
   })
 
-  test('propagates error when db.delinkedCalculation.findAll rejects', async () => {
-    const error = new Error('DB error')
-    db.delinkedCalculation.findAll.mockRejectedValue(error)
+  test('propagates error when the query rejects', async () => {
+    mockDb.builder.rejects(new Error('DB error'))
 
     await expect(findDelinkedCalculations(applicationId, frn, transaction)).rejects.toThrow('DB error')
   })
