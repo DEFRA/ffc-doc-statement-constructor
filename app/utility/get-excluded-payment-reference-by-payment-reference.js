@@ -1,16 +1,10 @@
-const db = require('../data')
+const { excludedPaymentReferences } = require('../data')
 
 const getExcludedPaymentReferenceByPaymentReference = async (paymentReference) => {
-  const excludedPaymentReference = await db.excludedPaymentReference.findOne({
-    attributes: [
-      'frn',
-      'paymentReference'
-    ],
-    where: {
-      paymentReference
-    },
-    raw: true
-  })
+  const excludedPaymentReference = await excludedPaymentReferences()
+    .select('frn', 'paymentReference')
+    .where({ paymentReference })
+    .first()
   return !!excludedPaymentReference
 }
 

@@ -1,13 +1,21 @@
-const db = require('../../../../app/data')
-const getDocumentTypeByCode = require('../../../../app/processing/delinked-statement/get-document-type-by-code')
+const { createKnexMock } = require('../../../helpers/mock-knex')
 
-jest.mock('../../../../app/data')
+const mockDb = createKnexMock(['documentTypes'])
+
+jest.mock('../../../../app/data', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
+}))
+
+const getDocumentTypeByCode = require('../../../../app/processing/delinked-statement/get-document-type-by-code')
 
 describe('getDocumentTypeByCode', () => {
   const mockDocumentType = { documentTypeId: 1 }
 
   beforeEach(() => {
-    db.documentType.findOne.mockReset()
+    jest.clearAllMocks()
   })
 
   test.each([
@@ -21,12 +29,12 @@ describe('getDocumentTypeByCode', () => {
     {
       name: 'throws an error when no document type is found',
       code: 'DOC123',
-      mockReturn: null,
+      mockReturn: undefined,
       expected: 'Document type with code DOC123 not found',
       shouldThrow: true
     }
   ])('$name', async ({ code, mockReturn, expected, shouldThrow }) => {
-    db.documentType.findOne.mockResolvedValue(mockReturn)
+    mockDb.builder.resolves(mockReturn)
 
     if (shouldThrow) {
       await expect(getDocumentTypeByCode(code)).rejects.toThrow(expected)
@@ -35,10 +43,8 @@ describe('getDocumentTypeByCode', () => {
       expect(result).toEqual(expected)
     }
 
-    expect(db.documentType.findOne).toHaveBeenCalledWith({
-      attributes: ['documentTypeId'],
-      where: { code },
-      raw: true
-    })
+    expect(mockDb.builder.select).toHaveBeenCalledWith('documentTypeId')
+    expect(mockDb.builder.where).toHaveBeenCalledWith({ code })
+    expect(mockDb.builder.first).toHaveBeenCalledTimes(1)
   })
 })

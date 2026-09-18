@@ -1,15 +1,13 @@
 const { dataProcessingAlert } = require('ffc-alerting-utils')
-const db = require('../../data')
+const { d365 } = require('../../data')
 const { DATA_PROCESSING_ERROR } = require('../../../app/constants/alerts')
 
 const resetD365UnCompletePublishByDaxId = async (d365Id) => {
   try {
-    await db.d365.update({ startPublish: null }, {
-      where: {
-        d365Id,
-        completePublish: null
-      }
-    })
+    await d365()
+      .where({ d365Id })
+      .whereNull('completePublish')
+      .update({ startPublish: null })
   } catch (err) {
     try {
       await dataProcessingAlert({

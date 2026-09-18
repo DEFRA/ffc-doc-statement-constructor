@@ -1,15 +1,12 @@
-const db = require('../../data')
+const { dax } = require('../../data')
 
-const getDaxByCalculationIdAndPaymentReference = async (dax, transaction) => {
-  const { calculationReference, paymentReference } = dax
-  return db.dax.findOne({
-    transaction,
-    lock: true,
-    where: {
-      calculationId: calculationReference,
-      paymentReference
-    }
-  })
+const getDaxByCalculationIdAndPaymentReference = async (record, transaction) => {
+  const { calculationReference, paymentReference } = record
+  const existing = await dax(transaction)
+    .where({ calculationId: calculationReference, paymentReference })
+    .forUpdate()
+    .first()
+  return existing ?? null
 }
 
 module.exports = getDaxByCalculationIdAndPaymentReference

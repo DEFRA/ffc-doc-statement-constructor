@@ -1,12 +1,10 @@
-const db = require('../../data')
+const { dax } = require('../../data')
 
 const resetDaxUnCompletePublishByDaxId = async (daxId) => {
-  await db.dax.update({ startPublish: null }, {
-    where: {
-      daxId,
-      completePublish: null
-    }
-  })
+  await dax()
+    .where({ daxId })
+    .whereNull('completePublish')
+    .update({ startPublish: null })
 }
 
 module.exports = resetDaxUnCompletePublishByDaxId

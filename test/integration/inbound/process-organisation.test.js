@@ -1,15 +1,12 @@
 const db = require('../../../app/data')
+const { truncate } = require('../../helpers/truncate')
 const processOrganisation = require('../../../app/inbound/organisation')
 
 let organisation
 
 describe('process organisation', () => {
   const find = async () => {
-    return await db.organisation.findOne({ where: { sbi: organisation.sbi } })
-  }
-
-  const truncate = async () => {
-    return await db.sequelize.truncate({ cascade: true, restartIdentity: true })
+    return db.organisations().where({ sbi: organisation.sbi }).first()
   }
 
   beforeAll(async () => {
@@ -26,18 +23,19 @@ describe('process organisation', () => {
   })
 
   afterAll(async () => {
-    await db.sequelize.close()
+    await db.close()
   })
 
   test('saves an organisation record', async () => {
     await processOrganisation(organisation)
-    expect(await find()).not.toBeNull()
+    expect(await find()).toBeDefined()
   })
 
   test('saves only 1 organisation for the same sbi', async () => {
     await processOrganisation(organisation)
-    const count = await db.organisation.count({ where: { sbi: organisation.sbi } })
-    expect(count).toBe(1)
+    await processOrganisation(organisation)
+    const { count } = await db.organisations().count({ count: '*' }).where({ sbi: organisation.sbi }).first()
+    expect(Number(count)).toBe(1)
   })
 
   const fieldTests = [

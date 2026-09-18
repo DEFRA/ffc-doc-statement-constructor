@@ -12,15 +12,9 @@ jest.mock('ffc-alerting-utils')
 const { dataProcessingAlert } = require('ffc-alerting-utils')
 const { DUPLICATE_RECORD } = require('../../../../app/constants/alerts')
 
-jest.mock('../../../../app/data', () => {
-  return {
-    sequelize: {
-      transaction: jest.fn().mockImplementation(() => {
-        return { ...mockTransaction }
-      })
-    }
-  }
-})
+jest.mock('../../../../app/data', () => ({
+  transaction: jest.fn().mockImplementation(async () => ({ ...mockTransaction }))
+}))
 
 jest.mock('../../../../app/inbound/delinked/get-delinked-by-calculation-id')
 const getDelinkedByCalculationId = require('../../../../app/inbound/delinked/get-delinked-by-calculation-id')

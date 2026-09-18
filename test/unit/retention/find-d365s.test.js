@@ -1,59 +1,46 @@
-const db = require('../../../app/data')
-const { findD365s } = require('../../../app/retention/find-d365s')
+const { createKnexMock } = require('../../helpers/mock-knex')
+
+const mockDb = createKnexMock(['d365'])
 
 jest.mock('../../../app/data', () => ({
-  d365: {
-    findAll: jest.fn()
-  },
-  Sequelize: {
-    Op: {
-      in: 'in'
-    }
-  }
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
 }))
+
+const { findD365s } = require('../../../app/retention/find-d365s')
 
 describe('findD365s', () => {
   const calculationIds = [1, 2, 3]
-  const transaction = {}
+  const transaction = mockDb.trx
 
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  test('calls db.d365.findAll with correct parameters', async () => {
-    const mockResult = [
-      { paymentReference: 'PY12345' },
-      { paymentReference: 'PY67890' },
-    ]
-    db.d365.findAll.mockResolvedValue(mockResult)
+  test('selects the matching rows against the transaction', async () => {
+    const mockResult = [{ id: 1 }, { id: 2 }]
+    mockDb.builder.resolves(mockResult)
 
     const result = await findD365s(calculationIds, transaction)
 
-    expect(db.d365.findAll).toHaveBeenCalledTimes(1)
-    expect(db.d365.findAll).toHaveBeenCalledWith({
-      attributes: ['paymentReference'],
-      where: {
-        calculationId: {
-          [db.Sequelize.Op.in]: calculationIds
-        }
-      },
-      transaction
-    })
+    expect(mockDb.tables.d365).toHaveBeenCalledWith(transaction)
+    expect(mockDb.builder.select).toHaveBeenCalledWith('paymentReference')
+    expect(mockDb.builder.whereIn).toHaveBeenCalledWith('calculationId', calculationIds)
     expect(result).toBe(mockResult)
   })
 
-  test('returns empty array when no calculations found', async () => {
-    db.d365.findAll.mockResolvedValue([])
+  test('returns empty array when nothing matches', async () => {
+    mockDb.builder.resolves([])
 
     const result = await findD365s(calculationIds, transaction)
 
-    expect(db.d365.findAll).toHaveBeenCalledTimes(1)
     expect(result).toEqual([])
   })
 
-  test('propagates error when db.d365.findAll rejects', async () => {
-    const error = new Error('DB error')
-    db.d365.findAll.mockRejectedValue(error)
+  test('propagates error when the query rejects', async () => {
+    mockDb.builder.rejects(new Error('DB error'))
 
     await expect(findD365s(calculationIds, transaction)).rejects.toThrow('DB error')
   })

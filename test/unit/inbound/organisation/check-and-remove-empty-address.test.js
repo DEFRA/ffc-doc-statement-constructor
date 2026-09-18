@@ -1,15 +1,22 @@
-const db = require('../../../../app/data')
+const { createKnexMock } = require('../../../helpers/mock-knex')
+
+const mockDb = createKnexMock(['organisations'])
+
+jest.mock('../../../../app/data', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
+}))
+
 const { checkAndRemoveEmptyAddress } = require('../../../../app/inbound/organisation/check-and-remove-empty-address')
 
-jest.mock('../../../../app/data')
-
 describe('checkAndRemoveEmptyAddress', () => {
-  let transaction
+  const transaction = mockDb.trx
   let organisationWithAddress
   let organisationNoAddress
 
   beforeEach(() => {
-    transaction = {}
     organisationWithAddress = {
       sbi: '123',
       addressLine1: 'Line 1',
@@ -31,40 +38,32 @@ describe('checkAndRemoveEmptyAddress', () => {
     jest.clearAllMocks()
   })
 
-  test('returns false and does not delete if organisation has address', async () => {
+  test('returns false and does not touch the database if organisation has address', async () => {
     const result = await checkAndRemoveEmptyAddress(organisationWithAddress, transaction)
+
     expect(result).toBe(false)
-    expect(db.organisation.findOne).not.toHaveBeenCalled()
-    expect(db.organisation.destroy).not.toHaveBeenCalled()
+    expect(mockDb.tables.organisations).not.toHaveBeenCalled()
   })
 
   test('deletes organisation if no address and exists in DB', async () => {
-    db.organisation.findOne.mockResolvedValue(organisationNoAddress)
-    db.organisation.destroy.mockResolvedValue(1)
+    mockDb.builder.resolves(organisationNoAddress)
 
     const result = await checkAndRemoveEmptyAddress(organisationNoAddress, transaction)
 
-    expect(db.organisation.findOne).toHaveBeenCalledWith({
-      where: { sbi: organisationNoAddress.sbi },
-      transaction
-    })
-    expect(db.organisation.destroy).toHaveBeenCalledWith({
-      where: { sbi: organisationNoAddress.sbi },
-      transaction
-    })
+    expect(mockDb.tables.organisations).toHaveBeenCalledWith(transaction)
+    expect(mockDb.builder.where).toHaveBeenCalledWith({ sbi: organisationNoAddress.sbi })
+    expect(mockDb.builder.first).toHaveBeenCalledTimes(1)
+    expect(mockDb.builder.del).toHaveBeenCalledTimes(1)
     expect(result).toBe(true)
   })
 
   test('does not delete organisation if no address and not in DB', async () => {
-    db.organisation.findOne.mockResolvedValue(null)
+    mockDb.builder.resolves(undefined)
 
     const result = await checkAndRemoveEmptyAddress(organisationNoAddress, transaction)
 
-    expect(db.organisation.findOne).toHaveBeenCalledWith({
-      where: { sbi: organisationNoAddress.sbi },
-      transaction
-    })
-    expect(db.organisation.destroy).not.toHaveBeenCalled()
+    expect(mockDb.builder.first).toHaveBeenCalledTimes(1)
+    expect(mockDb.builder.del).not.toHaveBeenCalled()
     expect(result).toBe(true)
   })
 })

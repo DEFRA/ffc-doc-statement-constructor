@@ -1,10 +1,22 @@
-const path = require('node:path')
 const config = require('../config')
-const dbConfig = config.dbConfig[config.env]
-const modelPath = path.join(__dirname, 'models')
 const { Database } = require('ffc-database')
 
-const database = new Database({ ...dbConfig, modelPath })
-const db = database.connect()
+const dbConfig = config.dbConfig[config.env]
 
-module.exports = db
+const tables = {
+  actions: 'actions',
+  calculations: 'calculations',
+  d365: 'd365',
+  dax: 'dax',
+  delinkedCalculations: 'delinkedCalculation',
+  documents: 'documents',
+  documentTypes: 'documentTypes',
+  excludedPaymentReferences: 'excludedPaymentReferences',
+  organisations: 'organisations',
+  schemes: 'schemes',
+  totals: 'totals'
+}
+
+const database = new Database({ ...dbConfig, tables })
+
+module.exports = database.connect()

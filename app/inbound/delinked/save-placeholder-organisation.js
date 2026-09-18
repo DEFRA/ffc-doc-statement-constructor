@@ -1,11 +1,10 @@
-const db = require('../../data')
+const { organisations } = require('../../data')
 
 const savePlaceholderOrganisation = async (organisation, sbi, transaction) => {
-  await db.organisation.findOrCreate({
-    organisation,
-    where: { sbi },
-    transaction
-  })
+  await organisations(transaction)
+    .insert({ ...organisation, sbi })
+    .onConflict('sbi')
+    .ignore()
 }
 
 module.exports = savePlaceholderOrganisation

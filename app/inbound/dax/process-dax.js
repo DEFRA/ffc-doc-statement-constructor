@@ -8,7 +8,7 @@ const { DUPLICATE_RECORD } = require('../../constants/alerts')
 
 const processDax = async (dax) => {
   await retryOnFkError(async () => {
-    const transaction = await db.sequelize.transaction()
+    const transaction = await db.transaction()
     try {
       const existingDax = await getDaxByCalculationIdAndPaymentReference(dax, transaction)
       if (existingDax) {

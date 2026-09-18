@@ -1,4 +1,5 @@
 const db = require('../../../../app/data')
+const { truncate } = require('../../../helpers/truncate')
 const getOrganisation = require('../../../../app/processing/organisation')
 
 let organisation
@@ -7,7 +8,7 @@ let sbi
 
 describe('getOrganisation', () => {
   beforeAll(async () => {
-    await db.sequelize.truncate({ cascade: true, restartIdentity: true })
+    await truncate()
   })
 
   beforeEach(async () => {
@@ -30,11 +31,11 @@ describe('getOrganisation', () => {
   })
 
   afterEach(async () => {
-    await db.sequelize.truncate({ cascade: true, restartIdentity: true })
+    await truncate()
   })
 
   afterAll(async () => {
-    await db.sequelize.close()
+    await db.close()
   })
 
   test('should throw error when no existing organisation data', async () => {
@@ -42,12 +43,12 @@ describe('getOrganisation', () => {
   })
 
   test('should resolve successfully when organisation data exists for sbi', async () => {
-    await db.organisation.create(retrievedOrganisation)
+    await db.organisations().insert(retrievedOrganisation)
     await expect(getOrganisation(sbi)).resolves.not.toThrow()
   })
 
   test('should return correctly mapped organisation object', async () => {
-    await db.organisation.create(retrievedOrganisation)
+    await db.organisations().insert(retrievedOrganisation)
 
     const result = await getOrganisation(sbi)
     expect(result).toStrictEqual({
@@ -73,7 +74,7 @@ describe('getOrganisation', () => {
     'should %s %s %s error when organisation data is invalid',
     async (field, invalidValue, shouldThrow) => {
       retrievedOrganisation[field] = invalidValue
-      await db.organisation.create(retrievedOrganisation)
+      await db.organisations().insert(retrievedOrganisation)
 
       const wrapper = async () => getOrganisation(retrievedOrganisation.sbi)
       if (shouldThrow) {
@@ -85,7 +86,7 @@ describe('getOrganisation', () => {
   )
 
   test('should throw error when no matching record exists for provided sbi', async () => {
-    await db.organisation.create(retrievedOrganisation)
+    await db.organisations().insert(retrievedOrganisation)
     sbi = 124534678
     await expect(getOrganisation(sbi)).rejects.toThrow()
   })

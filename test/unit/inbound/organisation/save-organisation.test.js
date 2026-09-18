@@ -1,15 +1,20 @@
-const saveOrganisation = require('../../../../app/inbound/organisation/save-organisation')
-const db = require('../../../../app/data')
+const { createKnexMock } = require('../../../helpers/mock-knex')
+
+const mockDb = createKnexMock(['organisations'])
 
 jest.mock('../../../../app/data', () => ({
-  organisation: {
-    upsert: jest.fn()
-  }
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
 }))
+
+const saveOrganisation = require('../../../../app/inbound/organisation/save-organisation')
 
 describe('saveOrganisation', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockDb.builder.resolves()
     jest.useFakeTimers()
     jest.setSystemTime(new Date('2023-01-01'))
   })
@@ -18,7 +23,7 @@ describe('saveOrganisation', () => {
     jest.useRealTimers()
   })
 
-  test('should call upsert with full organisation record', async () => {
+  test('upserts the full organisation record on sbi', async () => {
     const organisation = {
       sbi: 123456789,
       addressLine1: '1 Test Street',
@@ -30,14 +35,13 @@ describe('saveOrganisation', () => {
       frn: 1234567890,
       name: 'Test Organization',
       postcode: 'TE1 1ST',
-      updated: new Date('2022-12-31')
+      updated: new Date('2022-12-31'),
+      type: 'organisation'
     }
 
-    db.organisation.upsert.mockResolvedValue([organisation, true])
+    await saveOrganisation(organisation)
 
-    const result = await saveOrganisation(organisation)
-
-    expect(db.organisation.upsert).toHaveBeenCalledWith({
+    expect(mockDb.builder.insert).toHaveBeenCalledWith({
       sbi: organisation.sbi,
       addressLine1: organisation.addressLine1,
       addressLine2: organisation.addressLine2,
@@ -49,77 +53,32 @@ describe('saveOrganisation', () => {
       name: organisation.name,
       postcode: organisation.postcode,
       updated: organisation.updated
-    }, {
-      transaction: undefined,
-      raw: true
     })
-    expect(result).toEqual([organisation, true])
+    expect(mockDb.builder.onConflict).toHaveBeenCalledWith('sbi')
+    expect(mockDb.builder.merge).toHaveBeenCalledTimes(1)
   })
 
-  test('should use current date when updated is not provided', async () => {
-    const organisation = {
-      sbi: 123456789,
-      addressLine1: '1 Test Street',
-      city: 'Test City',
-      frn: 1234567890,
-      name: 'Test Organization'
-    }
+  test('uses current date when updated is not provided', async () => {
+    await saveOrganisation({ sbi: 123456789, name: 'Test Organization' })
 
-    await saveOrganisation(organisation)
-
-    expect(db.organisation.upsert).toHaveBeenCalledWith(
-      expect.objectContaining({
-        updated: new Date('2023-01-01')
-      }),
-      expect.objectContaining({
-        transaction: undefined,
-        raw: true
-      })
-    )
+    expect(mockDb.builder.insert).toHaveBeenCalledWith(expect.objectContaining({ updated: new Date('2023-01-01') }))
   })
 
-  test('should pass transaction to upsert when provided', async () => {
-    const organisation = { sbi: 123456789, name: 'Test Organization' }
-    const transaction = { id: 'transaction-id' }
+  test('runs against the transaction when provided', async () => {
+    await saveOrganisation({ sbi: 123456789, name: 'Test Organization' }, mockDb.trx)
 
-    await saveOrganisation(organisation, transaction)
-
-    expect(db.organisation.upsert).toHaveBeenCalledWith(
-      expect.objectContaining({ sbi: 123456789 }),
-      expect.objectContaining({
-        transaction,
-        raw: true
-      })
-    )
+    expect(mockDb.tables.organisations).toHaveBeenCalledWith(mockDb.trx)
   })
 
-  test('should handle minimal organisation data', async () => {
-    const minimalOrg = { sbi: 123456789 }
+  test('falls back to the client when no transaction is provided', async () => {
+    await saveOrganisation({ sbi: 123456789 })
 
-    await saveOrganisation(minimalOrg)
-
-    expect(db.organisation.upsert).toHaveBeenCalledWith({
-      sbi: 123456789,
-      addressLine1: undefined,
-      addressLine2: undefined,
-      addressLine3: undefined,
-      city: undefined,
-      county: undefined,
-      emailAddress: undefined,
-      frn: undefined,
-      name: undefined,
-      postcode: undefined,
-      updated: expect.any(Date)
-    }, {
-      transaction: undefined,
-      raw: true
-    })
+    expect(mockDb.tables.organisations).toHaveBeenCalledWith(undefined)
   })
 
-  test('should throw if upsert fails', async () => {
-    const organisation = { sbi: 123456789 }
-    db.organisation.upsert.mockRejectedValue(new Error('DB error'))
+  test('propagates an upsert failure', async () => {
+    mockDb.builder.rejects(new Error('DB error'))
 
-    await expect(saveOrganisation(organisation)).rejects.toThrow('DB error')
+    await expect(saveOrganisation({ sbi: 123456789 })).rejects.toThrow('DB error')
   })
 })

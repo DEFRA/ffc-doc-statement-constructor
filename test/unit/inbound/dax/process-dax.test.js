@@ -2,31 +2,31 @@ process.env.RETRY_FK_MAX_RETRIES = '4'
 process.env.RETRY_FK_BASE_DELAY_MS = '10'
 process.env.RETRY_FK_MAX_TOTAL_DELAY_MS = '1000'
 
-const db = require('../../../../app/data')
-const processDax = require('../../../../app/inbound/dax/process-dax')
-const saveDax = require('../../../../app/inbound/dax/save-dax')
-const validateDax = require('../../../../app/inbound/dax/validate-dax')
-const getDaxByCalculationIdAndPaymentReference = require('../../../../app/inbound/dax/get-dax-by-calculation-id-and-payment-reference')
-const retryUtil = require('../../../../app/utility/retry-fk-error')
+const { createKnexMock } = require('../../../helpers/mock-knex')
+
+const mockDb = createKnexMock()
+
+jest.mock('../../../../app/data', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close
+}))
 
 jest.mock('ffc-alerting-utils')
-jest.mock('../../../../app/data', () => ({
-  sequelize: { transaction: jest.fn() },
-  Sequelize: {
-    ForeignKeyConstraintError: class extends Error {
-      constructor (msg) {
-        super(typeof msg === 'string' ? msg : (msg && msg.message) || 'FK error')
-      }
-    }
-  }
-}))
 jest.mock('../../../../app/inbound/dax/save-dax')
 jest.mock('../../../../app/inbound/dax/schema')
 jest.mock('../../../../app/inbound/dax/validate-dax')
 jest.mock('../../../../app/inbound/dax/get-dax-by-calculation-id-and-payment-reference')
 
 const { dataProcessingAlert } = require('ffc-alerting-utils')
+const retryUtil = require('../../../../app/utility/retry-fk-error')
+const processDax = require('../../../../app/inbound/dax/process-dax')
+const saveDax = require('../../../../app/inbound/dax/save-dax')
+const validateDax = require('../../../../app/inbound/dax/validate-dax')
+const getDaxByCalculationIdAndPaymentReference = require('../../../../app/inbound/dax/get-dax-by-calculation-id-and-payment-reference')
 const { DUPLICATE_RECORD } = require('../../../../app/constants/alerts')
+
+const fkError = () => Object.assign(new Error('FK error'), { code: retryUtil.FOREIGN_KEY_VIOLATION })
 
 beforeAll(() => {
   jest.spyOn(retryUtil, 'sleep').mockImplementation(() => Promise.resolve())
@@ -37,12 +37,10 @@ afterAll(() => {
 })
 
 describe('processDax', () => {
-  let transaction
+  const transaction = mockDb.trx
 
   beforeEach(() => {
     jest.clearAllMocks()
-    transaction = { commit: jest.fn(), rollback: jest.fn() }
-    db.sequelize.transaction.mockResolvedValue(transaction)
   })
 
   afterEach(() => {
@@ -62,6 +60,7 @@ describe('processDax', () => {
 
     await processDax(dax)
 
+    expect(getDaxByCalculationIdAndPaymentReference).toHaveBeenCalledWith(dax, transaction)
     expect(console.info).toHaveBeenCalledWith(
       `Duplicate Dax record received, skipping payment reference ${dax.paymentReference} for calculation ${dax.calculationReference}`
     )
@@ -98,15 +97,14 @@ describe('processDax', () => {
     expect(transaction.commit).toHaveBeenCalled()
   })
 
-  test('should retry on ForeignKeyConstraintError and succeed', async () => {
+  test('should retry on a foreign key violation and succeed', async () => {
     const dax = { calculationReference: 'retry123', paymentReference: '123' }
     getDaxByCalculationIdAndPaymentReference.mockResolvedValue(null)
     validateDax.mockImplementation(() => {})
-    const fkError = new db.Sequelize.ForeignKeyConstraintError('FK error')
     saveDax
-      .mockRejectedValueOnce(fkError)
-      .mockRejectedValueOnce(fkError)
-      .mockRejectedValueOnce(fkError)
+      .mockRejectedValueOnce(fkError())
+      .mockRejectedValueOnce(fkError())
+      .mockRejectedValueOnce(fkError())
       .mockResolvedValueOnce()
     console.warn = jest.fn()
 

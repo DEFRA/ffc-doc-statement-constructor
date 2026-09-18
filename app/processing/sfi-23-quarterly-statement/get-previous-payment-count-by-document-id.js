@@ -1,14 +1,12 @@
-const db = require('../../data')
+const { dax } = require('../../data')
 
 const getPreviousPaymentCountByCalculationId = async (calculationId) => {
-  return db.dax.count({
-    where: {
-      completePublish: {
-        [db.Sequelize.Op.ne]: null
-      },
-      calculationId
-    }
-  })
+  const { count } = await dax()
+    .count({ count: '*' })
+    .whereNotNull('completePublish')
+    .where({ calculationId })
+    .first()
+  return Number(count)
 }
 
 module.exports = getPreviousPaymentCountByCalculationId

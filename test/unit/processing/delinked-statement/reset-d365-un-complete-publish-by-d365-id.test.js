@@ -1,15 +1,21 @@
-const path = require('path')
+const { createKnexMock } = require('../../../helpers/mock-knex')
 
+const mockDb = createKnexMock(['d365'])
+
+jest.mock('../../../../app/data', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
+}))
 jest.mock('ffc-alerting-utils', () => ({
   dataProcessingAlert: jest.fn()
 }))
 
-describe('resetD365UnCompletePublishByDaxId', () => {
-  const modulePath = path.resolve(__dirname, '../../../../app/processing/delinked-statement/reset-d365-un-complete-publish-by-d365-id.js')
-  const dataModulePath = path.resolve(__dirname, '../../../../app/data')
+const { dataProcessingAlert } = require('ffc-alerting-utils')
+const resetD365UnCompletePublishByDaxId = require('../../../../app/processing/delinked-statement/reset-d365-un-complete-publish-by-d365-id')
 
-  let mockUpdate
-  let mockDataProcessingAlert
+describe('resetD365UnCompletePublishByDaxId', () => {
   let originalConsoleError
 
   beforeAll(() => {
@@ -17,13 +23,7 @@ describe('resetD365UnCompletePublishByDaxId', () => {
   })
 
   beforeEach(() => {
-    jest.resetModules()
-    mockUpdate = jest.fn()
-
-    const { dataProcessingAlert } = require('ffc-alerting-utils')
-    mockDataProcessingAlert = dataProcessingAlert
-    mockDataProcessingAlert.mockReset()
-
+    jest.clearAllMocks()
     console.error = jest.fn()
   })
 
@@ -31,67 +31,58 @@ describe('resetD365UnCompletePublishByDaxId', () => {
     console.error = originalConsoleError
   })
 
-  test('should call db.d365.update and not alert on success', async () => {
-    mockUpdate.mockResolvedValue([1])
-    jest.doMock(dataModulePath, () => ({ d365: { update: mockUpdate } }), { virtual: false })
-
-    const resetFn = require(modulePath)
+  test('clears startPublish only where publishing has not completed, and does not alert', async () => {
+    mockDb.builder.resolves(1)
     const d365Id = 'D365-123'
-    await expect(resetFn(d365Id)).resolves.toBeUndefined()
 
-    expect(mockUpdate).toHaveBeenCalledTimes(1)
-    expect(mockUpdate).toHaveBeenCalledWith({ startPublish: null }, {
-      where: { d365Id, completePublish: null }
-    })
-    expect(mockDataProcessingAlert).not.toHaveBeenCalled()
+    await expect(resetD365UnCompletePublishByDaxId(d365Id)).resolves.toBeUndefined()
+
+    expect(mockDb.tables.d365).toHaveBeenCalledTimes(1)
+    expect(mockDb.builder.where).toHaveBeenCalledWith({ d365Id })
+    expect(mockDb.builder.whereNull).toHaveBeenCalledWith('completePublish')
+    expect(mockDb.builder.update).toHaveBeenCalledWith({ startPublish: null })
+    expect(dataProcessingAlert).not.toHaveBeenCalled()
     expect(console.error).not.toHaveBeenCalled()
   })
 
   test.each([
     {
-      name: 'alerts and rethrows when db update throws',
+      name: 'alerts and rethrows when the update throws',
+      d365Id: 'D365-456',
       updateError: new Error('db failure'),
       alertError: null,
       expectedConsoleCalls: 0
     },
     {
       name: 'logs both original and alert errors when alerting fails',
+      d365Id: 'D365-789',
       updateError: new Error('db failure 2'),
       alertError: new Error('alert failure'),
       expectedConsoleCalls: 1
     }
-  ])('$name', async ({ updateError, alertError, expectedConsoleCalls }) => {
-    mockUpdate.mockRejectedValue(updateError)
+  ])('$name', async ({ d365Id, updateError, alertError, expectedConsoleCalls }) => {
+    mockDb.builder.rejects(updateError)
     if (alertError) {
-      mockDataProcessingAlert.mockRejectedValue(alertError)
+      dataProcessingAlert.mockRejectedValue(alertError)
     } else {
-      mockDataProcessingAlert.mockResolvedValue()
+      dataProcessingAlert.mockResolvedValue()
     }
 
-    jest.doMock(dataModulePath, () => ({ d365: { update: mockUpdate } }), { virtual: false })
-
-    const resetFn = require(modulePath)
-    const d365Id = updateError.message.includes('2') ? 'D365-789' : 'D365-456'
     const expectedMessage = `Error resetting uncomplete publish for D365 ID ${d365Id}`
 
     let thrown
     try {
-      await resetFn(d365Id)
+      await resetD365UnCompletePublishByDaxId(d365Id)
     } catch (err) {
       thrown = err
     }
 
     expect(thrown).toBeDefined()
     expect(thrown.message).toEqual(expect.stringContaining(expectedMessage))
-    if ('cause' in thrown) {
-      expect(thrown.cause).toBe(updateError)
-    } else {
-      expect(thrown.message).toContain(updateError.message)
-    }
+    expect(thrown.cause).toBe(updateError)
 
-    expect(mockDataProcessingAlert).toHaveBeenCalledTimes(1)
-    const alertArg = mockDataProcessingAlert.mock.calls[0][0]
-    expect(alertArg).toMatchObject({
+    expect(dataProcessingAlert).toHaveBeenCalledTimes(1)
+    expect(dataProcessingAlert.mock.calls[0][0]).toMatchObject({
       process: 'resetD365UnCompletePublishByDaxId',
       d365Id,
       error: updateError,
