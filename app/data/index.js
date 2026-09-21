@@ -1,22 +1,9 @@
 const config = require('../config')
 const { Database } = require('ffc-database')
+const TABLES = require('../constants/tables')
 
 const dbConfig = config.dbConfig[config.env]
 
-const tables = {
-  actions: 'actions',
-  calculations: 'calculations',
-  d365: 'd365',
-  dax: 'dax',
-  delinkedCalculations: 'delinkedCalculation',
-  documents: 'documents',
-  documentTypes: 'documentTypes',
-  excludedPaymentReferences: 'excludedPaymentReferences',
-  organisations: 'organisations',
-  schemes: 'schemes',
-  totals: 'totals'
-}
-
-const database = new Database({ ...dbConfig, tables })
+const database = new Database({ ...dbConfig, tables: TABLES })
 
 module.exports = database.connect()
