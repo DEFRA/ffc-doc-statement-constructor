@@ -1,4 +1,4 @@
-const { totals } = require('../../data')
+const { totals } = require('../../database')
 
 const getTotalByCalculationId = async (calculationId, transaction) => {
   const total = await totals(transaction)

@@ -1,4 +1,4 @@
-const { d365 } = require('../../data')
+const { d365 } = require('../../database')
 
 const getExistingD365 = async (record, transaction) => {
   const { paymentReference, paymentPeriod, paymentAmount, transactionDate } = record

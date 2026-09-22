@@ -1,4 +1,4 @@
-const { organisations } = require('../../data')
+const { organisations } = require('../../database')
 
 const checkAndRemoveEmptyAddress = async (organisation, transaction) => {
   const logMessage = `Deleting organisation ${organisation.sbi}`

@@ -1,4 +1,4 @@
-const { calculations } = require('../../data')
+const { calculations } = require('../../database')
 const getCalculationByInvoiceNumber = require('./get-calculation-by-invoice-number')
 const { reverseEngineerInvoiceNumber } = require('../../utility')
 

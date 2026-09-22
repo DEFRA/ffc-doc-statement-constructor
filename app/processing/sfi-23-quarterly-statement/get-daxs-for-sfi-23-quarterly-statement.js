@@ -1,4 +1,4 @@
-const { dax } = require('../../data')
+const { dax } = require('../../database')
 const config = require('../../config').processingConfig
 
 const getDaxsForSfi23QuarterlyStatement = async (transaction) => {

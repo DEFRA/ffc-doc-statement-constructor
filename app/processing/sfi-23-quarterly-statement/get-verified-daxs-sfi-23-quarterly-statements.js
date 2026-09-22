@@ -1,4 +1,4 @@
-const db = require('../../data')
+const db = require('../../database')
 const getDaxsForSfi23QuarterlyStatement = require('./get-daxs-for-sfi-23-quarterly-statement')
 const updateDaxsForStartPublish = require('./update-daxs-for-start-publish')
 

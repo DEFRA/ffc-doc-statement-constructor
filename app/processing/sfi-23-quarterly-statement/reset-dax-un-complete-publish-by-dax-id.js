@@ -1,4 +1,4 @@
-const { dax } = require('../../data')
+const { dax } = require('../../database')
 
 const resetDaxUnCompletePublishByDaxId = async (daxId) => {
   await dax()

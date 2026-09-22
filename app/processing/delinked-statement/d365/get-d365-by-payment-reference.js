@@ -1,4 +1,4 @@
-const { d365 } = require('../../../data')
+const { d365 } = require('../../../database')
 
 const getD365ByPaymentReference = async (paymentReference) => {
   const record = await d365()

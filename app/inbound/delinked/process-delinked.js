@@ -1,5 +1,5 @@
 const { dataProcessingAlert } = require('ffc-alerting-utils')
-const db = require('../../data')
+const db = require('../../database')
 const savePlaceholderOrganisation = require('./save-placeholder-organisation')
 const getDelinkedByCalculationId = require('./get-delinked-by-calculation-id')
 const saveDelinked = require('./save-delinked')

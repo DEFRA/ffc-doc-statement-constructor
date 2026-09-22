@@ -1,4 +1,4 @@
-const { documentTypes } = require('../../data')
+const { documentTypes } = require('../../database')
 
 const getDocumentTypeByCode = async (code) => {
   const result = await documentTypes()

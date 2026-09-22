@@ -1,4 +1,4 @@
-const { documents } = require('../data')
+const { documents } = require('../database')
 
 const removeDocuments = async (paymentReferences, transaction) => {
   await documents(transaction)

@@ -1,4 +1,4 @@
-const { dax } = require('../../data')
+const { dax } = require('../../database')
 
 const updateDaxCompletePublishByDaxId = async (daxId) => {
   await dax()

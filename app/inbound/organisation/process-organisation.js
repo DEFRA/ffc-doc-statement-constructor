@@ -1,4 +1,4 @@
-const db = require('../../data')
+const db = require('../../database')
 const saveOrganisation = require('./save-organisation')
 const validateOrganisation = require('./validate-organisation')
 const { checkAndRemoveEmptyAddress } = require('./check-and-remove-empty-address')

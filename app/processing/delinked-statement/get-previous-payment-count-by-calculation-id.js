@@ -1,4 +1,4 @@
-const { d365 } = require('../../data')
+const { d365 } = require('../../database')
 
 const getPreviousPaymentCountByCalculationId = async (calculationId) => {
   const { count } = await d365()

@@ -1,5 +1,5 @@
 const { dataProcessingAlert } = require('ffc-alerting-utils')
-const db = require('../../data')
+const db = require('../../database')
 const saveDax = require('./save-dax')
 const validateDax = require('./validate-dax')
 const getDaxByCalculationIdAndPaymentReference = require('./get-dax-by-calculation-id-and-payment-reference')

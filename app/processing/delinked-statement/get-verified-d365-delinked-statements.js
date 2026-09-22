@@ -1,4 +1,4 @@
-const db = require('../../data')
+const db = require('../../database')
 const getD365ForDelinkedStatement = require('./get-d365-for-delinked-statement')
 const updateD365ForStartPublish = require('./update-d365-for-start-publish')
 

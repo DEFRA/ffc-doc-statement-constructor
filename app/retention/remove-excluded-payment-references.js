@@ -1,4 +1,4 @@
-const { excludedPaymentReferences } = require('../data')
+const { excludedPaymentReferences } = require('../database')
 
 const removeExcludedPaymentReferences = async (paymentReferences, transaction) => {
   await excludedPaymentReferences(transaction)

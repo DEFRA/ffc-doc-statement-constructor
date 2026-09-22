@@ -1,4 +1,4 @@
-const { organisations } = require('../../../data')
+const { organisations } = require('../../../database')
 
 const getOrganisationBySbi = async (sbi) => {
   const organisation = await organisations()

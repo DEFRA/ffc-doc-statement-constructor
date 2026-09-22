@@ -1,4 +1,4 @@
-const { schemes } = require('../../../data')
+const { schemes } = require('../../../database')
 
 const getSchemeByCode = async (name) => {
   const scheme = await schemes()

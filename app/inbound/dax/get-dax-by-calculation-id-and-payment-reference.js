@@ -1,4 +1,4 @@
-const { dax } = require('../../data')
+const { dax } = require('../../database')
 
 const getDaxByCalculationIdAndPaymentReference = async (record, transaction) => {
   const { calculationReference, paymentReference } = record

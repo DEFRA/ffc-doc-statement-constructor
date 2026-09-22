@@ -1,4 +1,4 @@
-const { dax } = require('../../data')
+const { dax } = require('../../database')
 
 const saveDax = async (record, transaction) => {
   const { paymentReference, calculationReference, paymentPeriod, paymentAmount, transactionDate, datePublished } = record

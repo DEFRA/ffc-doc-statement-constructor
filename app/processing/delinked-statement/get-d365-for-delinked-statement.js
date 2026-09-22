@@ -1,5 +1,5 @@
 const { dataProcessingAlert } = require('ffc-alerting-utils')
-const { d365 } = require('../../data')
+const { d365 } = require('../../database')
 const config = require('../../config').processingConfig
 const { DATA_PROCESSING_ERROR } = require('../../../app/constants/alerts')
 

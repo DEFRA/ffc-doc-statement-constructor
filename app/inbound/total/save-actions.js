@@ -1,4 +1,4 @@
-const { actions } = require('../../data')
+const { actions } = require('../../database')
 
 const saveAction = async (records, transaction) => {
   if (!records || records.length === 0) {

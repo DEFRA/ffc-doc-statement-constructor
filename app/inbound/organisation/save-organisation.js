@@ -1,4 +1,4 @@
-const { organisations } = require('../../data')
+const { organisations } = require('../../database')
 
 const saveOrganisation = async (organisation, transaction) => {
   const organisationRecord = {

@@ -1,4 +1,4 @@
-const { totals } = require('../../data')
+const { totals } = require('../../database')
 
 const saveTotal = async (total, transaction) => {
   try {

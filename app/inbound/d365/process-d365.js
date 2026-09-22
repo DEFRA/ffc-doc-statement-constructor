@@ -1,5 +1,5 @@
 const { dataProcessingAlert } = require('ffc-alerting-utils')
-const db = require('../../data')
+const db = require('../../database')
 const saveD365 = require('./save-d365')
 const validateD365 = require('./validate-d365')
 const getExistingD365 = require('./get-existing-d365')

@@ -1,4 +1,4 @@
-const { d365 } = require('../../data')
+const { d365 } = require('../../database')
 
 const updateD365CompletePublishByD365Id = async (d365Id) => {
   await d365()

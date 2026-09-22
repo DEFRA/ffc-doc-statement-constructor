@@ -1,5 +1,5 @@
 const { dataProcessingAlert } = require('ffc-alerting-utils')
-const db = require('../../data')
+const db = require('../../database')
 const getTotalByCalculationId = require('./get-total-by-calculation-id')
 const savePlaceholderOrganisation = require('./save-placeholder-organisation')
 const saveTotal = require('./save-total')

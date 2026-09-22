@@ -1,4 +1,4 @@
-const { d365 } = require('../data')
+const { d365 } = require('../database')
 
 const findD365s = async (calculationIds, transaction) => {
   return d365(transaction)

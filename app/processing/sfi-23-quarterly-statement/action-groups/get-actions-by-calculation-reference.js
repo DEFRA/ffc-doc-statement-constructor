@@ -1,4 +1,4 @@
-const { actions } = require('../../../data')
+const { actions } = require('../../../database')
 
 const getActionsByCalculationReference = async (calculationId) => {
   return actions()

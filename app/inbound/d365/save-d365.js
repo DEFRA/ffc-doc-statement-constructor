@@ -1,4 +1,4 @@
-const { d365 } = require('../../data')
+const { d365 } = require('../../database')
 
 const saveD365 = async (transformedD365, transaction) => {
   if (!transformedD365.paymentAmount || !transformedD365.transactionDate) {

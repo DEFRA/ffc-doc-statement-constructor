@@ -1,4 +1,4 @@
-const { organisations } = require('../../data')
+const { organisations } = require('../../database')
 
 const savePlaceholderOrganisation = async (organisation, sbi, transaction) => {
   await organisations(transaction)

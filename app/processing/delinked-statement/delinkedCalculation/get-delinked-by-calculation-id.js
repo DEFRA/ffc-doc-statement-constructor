@@ -1,4 +1,4 @@
-const { delinkedCalculations } = require('../../../data')
+const { delinkedCalculations } = require('../../../database')
 
 const getDelinkedByCalculationId = async (calculationId) => {
   const delinked = await delinkedCalculations()
