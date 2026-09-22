@@ -1,4 +1,4 @@
-const config = require('../config')
+const config = require('./config')
 const { Database } = require('ffc-database')
 const TABLES = require('../constants/tables')
 
