@@ -1,13 +1,11 @@
-const db = require('../../data')
+const { organisations } = require('../../database')
 
 const getOrganisationBySbi = async (sbi, transaction) => {
-  return db.organisation.findOne({
-    transaction,
-    lock: true,
-    where: {
-      sbi
-    }
-  })
+  const organisation = await organisations(transaction)
+    .where({ sbi })
+    .forUpdate()
+    .first()
+  return organisation ?? null
 }
 
 module.exports = getOrganisationBySbi

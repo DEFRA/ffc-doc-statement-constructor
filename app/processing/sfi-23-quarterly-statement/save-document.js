@@ -1,7 +1,10 @@
-const db = require('../../data')
+const { documents } = require('../../database')
 
 const saveDocument = async (document) => {
-  return db.document.create(document)
+  const [saved] = await documents()
+    .insert(document)
+    .returning('documentId')
+  return saved
 }
 
 module.exports = saveDocument

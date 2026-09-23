@@ -1,9 +1,8 @@
-const db = require('../../data')
+const { organisations } = require('../../database')
 
 const getOrganisationBySbi = async (sbi, transaction) => {
-  return db.organisation.findOne({
-    transaction,
-    attributes: [
+  const organisation = await organisations(transaction)
+    .select(
       'sbi',
       'addressLine1',
       'addressLine2',
@@ -14,12 +13,10 @@ const getOrganisationBySbi = async (sbi, transaction) => {
       'frn',
       'name',
       'postcode'
-    ],
-    where: {
-      sbi
-    },
-    raw: true
-  })
+    )
+    .where({ sbi })
+    .first()
+  return organisation ?? null
 }
 
 module.exports = getOrganisationBySbi

@@ -1,5 +1,5 @@
 const { dataProcessingAlert } = require('ffc-alerting-utils')
-const db = require('../../data')
+const db = require('../../database')
 const saveDax = require('./save-dax')
 const validateDax = require('./validate-dax')
 const getDaxByCalculationIdAndPaymentReference = require('./get-dax-by-calculation-id-and-payment-reference')
@@ -8,7 +8,7 @@ const { DUPLICATE_RECORD } = require('../../constants/alerts')
 
 const processDax = async (dax) => {
   await retryOnFkError(async () => {
-    const transaction = await db.sequelize.transaction()
+    const transaction = await db.transaction()
     try {
       const existingDax = await getDaxByCalculationIdAndPaymentReference(dax, transaction)
       if (existingDax) {

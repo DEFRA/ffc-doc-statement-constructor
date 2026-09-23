@@ -1,40 +1,49 @@
-const db = require('../../../../app/data')
-const getDaxByCalculationIdAndPaymentReference = require('../../../../app/inbound/dax/get-dax-by-calculation-id-and-payment-reference')
+const { createKnexMock } = require('../../../helpers/mock-knex')
 
-jest.mock('../../../../app/data', () => ({
-  dax: {
-    findOne: jest.fn()
-  }
+const mockDb = createKnexMock(['dax'])
+
+jest.mock('../../../../app/database', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
 }))
+
+const getDaxByCalculationIdAndPaymentReference = require('../../../../app/inbound/dax/get-dax-by-calculation-id-and-payment-reference')
 
 describe('getDaxByCalculationIdAndPaymentReference', () => {
   const dax = { calculationReference: 123, paymentReference: 'PY12345' }
-  const transaction = { id: 'txn1' }
+  const transaction = mockDb.trx
 
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  test('calls db.dax.findOne with correct arguments', async () => {
-    db.dax.findOne.mockResolvedValue({})
+  test('looks up a locked row by calculation id and payment reference against the transaction', async () => {
+    mockDb.builder.resolves({})
+
     await getDaxByCalculationIdAndPaymentReference(dax, transaction)
-    expect(db.dax.findOne).toHaveBeenCalledWith({
-      transaction,
-      lock: true,
-      where: { calculationId: 123, paymentReference: 'PY12345' }
-    })
+
+    expect(mockDb.tables.dax).toHaveBeenCalledWith(transaction)
+    expect(mockDb.builder.where).toHaveBeenCalledWith({ calculationId: 123, paymentReference: 'PY12345' })
+    expect(mockDb.builder.forUpdate).toHaveBeenCalledTimes(1)
+    expect(mockDb.builder.first).toHaveBeenCalledTimes(1)
   })
 
   test('returns the record when found', async () => {
-    const expected = { id: 1, calculationId: 123, paymentReference: 'PY12345' }
-    db.dax.findOne.mockResolvedValue(expected)
+    const expected = { daxId: 1, calculationId: 123, paymentReference: 'PY12345' }
+    mockDb.builder.resolves(expected)
+
     const result = await getDaxByCalculationIdAndPaymentReference(dax, transaction)
+
     expect(result).toBe(expected)
   })
 
   test('returns null when no record is found', async () => {
-    db.dax.findOne.mockResolvedValue(null)
+    mockDb.builder.resolves(undefined)
+
     const result = await getDaxByCalculationIdAndPaymentReference(dax, transaction)
+
     expect(result).toBeNull()
   })
 })

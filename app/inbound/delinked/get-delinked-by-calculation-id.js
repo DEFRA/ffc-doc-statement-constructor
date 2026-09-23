@@ -1,12 +1,11 @@
-const db = require('../../data')
+const { delinkedCalculations } = require('../../database')
 
 const getDelinkedByCalculationId = async (calculationId, transaction) => {
-  const result = await db.delinkedCalculation.count({
-    transaction,
-    where: { calculationId },
-    limit: 1
-  })
-  return result > 0 ? { calculationId } : null
+  const existing = await delinkedCalculations(transaction)
+    .select('calculationId')
+    .where({ calculationId })
+    .first()
+  return existing ? { calculationId } : null
 }
 
 module.exports = getDelinkedByCalculationId

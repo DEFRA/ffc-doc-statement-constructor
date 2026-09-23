@@ -1,5 +1,5 @@
 const { dataProcessingAlert } = require('ffc-alerting-utils')
-const db = require('../../data')
+const db = require('../../database')
 const savePlaceholderOrganisation = require('./save-placeholder-organisation')
 const getDelinkedByCalculationId = require('./get-delinked-by-calculation-id')
 const saveDelinked = require('./save-delinked')
@@ -41,7 +41,7 @@ const processDelinked = async (delinked) => {
 
     await validateDelinked(transformed, transformed.calculationId)
 
-    const transaction = await db.sequelize.transaction()
+    const transaction = await db.transaction()
     try {
       await Promise.all([
         savePlaceholderOrganisation({ sbi: transformed.sbi }, transformed.sbi, transaction),

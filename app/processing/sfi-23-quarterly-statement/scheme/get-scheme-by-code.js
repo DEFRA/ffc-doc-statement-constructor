@@ -1,16 +1,11 @@
-const db = require('../../../data')
+const { schemes } = require('../../../database')
 
 const getSchemeByCode = async (name) => {
-  return db.scheme.findOne({
-    attributes: [
-      'name',
-      'code'
-    ],
-    where: {
-      name
-    },
-    raw: true
-  })
+  const scheme = await schemes()
+    .select('name', 'code')
+    .where({ name })
+    .first()
+  return scheme ?? null
 }
 
 module.exports = getSchemeByCode

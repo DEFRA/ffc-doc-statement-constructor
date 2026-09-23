@@ -1,5 +1,5 @@
 jest.mock('ffc-messaging')
-jest.mock('../../../app/data')
+jest.mock('../../../app/database')
 const { MessageReceiver } = require('ffc-messaging')
 const messageService = require('../../../app/messaging')
 const config = require('../../../app/config')

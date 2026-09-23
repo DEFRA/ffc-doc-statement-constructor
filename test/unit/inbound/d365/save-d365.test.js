@@ -1,47 +1,62 @@
-const saveD365 = require('../../../../app/inbound/d365/save-d365') // Update path if needed
-const db = require('../../../../app/data')
+const { createKnexMock } = require('../../../helpers/mock-knex')
 
-jest.mock('../../../../app/data', () => ({
-  d365: {
-    create: jest.fn()
-  }
+const mockDb = createKnexMock(['d365'])
+
+jest.mock('../../../../app/database', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
 }))
 
-describe('saveD365', () => {
-  const mockTransaction = { id: 'mock-transaction' }
+const saveD365 = require('../../../../app/inbound/d365/save-d365')
 
-  afterEach(() => {
+describe('saveD365', () => {
+  const transaction = mockDb.trx
+
+  beforeEach(() => {
     jest.clearAllMocks()
+    mockDb.builder.resolves()
   })
 
-  // Test missing required fields using test.each to reduce repetition
   test.each([
     [{ transactionDate: '2024-01-01', paymentReference: 'ABC123' }, 'paymentAmount'],
     [{ paymentAmount: 100, paymentReference: 'DEF456' }, 'transactionDate']
   ])(
-    'throws an error if %s is missing',
-    async (badInput, missingField) => {
-      await expect(saveD365(badInput, mockTransaction)).rejects.toThrow(
-        'D365 record missing required fields'
-      )
+    'throws before touching the database when %s is missing',
+    async (badInput) => {
+      await expect(saveD365(badInput, transaction)).rejects.toThrow('D365 record missing required fields')
+      expect(mockDb.builder.insert).not.toHaveBeenCalled()
     }
   )
 
-  test('calls db.d365.create with correct arguments if required fields are present', async () => {
-    const goodInput = {
+  test('inserts the d365 columns against the transaction', async () => {
+    const input = {
+      paymentReference: 'GHI789',
+      calculationId: 123,
+      paymentPeriod: '2024-Q1',
+      marketingYear: 2024,
       paymentAmount: 100,
       transactionDate: '2024-01-01',
-      paymentReference: 'GHI789'
+      type: 'd365'
     }
 
-    db.d365.create.mockResolvedValue('mock-result')
+    await saveD365(input, transaction)
 
-    const result = await saveD365(goodInput, mockTransaction)
-
-    expect(db.d365.create).toHaveBeenCalledWith(goodInput, {
-      transaction: mockTransaction,
-      raw: true
+    expect(mockDb.tables.d365).toHaveBeenCalledWith(transaction)
+    expect(mockDb.builder.insert).toHaveBeenCalledWith({
+      paymentReference: 'GHI789',
+      calculationId: 123,
+      paymentPeriod: '2024-Q1',
+      marketingYear: 2024,
+      paymentAmount: 100,
+      transactionDate: '2024-01-01'
     })
-    expect(result).toBe('mock-result')
+  })
+
+  test('propagates an insert failure', async () => {
+    mockDb.builder.rejects(new Error('DB error'))
+
+    await expect(saveD365({ paymentAmount: 1, transactionDate: '2024-01-01' }, transaction)).rejects.toThrow('DB error')
   })
 })

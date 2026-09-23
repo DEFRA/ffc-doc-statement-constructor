@@ -2,8 +2,8 @@ const mockCommit = jest.fn()
 const mockRollback = jest.fn()
 const mockTransaction = { commit: mockCommit, rollback: mockRollback }
 
-jest.mock('../../../../app/data', () => ({
-  sequelize: { transaction: jest.fn().mockResolvedValue({ ...mockTransaction }) }
+jest.mock('../../../../app/database', () => ({
+  transaction: jest.fn().mockResolvedValue({ ...mockTransaction })
 }))
 
 jest.mock('../../../../app/inbound/organisation/save-organisation')
@@ -85,7 +85,7 @@ describe('processOrganisation', () => {
   })
 
   describe('when transaction.commit throws', () => {
-    const msg = 'Sequelize transaction commit issue'
+    const msg = 'Transaction commit issue'
 
     beforeEach(() => {
       mockCommit.mockRejectedValue(new Error(msg))
