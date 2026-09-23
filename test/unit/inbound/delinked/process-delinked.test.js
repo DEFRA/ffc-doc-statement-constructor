@@ -12,7 +12,7 @@ jest.mock('ffc-alerting-utils')
 const { dataProcessingAlert } = require('ffc-alerting-utils')
 const { DUPLICATE_RECORD } = require('../../../../app/constants/alerts')
 
-jest.mock('../../../../app/data', () => ({
+jest.mock('../../../../app/database', () => ({
   transaction: jest.fn().mockImplementation(async () => ({ ...mockTransaction }))
 }))
 

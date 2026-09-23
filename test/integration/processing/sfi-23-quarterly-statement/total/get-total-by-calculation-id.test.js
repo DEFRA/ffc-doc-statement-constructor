@@ -1,4 +1,4 @@
-const db = require('../../../../../app/data')
+const db = require('../../../../../app/database')
 const { truncate } = require('../../../../helpers/truncate')
 
 const getTotalByCalculationId = require('../../../../../app/processing/sfi-23-quarterly-statement/total/get-total-by-calculation-id')

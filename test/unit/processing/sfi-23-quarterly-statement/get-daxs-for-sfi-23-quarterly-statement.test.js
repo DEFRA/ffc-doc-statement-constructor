@@ -7,7 +7,7 @@ jest.mock('../../../../app/config', () => ({
     maxProcessingBatchSize: 5
   }
 }))
-jest.mock('../../../../app/data', () => ({
+jest.mock('../../../../app/database', () => ({
   client: mockDb.knex,
   transaction: mockDb.transaction,
   close: mockDb.close,

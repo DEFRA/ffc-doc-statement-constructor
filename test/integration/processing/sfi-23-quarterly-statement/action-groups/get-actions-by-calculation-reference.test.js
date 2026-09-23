@@ -1,4 +1,4 @@
-const db = require('../../../../../app/data')
+const db = require('../../../../../app/database')
 const { truncate } = require('../../../../helpers/truncate')
 const getActionsByCalculationReference = require('../../../../../app/processing/sfi-23-quarterly-statement/action-groups/get-actions-by-calculation-reference')
 

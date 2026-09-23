@@ -1,4 +1,4 @@
-const db = require('../../../../app/data')
+const db = require('../../../../app/database')
 const { truncate } = require('../../../helpers/truncate')
 
 const getDaxsForSfi23QuarterlyStatement = require('../../../../app/processing/sfi-23-quarterly-statement/get-daxs-for-sfi-23-quarterly-statement')

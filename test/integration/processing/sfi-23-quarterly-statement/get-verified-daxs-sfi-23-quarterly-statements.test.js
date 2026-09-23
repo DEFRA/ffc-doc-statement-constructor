@@ -1,4 +1,4 @@
-const db = require('../../../../app/data')
+const db = require('../../../../app/database')
 const { truncate } = require('../../../helpers/truncate')
 const getExcludedPaymentReferenceByPaymentReference = require('../../../../app/utility/get-excluded-payment-reference-by-payment-reference')
 
