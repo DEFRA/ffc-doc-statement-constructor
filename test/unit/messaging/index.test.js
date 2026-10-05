@@ -1,18 +1,6 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-jest.mock('ffc-messaging')
+jest.mock('../../../app/messaging/service-bus')
 jest.mock('../../../app/database')
-const { MessageReceiver } = require('ffc-messaging')
-=======
-jest.mock('../../../app/messaging/service-bus')
-jest.mock('../../../app/data')
 const serviceBus = require('../../../app/messaging/service-bus')
->>>>>>> d5daec3 (replace ffc-messaging with service-bus (#151))
-=======
-jest.mock('../../../app/messaging/service-bus')
-jest.mock('../../../app/data')
-const serviceBus = require('../../../app/messaging/service-bus')
->>>>>>> d5daec3 (replace ffc-messaging with service-bus (#151))
 const messageService = require('../../../app/messaging')
 const config = require('../../../app/config')
 
