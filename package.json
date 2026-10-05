@@ -1,7 +1,11 @@
 {
   "name": "ffc-doc-statement-constructor",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2.1.9",
+=======
+  "version": "2.1.8",
+>>>>>>> d5daec3 (replace ffc-messaging with service-bus (#151))
 =======
   "version": "2.1.8",
 >>>>>>> d5daec3 (replace ffc-messaging with service-bus (#151))
@@ -34,6 +38,7 @@
   "license": "OGL-UK-3.0",
   "dependencies": {
 <<<<<<< HEAD
+<<<<<<< HEAD
     "@azure/monitor-opentelemetry": "1.20.0",
     "@hapi/hapi": "21.4.8",
     "@joi/date": "2.1.0",
@@ -55,6 +60,18 @@
     "ffc-pay-event-publisher": "1.2.9",
     "joi": "18.2.9",
     "log-timestamp": "0.3.0",
+=======
+    "@azure/identity": "4.13.1",
+    "@azure/monitor-opentelemetry": "1.19.0",
+    "@azure/service-bus": "7.9.5",
+    "@hapi/hapi": "21.4.8",
+    "@joi/date": "2.1.0",
+    "ffc-alerting-utils": "1.0.16",
+    "ffc-database": "1.0.27",
+    "ffc-pay-event-publisher": "1.2.9",
+    "joi": "18.2.9",
+    "log-timestamp": "0.3.0",
+>>>>>>> d5daec3 (replace ffc-messaging with service-bus (#151))
     "moment": "2.31.0",
     "pg": "8.7.3",
     "pg-hstore": "2.3.4",
@@ -71,10 +88,14 @@
   },
   "overrides": {
 <<<<<<< HEAD
+<<<<<<< HEAD
     "protobufjs": "8.8.0",
     "uuid": "11.1.1",
     "js-yaml": "4.3.2",
     "@opentelemetry/core": "2.8.0",
+=======
+    "uuid": "11.1.1",
+>>>>>>> d5daec3 (replace ffc-messaging with service-bus (#151))
 =======
     "uuid": "11.1.1",
 >>>>>>> d5daec3 (replace ffc-messaging with service-bus (#151))
