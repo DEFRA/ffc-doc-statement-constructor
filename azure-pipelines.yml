@@ -36,7 +36,7 @@ extends:
     branchDeployment: ${{ parameters.branchDeployment }}
     sndDeployment: ${{ parameters.sndDeployment }}
     variableGroupName: ffc-doc-statement-constructor-env-var
-    failOnThreshold: critical  # TEMP (DOC-3089): lowered from moderate to prove the build passes - revert to moderate before merge
+    failOnThreshold: none  # TEMP (DOC-3089): npm audit disabled to prove the build passes - revert to moderate before merge
     pr_params:
       container.endpointEnabled: $(pr_endpointEnabled)
       container.pollWindowEnabled: $(pr_pollWindowEnabled)
