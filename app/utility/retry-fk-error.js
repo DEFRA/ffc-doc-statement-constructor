@@ -49,7 +49,7 @@ const retryOnFkError = async (fn, context, identifier) => {
 
   while (attempt < MAX_RETRIES) {
     try {
-      return await fn()
+      return await fn() // NOSONAR
     } catch (error) {
       if (error?.code !== FOREIGN_KEY_VIOLATION) {
         throw error
@@ -70,7 +70,7 @@ const retryOnFkError = async (fn, context, identifier) => {
       }
 
       console.warn(`FK error for ${context} ${identifier}, retrying in ${delay}ms (attempt ${attempt}/${MAX_RETRIES})`)
-      await sleep(delay)
+      await sleep(delay) // NOSONAR
       totalDelay += delay
     }
   }
