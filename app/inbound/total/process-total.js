@@ -1,5 +1,5 @@
 const { dataProcessingAlert } = require('ffc-alerting-utils')
-const db = require('../../data')
+const db = require('../../database')
 const getTotalByCalculationId = require('./get-total-by-calculation-id')
 const savePlaceholderOrganisation = require('./save-placeholder-organisation')
 const saveTotal = require('./save-total')
@@ -10,7 +10,7 @@ const { DUPLICATE_RECORD } = require('../../constants/alerts')
 
 const processTotal = async (total) => {
   await retryOnFkError(async () => {
-    const transaction = await db.sequelize.transaction()
+    const transaction = await db.transaction()
     try {
       const existingTotal = await getTotalByCalculationId(total.calculationReference, transaction)
       if (existingTotal) {

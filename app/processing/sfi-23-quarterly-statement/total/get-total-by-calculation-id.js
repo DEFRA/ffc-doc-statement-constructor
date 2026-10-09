@@ -1,26 +1,25 @@
-const db = require('../../../data')
+const { totals } = require('../../../database')
 
 const getTotalByCalculationId = async (calculationId) => {
-  return db.total.findOne({
-    attributes: [
-      'agreementNumber',
-      ['calculationId', 'calculationReference'],
-      ['claimId', 'claimReference'],
-      ['schemeType', 'schemeCode'],
-      'sbi',
-      'calculationDate',
-      'invoiceNumber',
-      'agreementStart',
-      'agreementEnd',
-      'totalAdditionalPayments',
-      'totalActionPayments',
-      'totalPayments'
-    ],
-    where: {
-      calculationId
+  const total = await totals()
+    .select({
+      calculationReference: 'calculationId',
+      claimReference: 'claimId',
+      schemeCode: 'schemeType'
     },
-    raw: true
-  })
+    'agreementNumber',
+    'sbi',
+    'calculationDate',
+    'invoiceNumber',
+    'agreementStart',
+    'agreementEnd',
+    'totalAdditionalPayments',
+    'totalActionPayments',
+    'totalPayments'
+    )
+    .where({ calculationId })
+    .first()
+  return total ?? null
 }
 
 module.exports = getTotalByCalculationId

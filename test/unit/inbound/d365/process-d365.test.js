@@ -1,21 +1,16 @@
 process.env.RETRY_FK_MAX_RETRIES = '4'
 process.env.RETRY_FK_BASE_DELAY_MS = '10'
 process.env.RETRY_FK_MAX_TOTAL_DELAY_MS = '1000'
-const retryUtil = require('../../../../app/utility/retry-fk-error')
-const { D365 } = require('../../../../app/constants/types')
 
-jest.mock('../../../../app/data', () => {
-  return {
-    sequelize: { transaction: jest.fn() },
-    Sequelize: {
-      ForeignKeyConstraintError: class extends Error {
-        constructor (msg) {
-          super(typeof msg === 'string' ? msg : (msg && msg.message) || 'FK error')
-        }
-      }
-    }
-  }
-})
+const { createKnexMock } = require('../../../helpers/mock-knex')
+
+const mockDb = createKnexMock()
+
+jest.mock('../../../../app/database', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close
+}))
 
 jest.mock('ffc-alerting-utils')
 jest.mock('../../../../app/inbound/d365/save-d365')
@@ -24,12 +19,15 @@ jest.mock('../../../../app/inbound/d365/validate-d365')
 jest.mock('../../../../app/inbound/d365/get-existing-d365')
 
 const { dataProcessingAlert } = require('ffc-alerting-utils')
-const db = require('../../../../app/data')
+const retryUtil = require('../../../../app/utility/retry-fk-error')
+const { D365 } = require('../../../../app/constants/types')
 const processD365 = require('../../../../app/inbound/d365/process-d365')
 const saveD365 = require('../../../../app/inbound/d365/save-d365')
 const validateD365 = require('../../../../app/inbound/d365/validate-d365')
 const getExistingD365 = require('../../../../app/inbound/d365/get-existing-d365')
 const { DUPLICATE_RECORD } = require('../../../../app/constants/alerts')
+
+const fkError = () => Object.assign(new Error('FK error'), { code: retryUtil.FOREIGN_KEY_VIOLATION })
 
 beforeAll(() => {
   jest.spyOn(retryUtil, 'sleep').mockImplementation(() => Promise.resolve())
@@ -39,14 +37,9 @@ afterAll(() => {
 })
 
 describe('processD365', () => {
-  let transaction
+  const transaction = mockDb.trx
 
   beforeEach(() => {
-    transaction = {
-      commit: jest.fn(),
-      rollback: jest.fn()
-    }
-    db.sequelize.transaction.mockResolvedValue(transaction)
     jest.clearAllMocks()
   })
 
@@ -61,7 +54,7 @@ describe('processD365', () => {
     await processD365(d365)
 
     expect(console.info).toHaveBeenCalledWith('Duplicate D365 paymentReference received, skipping payment reference PY1000001')
-    expect(db.sequelize.transaction).not.toHaveBeenCalled()
+    expect(mockDb.transaction).not.toHaveBeenCalled()
   })
 
   test('should trigger alert if duplicate payment reference identified', async () => {
@@ -134,7 +127,7 @@ describe('processD365', () => {
     validateD365.mockImplementation(() => { throw validationError })
 
     await expect(processD365(d365)).rejects.toThrow('Validation failed')
-    expect(db.sequelize.transaction).not.toHaveBeenCalled()
+    expect(mockDb.transaction).not.toHaveBeenCalled()
   })
 
   test('should throw and log when getD365ByPaymentReference fails', async () => {
@@ -146,7 +139,7 @@ describe('processD365', () => {
     expect(transaction.rollback).not.toHaveBeenCalled()
   })
 
-  test('should retry on ForeignKeyConstraintError and succeed on later attempt', async () => {
+  test('should retry on a foreign key violation and succeed on later attempt', async () => {
     const d365 = {
       paymentReference: 'PY1000001',
       calculationReference: 'abc',
@@ -156,11 +149,10 @@ describe('processD365', () => {
     }
     getExistingD365.mockResolvedValue(null)
     validateD365.mockImplementation(() => { })
-    const fkError = new db.Sequelize.ForeignKeyConstraintError({ message: 'FK error' })
     saveD365
-      .mockRejectedValueOnce(fkError)
-      .mockRejectedValueOnce(fkError)
-      .mockRejectedValueOnce(fkError)
+      .mockRejectedValueOnce(fkError())
+      .mockRejectedValueOnce(fkError())
+      .mockRejectedValueOnce(fkError())
       .mockResolvedValueOnce()
     console.warn = jest.fn()
 

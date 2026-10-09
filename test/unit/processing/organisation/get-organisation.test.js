@@ -2,7 +2,7 @@ const mockCommit = jest.fn()
 const mockRollback = jest.fn()
 const mockTransaction = { commit: mockCommit, rollback: mockRollback }
 
-jest.mock('../../../../app/data', () => ({
+jest.mock('../../../../app/database', () => ({
   sequelize: { transaction: jest.fn().mockResolvedValue({ ...mockTransaction }) }
 }))
 

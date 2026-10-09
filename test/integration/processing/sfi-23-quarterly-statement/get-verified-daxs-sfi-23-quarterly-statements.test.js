@@ -1,30 +1,25 @@
-const db = require('../../../../app/data')
+const db = require('../../../../app/database')
+const { truncate } = require('../../../helpers/truncate')
 const getExcludedPaymentReferenceByPaymentReference = require('../../../../app/utility/get-excluded-payment-reference-by-payment-reference')
 
 let excludedPaymentReferences
 
 describe('getExcludedPaymentReferenceByPaymentReference', () => {
   beforeAll(async () => {
-    await db.sequelize.truncate({
-      cascade: true,
-      restartIdentity: true
-    })
+    await truncate()
   })
 
   beforeEach(async () => {
     excludedPaymentReferences = structuredClone(require('../../../mock-objects/mock-excluded-payment-reference'))
-    await db.excludedPaymentReference.bulkCreate(excludedPaymentReferences)
+    await db.excludedPaymentReferences().insert(excludedPaymentReferences)
   })
 
   afterEach(async () => {
-    await db.sequelize.truncate({
-      cascade: true,
-      restartIdentity: true
-    })
+    await truncate()
   })
 
   afterAll(async () => {
-    await db.sequelize.close()
+    await db.close()
   })
 
   test('should return true when payment reference is present', async () => {

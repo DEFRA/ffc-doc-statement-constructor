@@ -1,12 +1,12 @@
-const db = require('../../data')
+const { d365 } = require('../../database')
 
-const getExistingD365 = async (d365, transaction) => {
-  const { paymentReference, paymentPeriod, paymentAmount, transactionDate } = d365
-  return db.d365.findOne({
-    transaction,
-    lock: true,
-    where: { paymentReference, paymentPeriod, paymentAmount, transactionDate }
-  })
+const getExistingD365 = async (record, transaction) => {
+  const { paymentReference, paymentPeriod, paymentAmount, transactionDate } = record
+  const existing = await d365(transaction)
+    .where({ paymentReference, paymentPeriod, paymentAmount, transactionDate })
+    .forUpdate()
+    .first()
+  return existing ?? null
 }
 
 module.exports = getExistingD365

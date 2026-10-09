@@ -1,5 +1,5 @@
 const { dataProcessingAlert } = require('ffc-alerting-utils')
-const db = require('../../data')
+const db = require('../../database')
 const saveD365 = require('./save-d365')
 const validateD365 = require('./validate-d365')
 const getExistingD365 = require('./get-existing-d365')
@@ -34,7 +34,7 @@ const processD365 = async (d365) => {
     }
 
     await retryOnFkError(async () => {
-      const transaction = await db.sequelize.transaction()
+      const transaction = await db.transaction()
       try {
         await saveD365(transformedD365, transaction)
         await transaction.commit()

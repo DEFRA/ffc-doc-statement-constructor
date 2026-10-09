@@ -1,12 +1,15 @@
-const { removeAgreementData } = require('../../../app/retention')
-const db = require('../../../app/data')
-const { DELINKED } = require('../../../app/constants/scheme-ids')
+const { createKnexMock } = require('../../helpers/mock-knex')
 
-jest.mock('../../../app/data', () => ({
-  sequelize: {
-    transaction: jest.fn()
-  }
+const mockDb = createKnexMock()
+
+jest.mock('../../../app/database', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close
 }))
+
+const { removeAgreementData } = require('../../../app/retention')
+const { DELINKED } = require('../../../app/constants/scheme-ids')
 
 jest.mock('../../../app/retention/find-delinked-calculations', () => ({
   findDelinkedCalculations: jest.fn()
@@ -50,22 +53,16 @@ describe('removeAgreementData', () => {
     frn: 654321,
     schemeId: 1
   }
-  let transaction
+  const transaction = mockDb.trx
 
   beforeEach(() => {
     jest.clearAllMocks()
-
-    transaction = {
-      commit: jest.fn().mockResolvedValue(),
-      rollback: jest.fn().mockResolvedValue()
-    }
-    db.sequelize.transaction.mockResolvedValue(transaction)
   })
 
   test('commits and returns early if schemeId is not DELINKED', async () => {
     await removeAgreementData(retentionDataNotDelinked)
 
-    expect(db.sequelize.transaction).toHaveBeenCalledTimes(1)
+    expect(mockDb.transaction).toHaveBeenCalledTimes(1)
     expect(transaction.commit).toHaveBeenCalledTimes(1)
     expect(transaction.rollback).not.toHaveBeenCalled()
     expect(findDelinkedCalculations).not.toHaveBeenCalled()
@@ -76,7 +73,7 @@ describe('removeAgreementData', () => {
 
     await removeAgreementData(retentionDataDelinked)
 
-    expect(db.sequelize.transaction).toHaveBeenCalledTimes(1)
+    expect(mockDb.transaction).toHaveBeenCalledTimes(1)
     expect(findDelinkedCalculations).toHaveBeenCalledWith(
       retentionDataDelinked.simplifiedAgreementNumber,
       retentionDataDelinked.frn,
@@ -108,7 +105,7 @@ describe('removeAgreementData', () => {
 
     await removeAgreementData(retentionDataDelinked)
 
-    expect(db.sequelize.transaction).toHaveBeenCalledTimes(1)
+    expect(mockDb.transaction).toHaveBeenCalledTimes(1)
 
     expect(findDelinkedCalculations).toHaveBeenCalledWith(
       retentionDataDelinked.simplifiedAgreementNumber,

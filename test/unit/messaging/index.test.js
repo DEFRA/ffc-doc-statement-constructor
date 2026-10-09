@@ -1,5 +1,5 @@
 jest.mock('../../../app/messaging/service-bus')
-jest.mock('../../../app/data')
+jest.mock('../../../app/database')
 const serviceBus = require('../../../app/messaging/service-bus')
 const messageService = require('../../../app/messaging')
 const config = require('../../../app/config')

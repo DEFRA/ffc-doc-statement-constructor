@@ -1,4 +1,4 @@
-const db = require('../../data')
+const { delinkedCalculations } = require('../../database')
 
 const saveDelinked = async (transformedDelinked, transaction) => {
   const delinkedRecord = {
@@ -26,10 +26,7 @@ const saveDelinked = async (transformedDelinked, transaction) => {
     updated: transformedDelinked.updated || new Date()
   }
 
-  return db.delinkedCalculation.create(delinkedRecord, {
-    transaction,
-    raw: true
-  })
+  return delinkedCalculations(transaction).insert(delinkedRecord)
 }
 
 module.exports = saveDelinked

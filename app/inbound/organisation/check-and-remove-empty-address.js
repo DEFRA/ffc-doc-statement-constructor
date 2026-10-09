@@ -1,4 +1,4 @@
-const db = require('../../data')
+const { organisations } = require('../../database')
 
 const checkAndRemoveEmptyAddress = async (organisation, transaction) => {
   const logMessage = `Deleting organisation ${organisation.sbi}`
@@ -8,17 +8,15 @@ const checkAndRemoveEmptyAddress = async (organisation, transaction) => {
     return false
   }
 
-  const existing = await db.organisation.findOne({
-    where: { sbi: organisation.sbi },
-    transaction
-  })
+  const existing = await organisations(transaction)
+    .where({ sbi: organisation.sbi })
+    .first()
 
   if (existing) {
     console.log(`${logMessage} - no address provided`)
-    await db.organisation.destroy({
-      where: { sbi: organisation.sbi },
-      transaction
-    })
+    await organisations(transaction)
+      .where({ sbi: organisation.sbi })
+      .del()
   } else {
     console.log(`${logMessage} - no address provided and does not exist in DB`)
   }

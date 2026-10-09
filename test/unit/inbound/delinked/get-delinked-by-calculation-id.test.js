@@ -1,35 +1,45 @@
-const db = require('../../../../app/data')
+const { createKnexMock } = require('../../../helpers/mock-knex')
+
+const mockDb = createKnexMock(['delinkedCalculations'])
+
+jest.mock('../../../../app/database', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
+}))
+
 const getDelinkedByCalculationId = require('../../../../app/inbound/delinked/get-delinked-by-calculation-id')
 
-jest.mock('../../../../app/data')
-
 describe('getDelinkedByCalculationId', () => {
-  const mockTransaction = {}
+  const transaction = mockDb.trx
 
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  test.each([
-    [1, { calculationId: 'abc123' }],
-    [0, null]
-  ])('returns correct result when count is %i', async (count, expected) => {
-    db.delinkedCalculation.count.mockResolvedValue(count)
+  test('returns the calculation id when a row exists', async () => {
+    mockDb.builder.resolves({ calculationId: 'abc123' })
 
-    const result = await getDelinkedByCalculationId('abc123', mockTransaction)
+    const result = await getDelinkedByCalculationId('abc123', transaction)
 
-    expect(db.delinkedCalculation.count).toHaveBeenCalledWith({
-      transaction: mockTransaction,
-      where: { calculationId: 'abc123' },
-      limit: 1
-    })
-    expect(result).toEqual(expected)
+    expect(mockDb.tables.delinkedCalculations).toHaveBeenCalledWith(transaction)
+    expect(mockDb.builder.where).toHaveBeenCalledWith({ calculationId: 'abc123' })
+    expect(mockDb.builder.first).toHaveBeenCalledTimes(1)
+    expect(result).toEqual({ calculationId: 'abc123' })
   })
 
-  test('throws if db.delinkedCalculation.count throws', async () => {
-    db.delinkedCalculation.count.mockRejectedValue(new Error('DB error'))
+  test('returns null when no row exists', async () => {
+    mockDb.builder.resolves(undefined)
 
-    await expect(getDelinkedByCalculationId('abc123', mockTransaction))
-      .rejects.toThrow('DB error')
+    const result = await getDelinkedByCalculationId('abc123', transaction)
+
+    expect(result).toBeNull()
+  })
+
+  test('propagates a query failure', async () => {
+    mockDb.builder.rejects(new Error('DB error'))
+
+    await expect(getDelinkedByCalculationId('abc123', transaction)).rejects.toThrow('DB error')
   })
 })
