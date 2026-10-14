@@ -1,24 +1,14 @@
 const { totals } = require('../../database')
+const TABLES = require('../../constants/tables')
+const { pickColumns } = require('../../constants/columns')
 
 const saveTotal = async (total, transaction) => {
   try {
-    const transformedTotal = {
+    const transformedTotal = pickColumns({
+      ...total,
       calculationId: total.calculationReference,
-      claimId: total.claimReference,
-      sbi: total.sbi,
-      frn: total.frn,
-      agreementNumber: total.agreementNumber,
-      schemeType: total.schemeType,
-      calculationDate: total.calculationDate,
-      invoiceNumber: total.invoiceNumber,
-      agreementStart: total.agreementStart,
-      agreementEnd: total.agreementEnd,
-      totalAdditionalPayments: total.totalAdditionalPayments,
-      totalActionPayments: total.totalActionPayments,
-      totalPayments: total.totalPayments,
-      updated: total.updated,
-      datePublished: total.datePublished
-    }
+      claimId: total.claimReference
+    }, TABLES.totals)
 
     await totals(transaction).insert(transformedTotal)
   } catch (error) {

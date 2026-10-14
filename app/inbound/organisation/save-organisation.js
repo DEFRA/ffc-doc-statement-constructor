@@ -1,19 +1,12 @@
 const { organisations } = require('../../database')
+const TABLES = require('../../constants/tables')
+const { pickColumns } = require('../../constants/columns')
 
 const saveOrganisation = async (organisation, transaction) => {
-  const organisationRecord = {
-    sbi: organisation.sbi,
-    addressLine1: organisation.addressLine1,
-    addressLine2: organisation.addressLine2,
-    addressLine3: organisation.addressLine3,
-    city: organisation.city,
-    county: organisation.county,
-    emailAddress: organisation.emailAddress,
-    frn: organisation.frn,
-    name: organisation.name,
-    postcode: organisation.postcode,
+  const organisationRecord = pickColumns({
+    ...organisation,
     updated: organisation.updated || new Date()
-  }
+  }, TABLES.organisations)
 
   return organisations(transaction)
     .insert(organisationRecord)

@@ -1,25 +1,17 @@
 const { actions } = require('../../database')
+const TABLES = require('../../constants/tables')
+const { pickColumns } = require('../../constants/columns')
 
 const saveAction = async (records, transaction) => {
   if (!records || records.length === 0) {
     return
   }
 
-  const transformedActions = records.map(action => ({
+  const transformedActions = records.map(action => pickColumns({
+    ...action,
     actionId: action.actionReference,
-    calculationId: action.calculationReference,
-    fundingCode: action.fundingCode,
-    groupName: action.groupName,
-    actionCode: action.actionCode,
-    actionName: action.actionName,
-    rate: action.rate,
-    landArea: action.landArea,
-    uom: action.uom,
-    annualValue: action.annualValue,
-    quarterlyValue: action.quarterlyValue,
-    overDeclarationPenalty: action.overDeclarationPenalty,
-    quarterlyPaymentAmount: action.quarterlyPaymentAmount
-  }))
+    calculationId: action.calculationReference
+  }, TABLES.actions))
 
   await actions(transaction).insert(transformedActions)
 }
