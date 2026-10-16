@@ -1,4 +1,5 @@
-const db = require('../../../../../app/data')
+const db = require('../../../../../app/database')
+const { truncate } = require('../../../../helpers/truncate')
 
 const getTotalByCalculationId = require('../../../../../app/processing/sfi-23-quarterly-statement/total/get-total-by-calculation-id')
 
@@ -9,19 +10,16 @@ let retrievedTotal
 
 describe('process get calculation object', () => {
   beforeAll(async () => {
-    await db.sequelize.truncate({
-      cascade: true,
-      restartIdentity: true
-    })
+    await truncate()
   })
 
   beforeEach(async () => {
-    const organisation = structuredClone(require('../../../../mock-objects/mock-organisation'))
-    const total = structuredClone(require('../../../../mock-objects/mock-total'))
+    const { type, ...organisation } = structuredClone(require('../../../../mock-objects/mock-organisation'))
+    const { calculationReference, claimReference, actions, type: _type, ...total } = structuredClone(require('../../../../mock-objects/mock-total'))
 
     const totals = [
-      { ...total, calculationId: calculationIdOne, claimId: total.claimReference },
-      { ...total, calculationId: calculationIdTwo, claimId: total.claimReference }
+      { ...total, calculationId: calculationIdOne, claimId: claimReference },
+      { ...total, calculationId: calculationIdTwo, claimId: claimReference }
     ]
     retrievedTotal = {
       agreementEnd: new Date('2022-01-01T00:00:00.000Z'),
@@ -38,23 +36,25 @@ describe('process get calculation object', () => {
       totalPayments: '9987.65'
     }
 
-    await db.organisation.create(organisation)
-    await db.total.bulkCreate(totals)
+    await db.organisations().insert(organisation)
+    await db.totals().insert(totals)
   })
 
   afterEach(async () => {
-    await db.sequelize.truncate({
-      cascade: true,
-      restartIdentity: true
-    })
+    await truncate()
   })
 
   afterAll(async () => {
-    await db.sequelize.close()
+    await db.close()
   })
 
   test('Should return total object when there is corresponding total with provided calculationId', async () => {
     const result = await getTotalByCalculationId(calculationIdOne)
     expect(result).toStrictEqual(retrievedTotal)
+  })
+
+  test('Should return null when there is no total with provided calculationId', async () => {
+    const result = await getTotalByCalculationId(1)
+    expect(result).toBeNull()
   })
 })

@@ -1,44 +1,35 @@
-const db = require('../../../app/data')
-const { removeExcludedPaymentReferences } = require('../../../app/retention/remove-excluded-payment-references')
+const { createKnexMock } = require('../../helpers/mock-knex')
 
-jest.mock('../../../app/data', () => ({
-  excludedPaymentReference: {
-    destroy: jest.fn()
-  },
-  Sequelize: {
-    Op: {
-      in: 'in'
-    }
-  }
+const mockDb = createKnexMock(['excludedPaymentReferences'])
+
+jest.mock('../../../app/database', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
 }))
 
+const { removeExcludedPaymentReferences } = require('../../../app/retention/remove-excluded-payment-references')
+
 describe('removeExcludedPaymentReferences', () => {
-  const paymentReferences = ['PY1234', 'PY5678', 'PY9012']
-  const transaction = {}
+  const paymentReferences = ['PY1', 'PY2']
+  const transaction = mockDb.trx
 
   beforeEach(() => {
     jest.clearAllMocks()
+    mockDb.builder.resolves(2)
   })
 
-  test('calls db.excludedPaymentReference.destroy with correct parameters using Sequelize.Op.in', async () => {
-    db.excludedPaymentReference.destroy.mockResolvedValue()
-
+  test('deletes the rows matching the ids against the transaction', async () => {
     await removeExcludedPaymentReferences(paymentReferences, transaction)
 
-    expect(db.excludedPaymentReference.destroy).toHaveBeenCalledTimes(1)
-    expect(db.excludedPaymentReference.destroy).toHaveBeenCalledWith({
-      where: {
-        paymentReference: {
-          [db.Sequelize.Op.in]: paymentReferences
-        }
-      },
-      transaction
-    })
+    expect(mockDb.tables.excludedPaymentReferences).toHaveBeenCalledWith(transaction)
+    expect(mockDb.builder.whereIn).toHaveBeenCalledWith('paymentReference', paymentReferences)
+    expect(mockDb.builder.del).toHaveBeenCalledTimes(1)
   })
 
-  test('propagates error when db.excludedPaymentReference.destroy rejects', async () => {
-    const error = new Error('DB destroy error')
-    db.excludedPaymentReference.destroy.mockRejectedValue(error)
+  test('propagates error when the delete rejects', async () => {
+    mockDb.builder.rejects(new Error('DB destroy error'))
 
     await expect(removeExcludedPaymentReferences(paymentReferences, transaction)).rejects.toThrow('DB destroy error')
   })

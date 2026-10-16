@@ -1,14 +1,9 @@
-const db = require('../data')
+const { documents } = require('../database')
 
 const removeDocuments = async (paymentReferences, transaction) => {
-  await db.document.destroy({
-    where: {
-      documentSourceReference: {
-        [db.Sequelize.Op.in]: paymentReferences
-      }
-    },
-    transaction
-  })
+  await documents(transaction)
+    .whereIn('documentSourceReference', paymentReferences)
+    .del()
 }
 
 module.exports = {

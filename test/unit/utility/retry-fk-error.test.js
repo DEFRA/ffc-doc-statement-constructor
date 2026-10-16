@@ -5,8 +5,9 @@ const pathToTest = '../../../app/utility/retry-fk-error'
 
 jest.useFakeTimers()
 
-const { retryOnFkError, parseEnvInt, createWrappedError } = require(pathToTest) // Updated: Destructure the new functions
-const { Sequelize } = require('../../../app/data')
+const { retryOnFkError, parseEnvInt, createWrappedError, FOREIGN_KEY_VIOLATION } = require(pathToTest)
+
+const createFkError = () => Object.assign(new Error('FK error'), { code: FOREIGN_KEY_VIOLATION })
 
 describe('retryOnFkError', () => {
   let fn
@@ -36,8 +37,8 @@ describe('retryOnFkError', () => {
     expect(consoleWarnSpy).not.toHaveBeenCalled()
   })
 
-  test('should retry on ForeignKeyConstraintError and eventually succeed (logs warn)', async () => {
-    const fkError = new Sequelize.ForeignKeyConstraintError()
+  test('should retry on a foreign key violation and eventually succeed (logs warn)', async () => {
+    const fkError = createFkError()
     fn = jest
       .fn()
       .mockRejectedValueOnce(fkError)
@@ -55,7 +56,7 @@ describe('retryOnFkError', () => {
   })
 
   test('should throw wrapped error when give-up occurs (exceed max attempts or total delay)', async () => {
-    const fkError = new Sequelize.ForeignKeyConstraintError()
+    const fkError = createFkError()
     fn = jest.fn(() => Promise.reject(fkError))
 
     const promise = retryOnFkError(fn, context, identifier)
@@ -67,6 +68,14 @@ describe('retryOnFkError', () => {
     await expect(promise).rejects.toThrow(/would exceed max total retry time|after \d+ attempts/)
   }, 15000)
 
+  test('should rethrow immediately on a database error with a different code', async () => {
+    const otherError = Object.assign(new Error('unique violation'), { code: '23505' })
+    fn = jest.fn().mockRejectedValue(otherError)
+
+    await expect(retryOnFkError(fn, context, identifier)).rejects.toThrow('unique violation')
+    expect(fn).toHaveBeenCalledTimes(1)
+  })
+
   test('should rethrow immediately on non-FK error', async () => {
     const otherError = new Error('Some other error')
     fn = jest.fn().mockRejectedValue(otherError)
@@ -76,7 +85,7 @@ describe('retryOnFkError', () => {
   })
 
   test('wrapped error should reference the original FK error (either .cause or .originalError)', async () => {
-    const fkError = new Sequelize.ForeignKeyConstraintError()
+    const fkError = createFkError()
     fn = jest.fn(() => Promise.reject(fkError))
 
     const promise = retryOnFkError(fn, context, identifier)

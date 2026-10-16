@@ -1,27 +1,24 @@
-const db = require('../../../data')
+const { actions } = require('../../../database')
 
 const getActionsByCalculationReference = async (calculationId) => {
-  return db.action.findAll({
-    attributes: [
-      ['actionId', 'actionReference'],
-      ['calculationId', 'calculationReference'],
-      'fundingCode',
-      'groupName',
-      'actionCode',
-      'actionName',
-      'rate',
-      'landArea',
-      'uom',
-      'annualValue',
-      'quarterlyValue',
-      'overDeclarationPenalty',
-      'quarterlyPaymentAmount'
-    ],
-    where: {
-      calculationId
+  return actions()
+    .select({
+      actionReference: 'actionId',
+      calculationReference: 'calculationId'
     },
-    raw: true
-  })
+    'fundingCode',
+    'groupName',
+    'actionCode',
+    'actionName',
+    'rate',
+    'landArea',
+    'uom',
+    'annualValue',
+    'quarterlyValue',
+    'overDeclarationPenalty',
+    'quarterlyPaymentAmount'
+    )
+    .where({ calculationId })
 }
 
 module.exports = getActionsByCalculationReference

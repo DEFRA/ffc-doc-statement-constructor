@@ -1,14 +1,35 @@
 process.env.RETRY_FK_MAX_RETRIES = '4'
 process.env.RETRY_FK_BASE_DELAY_MS = '10'
 process.env.RETRY_FK_MAX_TOTAL_DELAY_MS = '1000'
-const db = require('../../../../app/data')
+
+const { createKnexMock } = require('../../../helpers/mock-knex')
+
+const mockDb = createKnexMock()
+
+jest.mock('../../../../app/database', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close
+}))
+
+jest.mock('ffc-alerting-utils')
+jest.mock('../../../../app/inbound/total/get-total-by-calculation-id')
+jest.mock('../../../../app/inbound/total/save-placeholder-organisation')
+jest.mock('../../../../app/inbound/total/save-total')
+jest.mock('../../../../app/inbound/total/save-actions')
+jest.mock('../../../../app/inbound/total/validate-total')
+
+const { dataProcessingAlert } = require('ffc-alerting-utils')
+const retryUtil = require('../../../../app/utility/retry-fk-error')
 const processTotal = require('../../../../app/inbound/total/process-total')
 const getTotalByCalculationId = require('../../../../app/inbound/total/get-total-by-calculation-id')
 const savePlaceholderOrganisation = require('../../../../app/inbound/total/save-placeholder-organisation')
 const saveTotal = require('../../../../app/inbound/total/save-total')
 const saveActions = require('../../../../app/inbound/total/save-actions')
 const validateTotal = require('../../../../app/inbound/total/validate-total')
-const retryUtil = require('../../../../app/utility/retry-fk-error')
+const { DUPLICATE_RECORD } = require('../../../../app/constants/alerts')
+
+const fkError = () => Object.assign(new Error('FK error'), { code: retryUtil.FOREIGN_KEY_VIOLATION })
 
 beforeAll(() => {
   jest.spyOn(retryUtil, 'sleep').mockImplementation(() => Promise.resolve())
@@ -17,39 +38,10 @@ afterAll(() => {
   retryUtil.sleep.mockRestore()
 })
 
-jest.mock('ffc-alerting-utils')
-const { dataProcessingAlert } = require('ffc-alerting-utils')
-const { DUPLICATE_RECORD } = require('../../../../app/constants/alerts')
-
-jest.mock('../../../../app/data', () => {
-  return {
-    sequelize: {
-      transaction: jest.fn()
-    },
-    total: {
-      findOne: jest.fn()
-    },
-    Sequelize: {
-      ForeignKeyConstraintError: class extends Error {
-        constructor (msg) {
-          super(typeof msg === 'string' ? msg : (msg && msg.message) || 'FK error')
-        }
-      }
-    }
-  }
-})
-jest.mock('../../../../app/inbound/total/get-total-by-calculation-id')
-jest.mock('../../../../app/inbound/total/save-placeholder-organisation')
-jest.mock('../../../../app/inbound/total/save-total')
-jest.mock('../../../../app/inbound/total/save-actions')
-jest.mock('../../../../app/inbound/total/validate-total')
-
 describe('processTotal', () => {
-  let transaction
+  const transaction = mockDb.trx
 
   beforeEach(() => {
-    transaction = { commit: jest.fn(), rollback: jest.fn() }
-    db.sequelize.transaction.mockResolvedValue(transaction)
     jest.clearAllMocks()
   })
 
@@ -89,23 +81,22 @@ describe('processTotal', () => {
 
     await processTotal(total)
 
+    expect(getTotalByCalculationId).toHaveBeenCalledWith(total.calculationReference, transaction)
     expect(validateTotal).toHaveBeenCalledWith(total, total.calculationReference)
     expect(savePlaceholderOrganisation).toHaveBeenCalledWith({ sbi: total.sbi }, total.sbi, transaction)
-    expect(saveTotal).toHaveBeenCalledWith(total, transaction)
     expect(saveTotal).toHaveBeenCalledWith(total, transaction)
     expect(saveActions).toHaveBeenCalledWith(total.actions, transaction)
     expect(transaction.commit).toHaveBeenCalled()
   })
 
-  test('should retry on ForeignKeyConstraintError and succeed on later attempt', async () => {
+  test('should retry on a foreign key violation and succeed on later attempt', async () => {
     const total = { calculationReference: 'retry123', sbi: '456', actions: [] }
     getTotalByCalculationId.mockResolvedValue(null)
     validateTotal.mockImplementation(() => { })
     savePlaceholderOrganisation.mockResolvedValue()
-    const fkError = new db.Sequelize.ForeignKeyConstraintError('FK error')
     saveTotal
-      .mockRejectedValueOnce(fkError)
-      .mockRejectedValueOnce(fkError)
+      .mockRejectedValueOnce(fkError())
+      .mockRejectedValueOnce(fkError())
       .mockResolvedValueOnce()
     saveActions.mockResolvedValue()
     console.warn = jest.fn()

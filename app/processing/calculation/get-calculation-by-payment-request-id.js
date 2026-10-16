@@ -1,20 +1,11 @@
-const db = require('../../data')
+const { calculations } = require('../../database')
 
 const getCalculationByPaymentRequestId = async (paymentRequestId, transaction) => {
-  return db.calculation.findOne({
-    transaction,
-    attributes: [
-      'calculationId',
-      'calculationDate',
-      'invoiceNumber',
-      'paymentRequestId',
-      'sbi'
-    ],
-    where: {
-      paymentRequestId
-    },
-    raw: true
-  })
+  const calculation = await calculations(transaction)
+    .select('calculationId', 'calculationDate', 'invoiceNumber', 'paymentRequestId', 'sbi')
+    .where({ paymentRequestId })
+    .first()
+  return calculation ?? null
 }
 
 module.exports = getCalculationByPaymentRequestId

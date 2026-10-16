@@ -1,9 +1,9 @@
-const db = require('../../data')
+const db = require('../../database')
 const getDaxsForSfi23QuarterlyStatement = require('./get-daxs-for-sfi-23-quarterly-statement')
 const updateDaxsForStartPublish = require('./update-daxs-for-start-publish')
 
 const getVerifiedDaxsSfi23QuarterlyStatements = async () => {
-  const transaction = await db.sequelize.transaction()
+  const transaction = await db.transaction()
   try {
     const daxs = await getDaxsForSfi23QuarterlyStatement(transaction)
     await updateDaxsForStartPublish(daxs, transaction)

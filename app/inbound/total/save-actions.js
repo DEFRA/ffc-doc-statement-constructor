@@ -1,24 +1,19 @@
-const db = require('../../data')
+const { actions } = require('../../database')
+const TABLES = require('../../constants/tables')
+const { pickColumns } = require('../../constants/columns')
 
-const saveAction = async (actions, transaction) => {
-  if (!actions || actions.length === 0) {
+const saveAction = async (records, transaction) => {
+  if (!records || records.length === 0) {
     return
   }
 
-  const transformedActions = actions.map(action => {
-    const transformedAction = {
-      ...action,
-      actionId: action.actionReference,
-      calculationId: action.calculationReference
-    }
+  const transformedActions = records.map(action => pickColumns({
+    ...action,
+    actionId: action.actionReference,
+    calculationId: action.calculationReference
+  }, TABLES.actions))
 
-    delete transformedAction.actionReference
-    delete transformedAction.calculationReference
-
-    return transformedAction
-  })
-
-  await db.action.bulkCreate(transformedActions, { transaction })
+  await actions(transaction).insert(transformedActions)
 }
 
 module.exports = saveAction

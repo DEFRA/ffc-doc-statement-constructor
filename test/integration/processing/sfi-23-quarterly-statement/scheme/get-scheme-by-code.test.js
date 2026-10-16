@@ -1,16 +1,14 @@
-const db = require('../../../../../app/data')
+const db = require('../../../../../app/database')
+const { truncate } = require('../../../../helpers/truncate')
 const getSchemeByCode = require('../../../../../app/processing/sfi-23-quarterly-statement/scheme/get-scheme-by-code')
 
 describe('getSchemeByCode', () => {
   beforeEach(async () => {
-    await db.sequelize.truncate({
-      cascade: true,
-      restartIdentity: true
-    })
+    await truncate()
   })
 
   afterAll(async () => {
-    await db.sequelize.close()
+    await db.close()
   })
 
   test('should return the scheme with the provided name', async () => {
@@ -19,7 +17,7 @@ describe('getSchemeByCode', () => {
       name: 'Scheme 1',
       code: 'ABC123'
     }
-    await db.scheme.create(scheme)
+    await db.schemes().insert(scheme)
 
     const result = await getSchemeByCode(name)
 
