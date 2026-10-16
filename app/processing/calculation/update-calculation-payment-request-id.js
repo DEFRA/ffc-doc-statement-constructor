@@ -9,6 +9,7 @@ const updateCalculationPaymentRequestId = async (invoiceNumber, paymentRequestId
   if (calculation) {
     await calculations(transaction)
       .where({ invoiceNumber: reversedInvoiceNumber })
+      .forUpdate()
       .update({ paymentRequestId })
 
     calculation.paymentRequestId = paymentRequestId

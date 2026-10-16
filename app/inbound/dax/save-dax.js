@@ -1,16 +1,14 @@
 const { dax } = require('../../database')
+const TABLES = require('../../constants/tables')
+const { pickColumns } = require('../../constants/columns')
 
 const saveDax = async (record, transaction) => {
-  const { paymentReference, calculationReference, paymentPeriod, paymentAmount, transactionDate, datePublished } = record
+  const transformedDax = pickColumns({
+    ...record,
+    calculationId: record.calculationReference
+  }, TABLES.dax)
 
-  return dax(transaction).insert({
-    paymentReference,
-    calculationId: calculationReference,
-    paymentPeriod,
-    paymentAmount,
-    transactionDate,
-    datePublished
-  })
+  return dax(transaction).insert(transformedDax)
 }
 
 module.exports = saveDax

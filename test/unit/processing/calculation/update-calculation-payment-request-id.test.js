@@ -32,6 +32,7 @@ describe('updateCalculationPaymentRequestId', () => {
     expect(getCalculationByInvoiceNumber).toHaveBeenCalledWith(reversedInvoiceNumber, transaction)
     expect(mockDb.tables.calculations).toHaveBeenCalledWith(transaction)
     expect(mockDb.builder.where).toHaveBeenCalledWith({ invoiceNumber: reversedInvoiceNumber })
+    expect(mockDb.builder.forUpdate).toHaveBeenCalledTimes(1)
     expect(mockDb.builder.update).toHaveBeenCalledWith({ paymentRequestId })
     expect(result).toEqual({ calculationId: 1, invoiceNumber: reversedInvoiceNumber, paymentRequestId })
   })
