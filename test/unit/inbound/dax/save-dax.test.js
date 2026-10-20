@@ -1,17 +1,21 @@
-const db = require('../../../../app/data')
-const schema = require('../../../../app/inbound/dax/schema')
-const validateDax = require('../../../../app/inbound/dax/validate-dax')
-const saveDax = require('../../../../app/inbound/dax/save-dax')
+const { createKnexMock } = require('../../../helpers/mock-knex')
 
-jest.mock('../../../../app/data', () => ({
-  dax: {
-    create: jest.fn()
-  }
+const mockDb = createKnexMock(['dax'])
+
+jest.mock('../../../../app/database', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
 }))
 
 jest.mock('../../../../app/inbound/dax/schema', () => ({
   validate: jest.fn()
 }))
+
+const schema = require('../../../../app/inbound/dax/schema')
+const validateDax = require('../../../../app/inbound/dax/validate-dax')
+const saveDax = require('../../../../app/inbound/dax/save-dax')
 
 describe('validateDax', () => {
   afterEach(() => jest.clearAllMocks())
@@ -43,27 +47,39 @@ describe('validateDax', () => {
 })
 
 describe('saveDax', () => {
-  afterEach(() => jest.clearAllMocks())
+  const transaction = mockDb.trx
+  const dax = {
+    paymentReference: 'PY12345',
+    calculationReference: 123,
+    paymentPeriod: 'Q1',
+    paymentAmount: 100,
+    transactionDate: '2024-01-01',
+    datePublished: null,
+    type: 'dax'
+  }
 
-  test('should call db.dax.create with transformed dax and transaction', async () => {
-    const dax = { calculationReference: 'calculationReference', otherProperty: 'otherProperty' }
-    const transaction = {}
-
-    const transformedDax = { ...dax, calculationId: dax.calculationReference }
-    delete transformedDax.calculationReference
-
-    await saveDax(dax, transaction)
-
-    expect(db.dax.create).toHaveBeenCalledWith(transformedDax, { transaction })
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockDb.builder.resolves()
   })
 
-  test('should throw error if db.dax.create rejects', async () => {
-    const dax = { calculationReference: 'calculationReference', otherProperty: 'otherProperty' }
-    const transaction = {}
-    const errorMessage = 'Database error'
+  test('inserts the dax columns with calculationReference mapped to calculationId', async () => {
+    await saveDax(dax, transaction)
 
-    db.dax.create.mockRejectedValueOnce(new Error(errorMessage))
+    expect(mockDb.tables.dax).toHaveBeenCalledWith(transaction)
+    expect(mockDb.builder.insert).toHaveBeenCalledWith({
+      paymentReference: 'PY12345',
+      calculationId: 123,
+      paymentPeriod: 'Q1',
+      paymentAmount: 100,
+      transactionDate: '2024-01-01',
+      datePublished: null
+    })
+  })
 
-    await expect(saveDax(dax, transaction)).rejects.toThrow(errorMessage)
+  test('propagates an insert failure', async () => {
+    mockDb.builder.rejects(new Error('Database error'))
+
+    await expect(saveDax(dax, transaction)).rejects.toThrow('Database error')
   })
 })

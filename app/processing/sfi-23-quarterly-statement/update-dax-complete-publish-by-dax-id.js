@@ -1,11 +1,9 @@
-const db = require('../../data')
+const { dax } = require('../../database')
 
 const updateDaxCompletePublishByDaxId = async (daxId) => {
-  await db.dax.update({ completePublish: new Date() }, {
-    where: {
-      daxId
-    }
-  })
+  await dax()
+    .where({ daxId })
+    .update({ completePublish: new Date() })
 }
 
 module.exports = updateDaxCompletePublishByDaxId

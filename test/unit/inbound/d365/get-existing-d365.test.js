@@ -1,40 +1,62 @@
-const db = require('../../../../app/data')
-const getExistingD365 = require('../../../../app/inbound/d365/get-existing-d365')
+const { createKnexMock } = require('../../../helpers/mock-knex')
 
-jest.mock('../../../../app/data', () => ({
-  d365: {
-    findOne: jest.fn()
-  }
+const mockDb = createKnexMock(['d365'])
+
+jest.mock('../../../../app/database', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
 }))
 
+const getExistingD365 = require('../../../../app/inbound/d365/get-existing-d365')
+
 describe('getExistingD365', () => {
-  const d365 = { paymentReference: 'PY12345', paymentPeriod: 'Q4-2025', paymentAmount: '100.00', transactionDate: '2026-01-01' }
-  const transaction = { id: 'txn1' }
+  const d365 = { paymentReference: 'PY12345', paymentPeriod: 'Q4-2025', paymentAmount: '100.00', transactionDate: '2026-01-01', type: 'd365' }
+  const transaction = mockDb.trx
 
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  test('calls db.d365.findOne with correct arguments', async () => {
-    db.d365.findOne.mockResolvedValue({})
+  test('looks up a locked row by the identifying fields against the transaction', async () => {
+    mockDb.builder.resolves({})
+
     await getExistingD365(d365, transaction)
-    expect(db.d365.findOne).toHaveBeenCalledWith({
-      transaction,
-      lock: true,
-      where: { paymentReference: 'PY12345', paymentPeriod: 'Q4-2025', paymentAmount: '100.00', transactionDate: '2026-01-01' }
+
+    expect(mockDb.tables.d365).toHaveBeenCalledWith(transaction)
+    expect(mockDb.builder.where).toHaveBeenCalledWith({
+      paymentReference: 'PY12345',
+      paymentPeriod: 'Q4-2025',
+      paymentAmount: '100.00',
+      transactionDate: '2026-01-01'
     })
+    expect(mockDb.builder.forUpdate).toHaveBeenCalledTimes(1)
+    expect(mockDb.builder.first).toHaveBeenCalledTimes(1)
   })
 
-  test('returns the result from db.d365.findOne', async () => {
-    const expected = { id: 1, calculationId: 123, paymentReference: 'PY12345' }
-    db.d365.findOne.mockResolvedValue(expected)
+  test('falls back to the client when no transaction is supplied', async () => {
+    mockDb.builder.resolves(undefined)
+
+    await getExistingD365(d365)
+
+    expect(mockDb.tables.d365).toHaveBeenCalledWith(undefined)
+  })
+
+  test('returns the matching record', async () => {
+    const expected = { d365Id: 1, calculationId: 123, paymentReference: 'PY12345' }
+    mockDb.builder.resolves(expected)
+
     const result = await getExistingD365(d365, transaction)
+
     expect(result).toBe(expected)
   })
 
-  test('returns null if db.d365.findOne returns null', async () => {
-    db.d365.findOne.mockResolvedValue(null)
+  test('returns null when there is no match', async () => {
+    mockDb.builder.resolves(undefined)
+
     const result = await getExistingD365(d365, transaction)
+
     expect(result).toBeNull()
   })
 })
