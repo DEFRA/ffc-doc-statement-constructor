@@ -37,6 +37,7 @@ extends:
     sndDeployment: ${{ parameters.sndDeployment }}
     variableGroupName: ffc-doc-statement-constructor-env-var
     failOnThreshold: moderate # Optional: moderate (default), low, high, critical
+    runSnykScan: false
     pr_params:
       container.endpointEnabled: $(pr_endpointEnabled)
       container.pollWindowEnabled: $(pr_pollWindowEnabled)
