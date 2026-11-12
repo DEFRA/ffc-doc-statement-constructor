@@ -33,7 +33,7 @@ services:
       DELINKED_STATEMENT_PROCESSING_ACTIVE: ${DELINKED_STATEMENT_PROCESSING_ACTIVE:-true}
       SFI23_QUARTERLY_STATEMENT_PROCESSING_ACTIVE: ${SFI23_QUARTERLY_STATEMENT_PROCESSING_ACTIVE:-true}
   ffc-doc-statement-constructor-postgres:
-    image: postgres:11.4-alpine
+    image: postgres:16.5-alpine
     environment:
       POSTGRES_DB: ffc_doc_statement_constructor
       POSTGRES_PASSWORD: ppp
