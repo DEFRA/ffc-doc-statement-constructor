@@ -16,7 +16,7 @@ describe('sendSfi23QuarterlyStatement', () => {
     const error = new Error('Publish failed')
     publishSfi23QuarterlyStatement.mockRejectedValueOnce(error)
 
-    await expect(sendSfi23QuarterlyStatement(statement)).rejects.toThrowError(
+    await expect(sendSfi23QuarterlyStatement(statement)).rejects.toThrow(
       `Failed to send statement for Dax Payment Reference: ${statement.paymentReference}`
     )
   })

@@ -18,7 +18,7 @@ describe('updateD365ForStartPublish', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     updateD365StartPublishByD365Id.mockResolvedValue()
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { })
   })
 
   afterAll(() => {
@@ -57,7 +57,7 @@ describe('updateD365ForStartPublish', () => {
       dataProcessingAlert.mockResolvedValueOnce()
     }
 
-    await expect(updateD365ForStartPublish(d365, transaction)).rejects.toThrowError(
+    await expect(updateD365ForStartPublish(d365, transaction)).rejects.toThrow(
       `Could not start delinked statement for d365 payment: ${d365[1].paymentReference}`
     )
 

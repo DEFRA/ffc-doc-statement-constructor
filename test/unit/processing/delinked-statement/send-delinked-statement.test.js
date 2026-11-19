@@ -13,7 +13,7 @@ describe('sendDelinkedStatement', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     publishDelinkedStatement.mockResolvedValue()
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { })
   })
 
   afterAll(() => {
@@ -48,7 +48,7 @@ describe('sendDelinkedStatement', () => {
       dataProcessingAlert.mockResolvedValueOnce()
     }
 
-    await expect(sendDelinkedStatement(statement)).rejects.toThrowError(
+    await expect(sendDelinkedStatement(statement)).rejects.toThrow(
       `Failed to send statement for D365 Payment Reference: ${statement.paymentReference}`
     )
 
